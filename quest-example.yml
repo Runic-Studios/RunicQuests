@@ -1,0 +1,51 @@
+quests:
+1: 
+  name: 'Example Quest'
+  firstNPC: 
+    npc-id: citizensNpcId
+    speech: 'Hello, this is a test'
+    completed-message: 'um hello?'
+  objectives:
+    1: 
+      requirement:
+        type: 'slay'
+        mob-name: 'evil-kitty-cat' # From MythicMobs config
+        amount: 5
+      goal-message: 'slay mythic mobs'
+      execute: '/give [player] xxx' # im not sure how you guys want this whole command execution thing but [player] could be replaced by the player name
+    2: 
+      requirement:
+        type: 'talk'
+        requires: 
+          item-type: 'DIRT'
+          item-name: 'dirty dirt'
+        npc:
+          npc-id: citizensNpcId
+          speech: 'wassup'
+          idle-message: 
+          - 'you killed those things yet?'
+          - 'no? get back to work then'
+          - 'also dont forget to bring me that item!'
+          completed-message: 'hope to see you around soon!'
+        goal-message: 'talk to dude and give him item'
+    3: 
+      requirement:
+        type: 'tripwire'
+        tripwire-one: '2,2,2'
+        tripwire-two: '3,3,3'
+      goal-message: 'step on the wire'
+    4: 
+      requirement:
+        type: 'break'
+        block-type: 'GRASS'
+        block-location: '4,4,4'
+      goal-message: 'kill meh grass'
+  rewards:
+    exp: 100
+    quest-points: 1
+    money: 100
+    execute: '/give [player] xxx'
+# NOTES:
+# firstNPC can contain 'execute' but other NPC cannot (execute should be under each objective)
+# idle-message and execute are optional for NPCs. execute is optional for rewards
+# speech, idle-message, goal-message, completed-message, and execute can be multi-lined
