@@ -5,14 +5,12 @@ import java.io.File;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-import com.runicrealms.Plugin;
-
 public class ConfigLoader {
 
-	public static FileConfiguration getYamlConfigFile(String fileName) {
+	public static FileConfiguration getYamlConfigFile(String fileName, File folder) {
 		FileConfiguration config;
 		File file;
-		file = new File(Plugin.getInstance().getDataFolder(), fileName);
+		file = new File(folder, fileName);
 		config = new YamlConfiguration();
 		try {
 			if (!file.exists()) {

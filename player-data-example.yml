@@ -1,11 +1,12 @@
 # The name of this file would be the player UUID
-name: 'Example Quest'
-completed: false
-started: true
-objectives:
-  1:
-    completed: true
-  2: 
-    completed: false
-  3: 
-    completed: false
+1: # Quest Unique ID
+  name: 'Example Quest'
+  completed: false
+  started: true
+  objectives:
+    1:
+      completed: true
+    2: 
+      completed: false
+    3: 
+      completed: false

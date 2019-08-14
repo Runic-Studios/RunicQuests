@@ -2,6 +2,8 @@ package com.runicrealms;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.runicrealms.config.PlayerDataLoader;
+
 public class Plugin extends JavaPlugin {
 
 	private static Plugin plugin;
@@ -11,6 +13,7 @@ public class Plugin extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		plugin = this;
+		PlayerDataLoader.initDirs();
 	}
 	
 	public static Plugin getInstance() {

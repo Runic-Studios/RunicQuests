@@ -1,4 +1,5 @@
 name: 'Example Quest'
+unique-id: 1
 firstNPC: 
   npc-id: citizensNpcId
   speech: 'Hello, this is a test'

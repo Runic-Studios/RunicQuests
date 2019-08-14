@@ -19,13 +19,19 @@ import com.runicrealms.quests.QuestObjective;
 import com.runicrealms.quests.QuestRewards;
 
 public class QuestLoader {
+	
+	private static List<Quest> cachedQuests = null;
 
 	public static List<Quest> getBlankQuestList() {
+		if (cachedQuests != null) {
+			return cachedQuests;
+		}
 		List<Quest> quests = new ArrayList<Quest>();
 		File folder = ConfigLoader.getSubFolder(Plugin.getInstance().getDataFolder(), "quests");
 		for (File quest : folder.listFiles()) {
-			quests.add(QuestLoader.loadQuest(ConfigLoader.getYamlConfigFile(quest.getName())));
+			quests.add(QuestLoader.loadQuest(ConfigLoader.getYamlConfigFile(quest.getName() + ".yml", folder)));
 		}
+		cachedQuests = quests;
 		return quests;
 	}
 	
@@ -38,7 +44,8 @@ public class QuestLoader {
 				config.getString("name"),
 				loadFirstNpc(config.getConfigurationSection("firstNPC")),
 				objectives,
-				loadRewards(config.getConfigurationSection("rewards")));
+				loadRewards(config.getConfigurationSection("rewards")),
+				config.getInt("unique-id"));
 	}
 
 	public static QuestRewards loadRewards(ConfigurationSection configSec) {

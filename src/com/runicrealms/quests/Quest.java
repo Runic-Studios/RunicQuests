@@ -13,8 +13,9 @@ public class Quest {
 	public HashMap<QuestObjective, ObjectiveState> objectives;
 	public QuestRewards rewards;
 	public QuestState state;
+	public Integer questID;
 	
-	public Quest(String questName, QuestFirstNpc firstNPC, ArrayList<QuestObjective> objectives, QuestRewards rewards) {
+	public Quest(String questName, QuestFirstNpc firstNPC, ArrayList<QuestObjective> objectives, QuestRewards rewards, Integer questID) {
 		this.questName = questName;
 		this.firstNPC = firstNPC;
 		for (QuestObjective objective : objectives) {
@@ -22,6 +23,7 @@ public class Quest {
 		}
 		this.rewards = rewards;
 		this.state = new QuestState(false, false);
+		this.questID = questID;
 	}
 	
 	public Quest(Quest quest) {
@@ -30,6 +32,7 @@ public class Quest {
 		this.objectives = quest.objectives;
 		this.rewards = quest.rewards;
 		this.state = quest.state;
+		this.questID = quest.questID;
 	}
 	
 }
