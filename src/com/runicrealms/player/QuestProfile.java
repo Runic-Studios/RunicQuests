@@ -1,15 +1,16 @@
 package com.runicrealms.player;
 
-import java.util.HashMap;
+import java.util.List;
 
+import com.runicrealms.config.PlayerDataLoader;
 import com.runicrealms.quests.Quest;
 
 public class QuestProfile {
 	
-	private HashMap<Quest, Boolean> quests = new HashMap<Quest, Boolean>();
+	public List<Quest> quests;
 	
 	public QuestProfile(String uuid) {
-		
+		quests = PlayerDataLoader.getQuestDataForUser(uuid);
 	}
 	
 }

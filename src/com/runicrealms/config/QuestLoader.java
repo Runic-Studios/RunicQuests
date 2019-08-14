@@ -1,5 +1,6 @@
 package com.runicrealms.config;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +20,15 @@ import com.runicrealms.quests.QuestRewards;
 
 public class QuestLoader {
 
+	public static List<Quest> getBlankQuestList() {
+		List<Quest> quests = new ArrayList<Quest>();
+		File folder = ConfigLoader.getSubFolder(Plugin.getInstance().getDataFolder(), "quests");
+		for (File quest : folder.listFiles()) {
+			quests.add(QuestLoader.loadQuest(ConfigLoader.getYamlConfigFile(quest.getName())));
+		}
+		return quests;
+	}
+	
 	public static Quest loadQuest(FileConfiguration config) {
 		ArrayList<QuestObjective> objectives = new ArrayList<QuestObjective>();
 		for (int i = 1; i <= config.getKeys(false).size(); i++) {
@@ -115,23 +125,15 @@ public class QuestLoader {
 			}
 		} else if (configSec.getString("requirement.type").equalsIgnoreCase("break")) {
 			if (configSec.contains("requirement.requires")) {
-				double x = Double.parseDouble(configSec.getString("requirement.block-location").split(",")[0].replaceAll(",", ""));
-				double y = Double.parseDouble(configSec.getString("requirement.block-location").split(",")[1].replaceAll(",", ""));
-				double z = Double.parseDouble(configSec.getString("requirement.block-location").split(",")[2].replaceAll(",", ""));
 				return new QuestObjective(
 						Material.getMaterial(configSec.getString("requirement.block-type").toUpperCase()),
-						new Location(Bukkit.getWorld(Plugin.WORLD_NAME), x, y, z),
 						new QuestItem(configSec.getString("requirement.requires.item-name"), configSec.getString("requirement.requires.item-type")), 
 						goalMessage,
 						(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
 						objectiveNumber);
 			} else {
-				double x = Double.parseDouble(configSec.getString("requirement.block-location").split(",")[0].replaceAll(",", ""));
-				double y = Double.parseDouble(configSec.getString("requirement.block-location").split(",")[1].replaceAll(",", ""));
-				double z = Double.parseDouble(configSec.getString("requirement.block-location").split(",")[2].replaceAll(",", ""));
 				return new QuestObjective(
 						Material.getMaterial(configSec.getString("requirement.block-type").toUpperCase()),
-						new Location(Bukkit.getWorld(Plugin.WORLD_NAME), x, y, z),
 						goalMessage,
 						(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
 						objectiveNumber);

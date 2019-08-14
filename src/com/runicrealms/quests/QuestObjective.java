@@ -17,7 +17,6 @@ public class QuestObjective {
 	public Location tripwire1;
 	public Location tripwire2;
 	public Material blockMaterial;
-	public Location blockLocation;
 	public List<String> goalMessage;
 	public List<String> execute;
 	
@@ -49,9 +48,8 @@ public class QuestObjective {
 		this.objectiveNumber = objectiveNumber;
 	}
 	
-	public QuestObjective(Material blockMaterial, Location blockLocation, List<String> goalMessage, List<String> execute, Integer objectiveNumber) {
+	public QuestObjective(Material blockMaterial, List<String> goalMessage, List<String> execute, Integer objectiveNumber) {
 		this.blockMaterial = blockMaterial;
-		this.blockLocation = blockLocation;
 		this.goalMessage = goalMessage;
 		this.objectiveType = QuestObjectiveType.BREAK;
 		this.execute = execute;
@@ -87,9 +85,8 @@ public class QuestObjective {
 		this.objectiveNumber = objectiveNumber;
 	}
 	
-	public QuestObjective(Material blockMaterial, Location blockLocation, QuestItem questItem, List<String> goalMessage, List<String> execute, Integer objectiveNumber) {
+	public QuestObjective(Material blockMaterial, QuestItem questItem, List<String> goalMessage, List<String> execute, Integer objectiveNumber) {
 		this.blockMaterial = blockMaterial;
-		this.blockLocation = blockLocation;
 		this.goalMessage = goalMessage;
 		this.questItem = questItem;
 		this.objectiveType = QuestObjectiveType.BREAK;

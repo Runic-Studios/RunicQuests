@@ -3,6 +3,9 @@ package com.runicrealms.quests;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import com.runicrealms.player.ObjectiveState;
+import com.runicrealms.player.QuestState;
+
 public class Quest {
 	
 	public String questName;

@@ -36,7 +36,6 @@ objectives:
     requirement:
       type: 'break'
       block-type: 'GRASS'
-      block-location: '4,4,4'
     goal-message: 'kill meh grass'
 rewards:
   exp: 100

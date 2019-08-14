@@ -1,4 +1,4 @@
-package com.runicrealms.quests;
+package com.runicrealms.player;
 
 public class ObjectiveState {
 	
