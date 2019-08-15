@@ -1,16 +1,16 @@
 package com.runicrealms.player;
 
-public class ObjectiveState {
+public class QuestObjectiveState {
 	
 	public boolean completed;
 	public int speechState;
 	
-	public ObjectiveState() {
+	public QuestObjectiveState() {
 		this.completed = false;
 		this.speechState = 0;
 	}
 	
-	public ObjectiveState(boolean completed) {
+	public QuestObjectiveState(boolean completed) {
 		this.completed = completed;
 		this.speechState = 0;
 	}

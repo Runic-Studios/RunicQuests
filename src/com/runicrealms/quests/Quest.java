@@ -3,14 +3,14 @@ package com.runicrealms.quests;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.runicrealms.player.ObjectiveState;
+import com.runicrealms.player.QuestObjectiveState;
 import com.runicrealms.player.QuestState;
 
 public class Quest {
 	
 	public String questName;
 	public QuestFirstNpc firstNPC;
-	public HashMap<QuestObjective, ObjectiveState> objectives;
+	public HashMap<QuestObjective, QuestObjectiveState> objectives;
 	public QuestRewards rewards;
 	public QuestState state;
 	public Integer questID;
@@ -19,7 +19,7 @@ public class Quest {
 		this.questName = questName;
 		this.firstNPC = firstNPC;
 		for (QuestObjective objective : objectives) {
-			this.objectives.put(objective, new ObjectiveState());
+			this.objectives.put(objective, new QuestObjectiveState());
 		}
 		this.rewards = rewards;
 		this.state = new QuestState(false, false);
