@@ -11,19 +11,19 @@ import com.runicrealms.player.QuestObjectiveState;
 
 public class QuestObjective {
 	
-	public Integer objectiveNumber;
-	public QuestObjectiveType objectiveType;
-	public QuestItem questItem = null;
-	public String mobName;
-	public Integer mobAmount;
-	public QuestNpc questNpc;
-	public Location tripwire1;
-	public Location tripwire2;
-	public Material blockMaterial;
-	public List<String> goalMessage;
-	public List<String> execute;
+	private Integer objectiveNumber;
+	private QuestObjectiveType objectiveType;
+	private QuestItem questItem = null;
+	private String mobName;
+	private Integer mobAmount;
+	private QuestNpc questNpc;
+	private Location tripwire1;
+	private Location tripwire2;
+	private Material blockMaterial;
+	private List<String> goalMessage;
+	private List<String> execute;
 	
-	public boolean completed = false;
+	private boolean completed = false;
 	
 	public QuestObjective(String mobName, Integer mobAmount, List<String> goalMessage, List<String> execute, Integer objectiveNumber) {
 		this.mobName = mobName;
@@ -99,6 +99,50 @@ public class QuestObjective {
 	
 	public QuestItem getQuestItem() {
 		return this.questItem;
+	}
+	
+	public Integer getObjectiveNumber() {
+		return this.objectiveNumber;
+	}
+	
+	public QuestObjectiveType getObjectiveType() {
+		return this.objectiveType;
+	}
+	
+	public String getMobName() {
+		return this.mobName;
+	}
+	
+	public Integer getMobAmount() {
+		return this.mobAmount;
+	}
+	
+	public QuestNpc getQuestNpc() {
+		return this.questNpc;
+	}
+	
+	public Location getTripwire1() {
+		return this.tripwire1;
+	}
+	
+	public Location getTripwire2() {
+		return this.tripwire2;
+	}
+	
+	public Material getBlockMaterial() {
+		return this.blockMaterial;
+	}
+	
+	public List<String> getGoalMessage() {
+		return this.goalMessage;
+	}
+	
+	public boolean isCompleted() {
+		return completed;
+	}
+
+	public void setCompleted(boolean completed) {
+		this.completed = completed;
 	}
 	
 	public boolean requiresQuestItem() {

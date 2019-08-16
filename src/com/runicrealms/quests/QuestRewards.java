@@ -6,9 +6,9 @@ import org.bukkit.Bukkit;
 
 public class QuestRewards {
 
-	public Integer exp;
-	public Integer questPoints;
-	public Integer money;
+	private Integer exp;
+	private Integer questPoints;
+	private Integer money;
 	private List<String> execute;
 	
 	public QuestRewards(Integer exp, Integer questPoints, Integer money, List<String> execute) {
@@ -16,6 +16,18 @@ public class QuestRewards {
 		this.questPoints = questPoints;
 		this.money = money;
 		this.execute = execute;
+	}
+	
+	public Integer getExperienceReward() {
+		return this.exp;
+	}
+	
+	public Integer getQuestPointsReward() {
+		return this.questPoints;
+	}
+	
+	public Integer getMoneyReward() {
+		return this.money;
 	}
 	
 	public boolean hasExecute() {

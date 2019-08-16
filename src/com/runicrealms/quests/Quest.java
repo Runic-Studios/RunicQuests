@@ -8,13 +8,13 @@ import com.runicrealms.player.QuestState;
 
 public class Quest {
 	
-	public String questName;
-	public QuestFirstNpc firstNPC;
-	public HashMap<QuestObjective, QuestObjectiveState> objectives;
-	public QuestRewards rewards;
-	public QuestState state;
-	public Integer questID;
-	public QuestRequirements requirements;
+	private String questName;
+	private QuestFirstNpc firstNPC;
+	private HashMap<QuestObjective, QuestObjectiveState> objectives;
+	private QuestRewards rewards;
+	private QuestState state;
+	private Integer questID;
+	private QuestRequirements requirements;
 	
 	public Quest(String questName, QuestFirstNpc firstNPC, ArrayList<QuestObjective> objectives, QuestRewards rewards, Integer questID, QuestRequirements requirements) {
 		this.questName = questName;
@@ -37,5 +37,33 @@ public class Quest {
 		this.questID = quest.questID;
 		this.requirements = quest.requirements;
 	}
-	
+
+	public String getQuestName() {
+		return questName;
+	}
+
+	public QuestFirstNpc getFirstNPC() {
+		return firstNPC;
+	}
+
+	public HashMap<QuestObjective, QuestObjectiveState> getObjectives() {
+		return objectives;
+	}
+
+	public QuestRewards getRewards() {
+		return rewards;
+	}
+
+	public QuestState getQuestState() {
+		return state;
+	}
+
+	public Integer getQuestID() {
+		return questID;
+	}
+
+	public QuestRequirements getRequirements() {
+		return requirements;
+	}
+
 }

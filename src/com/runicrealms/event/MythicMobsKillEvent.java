@@ -16,17 +16,17 @@ public class MythicMobsKillEvent implements Listener {
 	@EventHandler
 	public void onKill(MythicMobDeathEvent event) {
 		if (event.getKiller() instanceof Player) {
-			for (Quest quest : Plugin.getQuestProfile(((Player) event.getKiller()).getUniqueId().toString()).quests) {
-				if (quest.state.completed == false) {
-					for (QuestObjective objective : quest.objectives.keySet()) {
-						if (quest.objectives.get(objective).completed == false) {
-							if (objective.objectiveNumber != 1) {
-								if (QuestObjective.getLastObjective(quest.objectives, objective.objectiveNumber).completed == false) {
+			for (Quest quest : Plugin.getQuestProfile(((Player) event.getKiller()).getUniqueId().toString()).getQuests()) {
+				if (quest.getQuestState().isCompleted() == false) {
+					for (QuestObjective objective : quest.getObjectives().keySet()) {
+						if (quest.getObjectives().get(objective).isCompleted() == false) {
+							if (objective.getObjectiveNumber() != 1) {
+								if (QuestObjective.getLastObjective(quest.getObjectives(), objective.getObjectiveNumber()).isCompleted() == false) {
 									return;
 								}
 							}
-							if (objective.objectiveType == QuestObjectiveType.SLAY) {
-								if (event.getMob().getType().getInternalName().equalsIgnoreCase(objective.mobName)) {
+							if (objective.getObjectiveType() == QuestObjectiveType.SLAY) {
+								if (event.getMob().getType().getInternalName().equalsIgnoreCase(objective.getMobName())) {
 									// TODO
 								}
 							}

@@ -9,10 +9,10 @@ import net.citizensnpcs.api.npc.NPC;
 
 public class QuestFirstNpc {
 	
-	public NPC npc;
-	public List<String> speech;
-	public List<String> idleSpeech = null;
-	public List<String> completedSpeech;
+	private NPC npc;
+	private List<String> speech;
+	private List<String> idleSpeech = null;
+	private List<String> completedSpeech;
 	private List<String> execute;
 	
 	public QuestFirstNpc(Integer npcId, List<String> speech, List<String> idleSpeech, List<String> completedSpeech, List<String> execute) {
@@ -36,5 +36,21 @@ public class QuestFirstNpc {
 			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replaceAll("%player%", playerName));
 		}
 	}
-	
+
+	public NPC getCitizensNpc() {
+		return npc;
+	}
+
+	public List<String> getSpeech() {
+		return speech;
+	}
+
+	public List<String> getIdleSpeech() {
+		return idleSpeech;
+	}
+
+	public List<String> getCompletedSpeech() {
+		return completedSpeech;
+	}
+
 }

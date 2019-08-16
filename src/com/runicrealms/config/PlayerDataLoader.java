@@ -12,7 +12,7 @@ import com.runicrealms.quests.QuestObjective;
 
 public class PlayerDataLoader {
 
-	public static HashMap<String, DataFileConfiguration> cachedPlayerData = new HashMap<String, DataFileConfiguration>();
+	private static HashMap<String, DataFileConfiguration> cachedPlayerData = new HashMap<String, DataFileConfiguration>();
 
 	public static void initDirs() {
 		File folder = ConfigLoader.getSubFolder(Plugin.getInstance().getDataFolder(), "users");
@@ -30,19 +30,18 @@ public class PlayerDataLoader {
 	public static List<Quest> getQuestDataForUser(String uuid) {
 		List<Quest> quests = QuestLoader.getBlankQuestList();
 		DataFileConfiguration runicFileConfig = getConfigFromCache(uuid);
-		FileConfiguration data = runicFileConfig.config;
+		FileConfiguration data = runicFileConfig.getConfig();
 		for (Quest quest : quests) {
 			for (String dataQuestID : data.getKeys(false)) {
-				if (dataQuestID.equalsIgnoreCase(quest.questID + "")) {
+				if (dataQuestID.equalsIgnoreCase(quest.getQuestID() + "")) {
 					Quest newQuest = new Quest(quest);
 					quests.remove(quests.indexOf(quest));
-					newQuest.state.completed = data.getBoolean("completed");
-					newQuest.state.started = data.getBoolean("started");
+					newQuest.getQuestState().setCompleted(data.getBoolean("completed"));
+					newQuest.getQuestState().setStarted(data.getBoolean("started"));
 					for (String objectiveNumber : data.getConfigurationSection("objectives").getKeys(false)) {
-						for (QuestObjective questObjective : quest.objectives.keySet()) {
-							if (objectiveNumber.equalsIgnoreCase(questObjective.objectiveNumber + "")) {
-								newQuest.objectives.get(questObjective).completed = 
-										data.getBoolean("objectives." + objectiveNumber + ".completed");
+						for (QuestObjective questObjective : quest.getObjectives().keySet()) {
+							if (objectiveNumber.equalsIgnoreCase(questObjective.getObjectiveNumber() + "")) {
+								newQuest.getObjectives().get(questObjective).setCompleted(data.getBoolean("objectives." + objectiveNumber + ".completed"));
 							}
 						}
 					}

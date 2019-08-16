@@ -39,7 +39,7 @@ public class Plugin extends JavaPlugin {
 	
 	public static QuestProfile getQuestProfile(String uuid) {
 		for (QuestProfile profile : questProfiles) {
-			if (profile.playerUUID.equalsIgnoreCase(uuid)) {
+			if (profile.getPlayerUUID().equalsIgnoreCase(uuid)) {
 				return profile;
 			}
 		}

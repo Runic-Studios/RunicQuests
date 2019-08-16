@@ -8,14 +8,34 @@ import com.runicrealms.quests.Quest;
 
 public class QuestProfile {
 	
-	public List<Quest> quests;
-	public String playerUUID;
-	public DataFileConfiguration savedData;
+	private List<Quest> quests;
+	private String playerUUID;
+	private DataFileConfiguration savedData;
 	
 	public QuestProfile(String uuid) {
-		this.playerUUID = uuid;
+		this.setPlayerUUID(uuid);
 		this.quests = PlayerDataLoader.getQuestDataForUser(uuid);
-		this.savedData = PlayerDataLoader.getConfigFromCache(uuid);
+		this.setSavedData(PlayerDataLoader.getConfigFromCache(uuid));
 	}
-	
+
+	public List<Quest> getQuests() {
+		return quests;
+	}
+
+	public String getPlayerUUID() {
+		return playerUUID;
+	}
+
+	public void setPlayerUUID(String playerUUID) {
+		this.playerUUID = playerUUID;
+	}
+
+	public DataFileConfiguration getSavedData() {
+		return savedData;
+	}
+
+	public void setSavedData(DataFileConfiguration savedData) {
+		this.savedData = savedData;
+	}
+
 }

@@ -12,8 +12,8 @@ import com.runicrealms.quests.QuestObjective;
 
 public class DataFileConfiguration {
 	
-	public FileConfiguration config;
-	public File file;
+	private FileConfiguration config;
+	private File file;
 	
 	public DataFileConfiguration(FileConfiguration config, File file) {
 		this.config = config;
@@ -30,10 +30,10 @@ public class DataFileConfiguration {
 	
 	public void saveToConfig(List<Quest> quests) {
 		for (Quest quest : quests) {
-			config.set(quest.questID + ".started", quest.state.started);
-			config.set(quest.questID + ".completed", quest.state.completed);
-			for (QuestObjective objective : quest.objectives.keySet()) {
-				config.set(quest.questID + ".objectives." + objective.objectiveNumber, objective.completed);
+			config.set(quest.getQuestID() + ".started", quest.getQuestState().hasStarted());
+			config.set(quest.getQuestID() + ".completed", quest.getQuestState().isCompleted());
+			for (QuestObjective objective : quest.getObjectives().keySet()) {
+				config.set(quest.getQuestID() + ".objectives." + objective.getObjectiveNumber(), objective.isCompleted());
 			}
 		}
 		this.save();
@@ -53,8 +53,15 @@ public class DataFileConfiguration {
 		} catch (IOException e) {
 			e.printStackTrace();
 			return null;
-		}
-		
+		}	
+	}
+	
+	public FileConfiguration getConfig() {
+		return this.config;
+	}
+	
+	public File getFile() {
+		return this.file;
 	}
 	
 }

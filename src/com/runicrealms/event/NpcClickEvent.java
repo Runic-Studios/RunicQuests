@@ -15,23 +15,23 @@ public class NpcClickEvent implements Listener {
 
 	@EventHandler
 	public void onNpcRightClick(NPCRightClickEvent event) {
-		for (Quest quest : Plugin.getQuestProfile(event.getClicker().getUniqueId().toString()).quests) {
-			if (quest.state.started == false && quest.state.completed == false) {
-				if (quest.firstNPC.npc.getId() == event.getNPC().getId()) {
-					if (QuestObjective.getFirstObjective(quest.objectives).completed == false) {
+		for (Quest quest : Plugin.getQuestProfile(event.getClicker().getUniqueId().toString()).getQuests()) {
+			if (quest.getQuestState().hasStarted() == false && quest.getQuestState().isCompleted() == false) {
+				if (quest.getFirstNPC().getCitizensNpc().getId() == event.getNPC().getId()) {
+					if (QuestObjective.getFirstObjective(quest.getObjectives()).isCompleted() == false) {
 						// TODO
 					}
 				}
-			} else if (quest.state.started) {
-				for (QuestObjective objective : quest.objectives.keySet()) {
-					if (objective.completed == false) {
-						if (objective.objectiveNumber != 1) {
-							if (QuestObjective.getLastObjective(quest.objectives, objective.objectiveNumber).completed == false) {
+			} else if (quest.getQuestState().hasStarted()) {
+				for (QuestObjective objective : quest.getObjectives().keySet()) {
+					if (objective.isCompleted() == false) {
+						if (objective.getObjectiveNumber() != 1) {
+							if (QuestObjective.getLastObjective(quest.getObjectives(), objective.getObjectiveNumber()).isCompleted() == false) {
 								return;
 							}
 						}
-						if (objective.objectiveType == QuestObjectiveType.TALK) {
-							if (objective.questNpc.npc.getId() == event.getNPC().getId()) {
+						if (objective.getObjectiveType() == QuestObjectiveType.TALK) {
+							if (objective.getQuestNpc().getCitizensNpc().getId() == event.getNPC().getId()) {
 								// TODO
 							}
 						}
@@ -43,23 +43,23 @@ public class NpcClickEvent implements Listener {
 
 	@EventHandler
 	public void onNpcLeftClick(NPCLeftClickEvent event) {
-		for (Quest quest : Plugin.getQuestProfile(event.getClicker().getUniqueId().toString()).quests) {
-			if (quest.state.started == false && quest.state.completed == false) {
-				if (quest.firstNPC.npc.getId() == event.getNPC().getId()) {
-					if (QuestObjective.getFirstObjective(quest.objectives).completed == false) {
+		for (Quest quest : Plugin.getQuestProfile(event.getClicker().getUniqueId().toString()).getQuests()) {
+			if (quest.getQuestState().hasStarted() == false && quest.getQuestState().isCompleted() == false) {
+				if (quest.getFirstNPC().getCitizensNpc().getId() == event.getNPC().getId()) {
+					if (QuestObjective.getFirstObjective(quest.getObjectives()).isCompleted() == false) {
 						// TODO
 					}
 				}
-			} else if (quest.state.started) {
-				for (QuestObjective objective : quest.objectives.keySet()) {
-					if (objective.completed == false) {
-						if (objective.objectiveNumber != 1) {
-							if (QuestObjective.getLastObjective(quest.objectives, objective.objectiveNumber).completed == false) {
+			} else if (quest.getQuestState().hasStarted()) {
+				for (QuestObjective objective : quest.getObjectives().keySet()) {
+					if (objective.isCompleted() == false) {
+						if (objective.getObjectiveNumber() != 1) {
+							if (QuestObjective.getLastObjective(quest.getObjectives(), objective.getObjectiveNumber()).isCompleted() == false) {
 								return;
 							}
 						}
-						if (objective.objectiveType == QuestObjectiveType.TALK) {
-							if (objective.questNpc.npc.getId() == event.getNPC().getId()) {
+						if (objective.getObjectiveType() == QuestObjectiveType.TALK) {
+							if (objective.getQuestNpc().getCitizensNpc().getId() == event.getNPC().getId()) {
 								// TODO
 							}
 						}
