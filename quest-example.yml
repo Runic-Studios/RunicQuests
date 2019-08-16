@@ -8,7 +8,7 @@ requirements: # Everything here is optional, except the level requirement. If yo
   - 'Eh? You aren't strong enough yet'
   - 'Come back when you are level 10'
   crafting-level-not-met: 'You gotta be better at making armor for me bro'
-  required-quest-not-met: 'Em go help me fren with somthing'
+  required-quests-not-met: 'Em go help me fren with somthing'
 firstNPC: 
   npc-id: citizensNpcId
   speech: 'Hello, this is a test'
