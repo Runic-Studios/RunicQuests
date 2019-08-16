@@ -11,15 +11,17 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import com.runicrealms.Plugin;
+import com.runicrealms.quests.CraftingProfessionType;
 import com.runicrealms.quests.Quest;
 import com.runicrealms.quests.QuestFirstNpc;
 import com.runicrealms.quests.QuestItem;
 import com.runicrealms.quests.QuestNpc;
 import com.runicrealms.quests.QuestObjective;
+import com.runicrealms.quests.QuestRequirements;
 import com.runicrealms.quests.QuestRewards;
 
 public class QuestLoader {
-	
+
 	private static List<Quest> cachedQuests = null;
 
 	public static List<Quest> getBlankQuestList() {
@@ -34,7 +36,7 @@ public class QuestLoader {
 		cachedQuests = quests;
 		return quests;
 	}
-	
+
 	public static Quest loadQuest(FileConfiguration config) {
 		ArrayList<QuestObjective> objectives = new ArrayList<QuestObjective>();
 		for (int i = 1; i <= config.getKeys(false).size(); i++) {
@@ -45,7 +47,52 @@ public class QuestLoader {
 				loadFirstNpc(config.getConfigurationSection("firstNPC")),
 				objectives,
 				loadRewards(config.getConfigurationSection("rewards")),
-				config.getInt("unique-id"));
+				config.getInt("unique-id"),
+				loadRequirements(config.getConfigurationSection("requirements")));
+	}
+
+	public static QuestRequirements loadRequirements(ConfigurationSection configSec) {
+		Integer levelReq = configSec.getInt("level");
+		List<String> levelNotMet = getStringList(configSec, "level-not-met");
+		Integer craftingReq = null;
+		List<String> craftingNotMet = null;
+		CraftingProfessionType professionType = null;
+		if (configSec.contains("tailoring-level")) {
+			craftingNotMet = getStringList(configSec, "crafting-level-not-met");
+			craftingReq = configSec.getInt("tailoring-level");
+			professionType = CraftingProfessionType.TAILORING;
+		} else if (configSec.contains("blacksmithing-level")) {
+			craftingNotMet = getStringList(configSec, "crafting-level-not-met");
+			craftingReq = configSec.getInt("blacksmithing-level");
+			professionType = CraftingProfessionType.BLACKSMITHING;
+		} else if (configSec.contains("leatherworking-level")) {
+			craftingNotMet = getStringList(configSec, "crafting-level-not-met");
+			craftingReq = configSec.getInt("leatherworking-level");
+			professionType = CraftingProfessionType.LEATHERWORKING;
+		} else if (configSec.contains("jeweling-level")) {
+			craftingNotMet = getStringList(configSec, "crafting-level-not-met");
+			craftingReq = configSec.getInt("jeweling-level");
+			professionType = CraftingProfessionType.JEWELING;
+		} else if (configSec.contains("alchemy-level")) {
+			craftingNotMet = getStringList(configSec, "crafting-level-not-met");
+			craftingReq = configSec.getInt("alchemy-level");
+			professionType = CraftingProfessionType.ALCHEMY;
+		} else if (configSec.contains("crafting-level")) {
+			craftingNotMet = getStringList(configSec, "crafting-level-not-met");
+			craftingReq = configSec.getInt("crafting-level");
+			professionType = CraftingProfessionType.ANY;
+		}
+		List<Integer> requiredQuests = new ArrayList<Integer>();
+		List<String> requiredQuestsNotMet = null;
+		if (configSec.contains("required-quests")) {
+			requiredQuestsNotMet = getStringList(configSec, "required-quests-not-met");
+			if (configSec.isInt("required-quests")) {
+				requiredQuests.add(configSec.getInt("required-quests"));
+			} else {
+				requiredQuests = configSec.getIntegerList("required-quests");
+			}
+		}
+		return new QuestRequirements(levelReq, craftingReq, professionType, requiredQuests, levelNotMet, craftingNotMet, requiredQuestsNotMet);
 	}
 
 	public static QuestRewards loadRewards(ConfigurationSection configSec) {

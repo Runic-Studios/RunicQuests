@@ -1,5 +1,14 @@
 name: 'Example Quest'
 unique-id: 1
+requirements: # Everything here is optional, except the level requirement. If you only have 'level', then you only need level and level-not-met.
+  level: 10
+  tailoring-level: 10 # Can be any profession (jeweling-level, leatherworking-level), also crafting-level for any profession level
+  required-quests: 5 # This must be the unique ID of the required quest. This can have multiple quests, just make it a list (every new line with a '-')
+  level-not-met: 
+  - 'Eh? You aren't strong enough yet'
+  - 'Come back when you are level 10'
+  crafting-level-not-met: 'You gotta be better at making armor for me bro'
+  required-quest-not-met: 'Em go help me fren with somthing'
 firstNPC: 
   npc-id: citizensNpcId
   speech: 'Hello, this is a test'
@@ -11,12 +20,12 @@ objectives:
       mob-name: 'evil-kitty-cat' # From MythicMobs config
       amount: 5
     goal-message: 'slay mythic mobs'
-    execute: '/give [player] xxx' # im not sure how you guys want this whole command execution thing but [player] could be replaced by the player name
+    execute: '/give %player% diamond' # %player% is replaced with the player name
   2: 
     requirement:
       type: 'talk'
       requires: 
-        item-type: 'DIRT'
+        item-type: 'DIRT' # Must be the name of the material, for example, a diamond pickaxe is DIAMOND_PICKAXE
         item-name: 'dirty dirt'
       npc:
         npc-id: citizensNpcId
@@ -42,7 +51,7 @@ rewards:
   exp: 100
   quest-points: 1
   money: 100
-  execute: '/give [player] xxx'
+  execute: '/give %player% dirt'
 # NOTES:
 # firstNPC can contain 'execute' but other NPC cannot (execute should be under each objective)
 # idle-message and execute are optional for NPCs. execute is optional for rewards

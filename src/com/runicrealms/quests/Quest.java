@@ -14,8 +14,9 @@ public class Quest {
 	public QuestRewards rewards;
 	public QuestState state;
 	public Integer questID;
+	public QuestRequirements requirements;
 	
-	public Quest(String questName, QuestFirstNpc firstNPC, ArrayList<QuestObjective> objectives, QuestRewards rewards, Integer questID) {
+	public Quest(String questName, QuestFirstNpc firstNPC, ArrayList<QuestObjective> objectives, QuestRewards rewards, Integer questID, QuestRequirements requirements) {
 		this.questName = questName;
 		this.firstNPC = firstNPC;
 		for (QuestObjective objective : objectives) {
@@ -24,6 +25,7 @@ public class Quest {
 		this.rewards = rewards;
 		this.state = new QuestState(false, false);
 		this.questID = questID;
+		this.requirements = requirements;
 	}
 	
 	public Quest(Quest quest) {
@@ -33,6 +35,7 @@ public class Quest {
 		this.rewards = quest.rewards;
 		this.state = quest.state;
 		this.questID = quest.questID;
+		this.requirements = quest.requirements;
 	}
 	
 }
