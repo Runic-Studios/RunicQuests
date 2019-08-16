@@ -96,11 +96,14 @@ public class QuestLoader {
 	}
 
 	public static QuestRewards loadRewards(ConfigurationSection configSec) {
-		List<String> execute = new ArrayList<String>();
-		if (configSec.isString("execute")) {
-			execute.add(configSec.getString("execute"));
-		} else {
-			execute = configSec.getStringList("execute");
+		List<String> execute = null;
+		if (configSec.contains("execute")) {
+			execute = new ArrayList<String>();
+			if (configSec.isString("execute")) {
+				execute.add(configSec.getString("execute"));
+			} else {
+				execute = configSec.getStringList("execute");
+			}
 		}
 		return new QuestRewards(
 				configSec.getInt("exp"),
