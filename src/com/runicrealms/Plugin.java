@@ -10,6 +10,7 @@ import com.runicrealms.event.MythicMobsKillEvent;
 import com.runicrealms.event.NpcClickEvent;
 import com.runicrealms.event.PlayerBreakBlockEvent;
 import com.runicrealms.event.PlayerJoinQuitEvent;
+import com.runicrealms.event.PlayerTripwireEvent;
 import com.runicrealms.player.QuestProfile;
 
 public class Plugin extends JavaPlugin {
@@ -27,6 +28,7 @@ public class Plugin extends JavaPlugin {
 		this.getServer().getPluginManager().registerEvents(new NpcClickEvent(), this);
 		this.getServer().getPluginManager().registerEvents(new PlayerBreakBlockEvent(), this);
 		this.getServer().getPluginManager().registerEvents(new PlayerJoinQuitEvent(), this);
+		this.getServer().getPluginManager().registerEvents(new PlayerTripwireEvent(), this);
 	}
 	
 	public static Plugin getInstance() {
