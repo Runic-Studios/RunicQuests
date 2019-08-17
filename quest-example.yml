@@ -12,7 +12,7 @@ requirements: # Everything here is optional, except the level requirement. If yo
 firstNPC: 
   npc-id: citizensNpcId
   speech: 'Hello, this is a test'
-  completed-message: 'um hello?'
+  quest-completed-message: 'um hello?' # This is the message that the NPC will say when you have completed the quest
 objectives:
   1: 
     requirement:
@@ -21,6 +21,7 @@ objectives:
       amount: 5
     goal-message: 'slay mythic mobs'
     execute: '/give %player% diamond' # %player% is replaced with the player name
+    completed-message: 'Nice!' # Completed message is optional. If your objective is of type talk then you dont need one (just use 'speech')
   2: 
     requirement:
       type: 'talk'
@@ -34,7 +35,7 @@ objectives:
         - 'you killed those things yet?'
         - 'no? get back to work then'
         - 'also dont forget to bring me that item!'
-        completed-message: 'hope to see you around soon!'
+        quest-completed-message: 'hope to see you around soon!' # this is NOT the same as completed-message. This is the message that the NPC will say when you have completed the quest
       goal-message: 'talk to dude and give him item'
   3: 
     requirement:
@@ -42,6 +43,7 @@ objectives:
       tripwire-one: '2,2,2'
       tripwire-two: '3,3,3'
     goal-message: 'step on the wire'
+    completed-message: 'break some grass'
   4: 
     requirement:
       type: 'break'
@@ -53,6 +55,6 @@ rewards:
   money: 100
   execute: '/give %player% dirt'
 # NOTES:
-# firstNPC can contain 'execute' but other NPC cannot (execute should be under each objective)
+# firstNPC can contain 'execute' but other NPCs cannot (execute should be under each objective)
 # idle-message and execute are optional for NPCs. execute is optional for rewards
-# speech, idle-message, goal-message, completed-message, and execute can be multi-lined
+# ANY message type (completed-message, speech, execute, goal-messsage...) can be multi-lined (using '-'s on every new line)

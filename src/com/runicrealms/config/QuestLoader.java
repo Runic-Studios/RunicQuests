@@ -127,14 +127,16 @@ public class QuestLoader {
 						new QuestItem(configSec.getString("requirement.requires.item-name"), configSec.getString("requirement.requires.item-type")), 
 						goalMessage,
 						(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
-						objectiveNumber);
+						objectiveNumber,
+						(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
 			} else {
 				return new QuestObjective(
 						configSec.getString("requirement.mob-name"), 
 						configSec.getInt("requirement.amount"), 
 						goalMessage,
 						(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
-						objectiveNumber);
+						objectiveNumber,
+						(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
 			}
 		} else if (configSec.getString("requirement.type").equalsIgnoreCase("talk")) {
 			if (configSec.contains("requirement.requires")) {
@@ -143,13 +145,15 @@ public class QuestLoader {
 						new QuestItem(configSec.getString("requirement.requires.item-name"), configSec.getString("requirement.requires.item-type")), 
 						goalMessage,
 						(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
-						objectiveNumber);
+						objectiveNumber,
+						(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
 			} else {
 				return new QuestObjective(
 						loadNpc(configSec.getConfigurationSection("requirement.npc")),
 						goalMessage,
 						(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
-						objectiveNumber);
+						objectiveNumber,
+						(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
 			}
 		} else if (configSec.getString("requirement.type").equalsIgnoreCase("tripwire")) {
 			if (configSec.contains("requirement.requires")) {
@@ -165,7 +169,8 @@ public class QuestLoader {
 						new QuestItem(configSec.getString("requirement.requires.item-name"), configSec.getString("requirement.requires.item-type")), 
 						goalMessage,
 						(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
-						objectiveNumber);
+						objectiveNumber,
+						(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
 			} else {
 				double x1 = Double.parseDouble(configSec.getString("requirement.tripwire1").split(",")[0].replaceAll(",", ""));
 				double y1 = Double.parseDouble(configSec.getString("requirement.tripwire1").split(",")[1].replaceAll(",", ""));
@@ -178,7 +183,8 @@ public class QuestLoader {
 						new Location(Bukkit.getWorld(Plugin.WORLD_NAME), x2, y2, z2),
 						goalMessage,
 						(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
-						objectiveNumber);
+						objectiveNumber,
+						(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
 			}
 		} else if (configSec.getString("requirement.type").equalsIgnoreCase("break")) {
 			if (configSec.contains("requirement.requires")) {
@@ -187,13 +193,15 @@ public class QuestLoader {
 						new QuestItem(configSec.getString("requirement.requires.item-name"), configSec.getString("requirement.requires.item-type")), 
 						goalMessage,
 						(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
-						objectiveNumber);
+						objectiveNumber,
+						(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
 			} else {
 				return new QuestObjective(
 						Material.getMaterial(configSec.getString("requirement.block-type").toUpperCase()),
 						goalMessage,
 						(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
-						objectiveNumber);
+						objectiveNumber,
+						(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
 			}
 		}
 		return null;
@@ -218,10 +226,10 @@ public class QuestLoader {
 		} else {
 			idleMessage = null;
 		}
-		if (configSec.isString("completed-message")) {
-			speech.add(configSec.getString("completed-message"));
+		if (configSec.isString("quest-completed-message")) {
+			speech.add(configSec.getString("quest-completed-message"));
 		} else {
-			speech = configSec.getStringList("completed-message");
+			speech = configSec.getStringList("quest-completed-message");
 		}
 		if (configSec.contains("execute")) {
 			if (configSec.isString("execute")) {
@@ -253,10 +261,10 @@ public class QuestLoader {
 		} else {
 			idleMessage = null;
 		}
-		if (configSec.isString("completed-message")) {
-			speech.add(configSec.getString("completed-message"));
+		if (configSec.isString("quest-completed-message")) {
+			speech.add(configSec.getString("quest-completed-message"));
 		} else {
-			speech = configSec.getStringList("completed-message");
+			speech = configSec.getStringList("quest-completed-message");
 		}
 		return new QuestNpc(configSec.getInt("npc-id"), speech, idleMessage, completedMessage);
 	}
