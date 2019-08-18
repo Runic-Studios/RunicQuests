@@ -11,12 +11,14 @@ public class QuestNpc {
 	private List<String> speech;
 	private List<String> idleSpeech;
 	private List<String> questCompletedSpeech;
+	private String npcName;
 	
-	public QuestNpc(Integer npcId, List<String> speech, List<String> idleSpeech, List<String> questCompletedSpeech) {
+	public QuestNpc(Integer npcId, List<String> speech, List<String> idleSpeech, List<String> questCompletedSpeech, String npcName) {
 		this.npc = CitizensAPI.getNPCRegistry().getById(npcId);
 		this.speech = speech;
 		this.idleSpeech = idleSpeech;
 		this.questCompletedSpeech = questCompletedSpeech;
+		this.npcName = npcName;
 	}
 
 	public NPC getCitizensNpc() {
@@ -33,6 +35,10 @@ public class QuestNpc {
 
 	public List<String> getQuestCompletedSpeech() {
 		return questCompletedSpeech;
+	}
+	
+	public String getNpcName() {
+		return this.npcName;
 	}
 
 	public boolean hasIdleSpeech() {

@@ -241,7 +241,8 @@ public class QuestLoader {
 		} else {
 			execute = null;
 		}
-		return new QuestFirstNpc(configSec.getInt("npc-id"), speech, idleMessage, completedMessage, execute);
+		String npcName = configSec.getString("npc-name");
+		return new QuestFirstNpc(configSec.getInt("npc-id"), speech, idleMessage, completedMessage, npcName, execute);
 	}
 
 	public static QuestNpc loadNpc(ConfigurationSection configSec) {
@@ -267,7 +268,8 @@ public class QuestLoader {
 		} else {
 			speech = configSec.getStringList("quest-completed-message");
 		}
-		return new QuestNpc(configSec.getInt("npc-id"), speech, idleMessage, completedMessage);
+		String npcName = configSec.getString("npc-name");
+		return new QuestNpc(configSec.getInt("npc-id"), speech, idleMessage, completedMessage, npcName);
 	}
 
 	private static List<String> getStringList(ConfigurationSection configSec, String path) {
