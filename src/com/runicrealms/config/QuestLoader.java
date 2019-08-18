@@ -48,7 +48,8 @@ public class QuestLoader {
 				objectives,
 				loadRewards(config.getConfigurationSection("rewards")),
 				config.getInt("unique-id"),
-				loadRequirements(config.getConfigurationSection("requirements")));
+				loadRequirements(config.getConfigurationSection("requirements")),
+				config.getBoolean("side-quest"));
 	}
 
 	public static QuestRequirements loadRequirements(ConfigurationSection configSec) {

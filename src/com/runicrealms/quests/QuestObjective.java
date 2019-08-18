@@ -154,6 +154,10 @@ public class QuestObjective {
 		this.completed = completed;
 	}
 	
+	public List<String> getCompletedMessage() {
+		return completedMessage;
+	}
+	
 	public boolean requiresQuestItem() {
 		return this.questItem != null;
 	}

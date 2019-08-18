@@ -15,8 +15,9 @@ public class Quest {
 	private QuestState state;
 	private Integer questID;
 	private QuestRequirements requirements;
+	private boolean sideQuest;
 	
-	public Quest(String questName, QuestFirstNpc firstNPC, ArrayList<QuestObjective> objectives, QuestRewards rewards, Integer questID, QuestRequirements requirements) {
+	public Quest(String questName, QuestFirstNpc firstNPC, ArrayList<QuestObjective> objectives, QuestRewards rewards, Integer questID, QuestRequirements requirements, boolean sideQuest) {
 		this.questName = questName;
 		this.firstNPC = firstNPC;
 		for (QuestObjective objective : objectives) {
@@ -26,6 +27,7 @@ public class Quest {
 		this.state = new QuestState(false, false);
 		this.questID = questID;
 		this.requirements = requirements;
+		this.sideQuest = sideQuest;
 	}
 	
 	public Quest(Quest quest) {
@@ -36,6 +38,7 @@ public class Quest {
 		this.state = quest.state;
 		this.questID = quest.questID;
 		this.requirements = quest.requirements;
+		this.sideQuest = quest.sideQuest;
 	}
 
 	public String getQuestName() {
@@ -60,6 +63,10 @@ public class Quest {
 
 	public Integer getQuestID() {
 		return questID;
+	}
+	
+	public boolean isSideQuest() {
+		return sideQuest;
 	}
 
 	public QuestRequirements getRequirements() {
