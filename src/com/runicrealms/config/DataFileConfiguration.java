@@ -20,7 +20,7 @@ public class DataFileConfiguration {
 		this.file = file;
 	}
 	
-	public void save() {
+	public void saveToFile() {
 		try {
 			this.config.save(file);
 		} catch (IOException e) {
@@ -36,7 +36,7 @@ public class DataFileConfiguration {
 				config.set(quest.getQuestID() + ".objectives." + objective.getObjectiveNumber(), objective.isCompleted());
 			}
 		}
-		this.save();
+		this.saveToFile();
 	}
 	
 	public static DataFileConfiguration getFile(String fileName) {

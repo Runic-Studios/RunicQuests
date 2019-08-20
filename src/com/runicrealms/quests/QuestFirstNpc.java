@@ -15,14 +15,22 @@ public class QuestFirstNpc {
 	private List<String> questCompletedSpeech;
 	private String npcName;
 	private List<String> execute;
+	private boolean deniable;
+	private List<String> deniedMessage;
+	private List<String> acceptedMessage;
+	private FirstNpcState state = FirstNpcState.NEUTRAL;
+	private SpeechState speechState = SpeechState.NOT_STARTED;
 	
-	public QuestFirstNpc(Integer npcId, List<String> speech, List<String> idleSpeech, List<String> questCompletedSpeech, String npcName, List<String> execute) {
+	public QuestFirstNpc(Integer npcId, List<String> speech, List<String> idleSpeech, List<String> questCompletedSpeech, String npcName, List<String> execute, boolean deniable, List<String> deniedMessage, List<String> acceptedMessage) {
 		this.npc = CitizensAPI.getNPCRegistry().getById(npcId);
 		this.speech = speech;
 		this.idleSpeech = idleSpeech;
 		this.questCompletedSpeech = questCompletedSpeech;
 		this.execute = execute;
 		this.npcName = npcName;
+		this.deniable = deniable;
+		this.deniedMessage = deniedMessage;
+		this.acceptedMessage = acceptedMessage;
 	}
 	
 	public NPC getCitizensNpc() {
@@ -45,12 +53,40 @@ public class QuestFirstNpc {
 		return npcName;
 	}
 	
+	public boolean isDeniable() {
+		return deniable;
+	}
+	
+	public List<String> getDeniedMessage() {
+		return deniedMessage;
+	}
+	
+	public List<String> getAcceptedMessage() {
+		return acceptedMessage;
+	}
+	
+	public SpeechState hasSpeechStarted() {
+		return speechState;
+	}
+	
+	public void setSpeechStarted(SpeechState state) {
+		speechState = state;
+	}
+	
+	public void setState(FirstNpcState state) {
+		this.state = state;
+	}
+	
 	public boolean hasIdleSpeech() {
 		return this.idleSpeech != null;
 	}
 	
 	public boolean hasExecute() {
 		return execute != null;
+	}
+	
+	public FirstNpcState getState() {
+		return state;
 	}
 	
 	public void executeCommand(String playerName) {

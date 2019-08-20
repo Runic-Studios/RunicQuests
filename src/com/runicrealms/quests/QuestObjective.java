@@ -17,6 +17,7 @@ public class QuestObjective {
 	private QuestItem questItem = null;
 	private String mobName;
 	private Integer mobAmount;
+	private Integer mobsKilled = 0;
 	private QuestNpc questNpc;
 	private Location tripwire1;
 	private Location tripwire2;
@@ -126,6 +127,14 @@ public class QuestObjective {
 		return this.mobAmount;
 	}
 	
+	public Integer getMobsKilled() {
+		return this.mobsKilled;
+	}
+	
+	public void setMobsKilled(Integer mobsKilled) {
+		this.mobsKilled = mobsKilled;
+	}
+	
 	public QuestNpc getQuestNpc() {
 		return this.questNpc;
 	}
@@ -166,24 +175,28 @@ public class QuestObjective {
 		return this.execute != null;
 	}
 	
+	public boolean hasCompletedMessage() {
+		return this.completedMessage != null;
+	}
+	
 	public void executeCommand(String playerName) {
 		for (String command : this.execute) {
 			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replaceAll("%player%", playerName));
 		}
 	}
 	
-	public static QuestObjective getLastObjective(HashMap<QuestObjective, QuestObjectiveState> objectives, Integer objectiveNumber) {
+	public static QuestObjective getObjective(HashMap<QuestObjective, QuestObjectiveState> objectives, Integer objectiveNumber) {
 		for (QuestObjective objective : objectives.keySet()) {
-			if (objective.objectiveNumber == objectiveNumber - 1) {
+			if (objective.objectiveNumber == objectiveNumber) {
 				return objective;
 			}
 		}
 		return null;
 	}
 	
-	public static QuestObjective getFirstObjective(HashMap<QuestObjective, QuestObjectiveState> objectives) {
+	public static QuestObjective getLastObjective(HashMap<QuestObjective, QuestObjectiveState> objectives) {
 		for (QuestObjective objective : objectives.keySet()) {
-			if (objective.objectiveNumber == 1) {
+			if (objective.objectiveNumber == objectives.keySet().size()) {
 				return objective;
 			}
 		}

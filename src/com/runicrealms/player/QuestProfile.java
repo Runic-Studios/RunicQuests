@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.runicrealms.config.DataFileConfiguration;
 import com.runicrealms.config.PlayerDataLoader;
+import com.runicrealms.quests.FirstNpcState;
 import com.runicrealms.quests.Quest;
 
 public class QuestProfile {
@@ -13,9 +14,13 @@ public class QuestProfile {
 	private DataFileConfiguration savedData;
 	
 	public QuestProfile(String uuid) {
-		this.setPlayerUUID(uuid);
+		this.playerUUID = uuid;
 		this.quests = PlayerDataLoader.getQuestDataForUser(uuid);
-		this.setSavedData(PlayerDataLoader.getConfigFromCache(uuid));
+		this.savedData = PlayerDataLoader.getConfigFromCache(uuid);
+	}
+	
+	public void save() {
+		this.savedData.saveToConfig(this.quests);
 	}
 
 	public List<Quest> getQuests() {
@@ -26,16 +31,17 @@ public class QuestProfile {
 		return playerUUID;
 	}
 
-	public void setPlayerUUID(String playerUUID) {
-		this.playerUUID = playerUUID;
-	}
-
 	public DataFileConfiguration getSavedData() {
 		return savedData;
 	}
-
-	public void setSavedData(DataFileConfiguration savedData) {
-		this.savedData = savedData;
+	
+	public void dumpFirstNpcStates() {
+		for (Quest quest : this.quests) { // TODO - save NPC deny on restart
+			if (quest.getFirstNPC().getState() != FirstNpcState.ACCEPTED) {
+				quest.getFirstNPC().setState(FirstNpcState.NEUTRAL);
+			}
+		}
+		this.save();
 	}
 
 }

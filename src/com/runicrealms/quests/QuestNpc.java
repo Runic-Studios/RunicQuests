@@ -12,6 +12,7 @@ public class QuestNpc {
 	private List<String> idleSpeech;
 	private List<String> questCompletedSpeech;
 	private String npcName;
+	private SpeechState speechState = SpeechState.NOT_STARTED;
 	
 	public QuestNpc(Integer npcId, List<String> speech, List<String> idleSpeech, List<String> questCompletedSpeech, String npcName) {
 		this.npc = CitizensAPI.getNPCRegistry().getById(npcId);
@@ -39,6 +40,14 @@ public class QuestNpc {
 	
 	public String getNpcName() {
 		return this.npcName;
+	}
+	
+	public SpeechState getSpeechState() {
+		return speechState;
+	}
+	
+	public void setSpeechState(SpeechState started) {
+		speechState = started;
 	}
 
 	public boolean hasIdleSpeech() {

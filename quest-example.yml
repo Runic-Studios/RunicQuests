@@ -13,6 +13,9 @@ firstNPC:
   npc-id: citizensNpcId
   speech: 'Hello, this is a test'
   quest-completed-message: 'um hello?' # This is the message that the NPC will say when you have completed the quest
+  deniable: true # This is required
+  denied-message: 'oof me sad now' # This are required if deniable is set to true
+  accepted-message: 'yey thenk u'# This are required if deniable is set to true
 objectives:
   1: 
     requirement:
@@ -31,10 +34,8 @@ objectives:
       npc:
         npc-id: citizensNpcId
         speech: 'wassup'
-        idle-message: 
-        - 'you killed those things yet?'
-        - 'no? get back to work then'
-        - 'also dont forget to bring me that item!'
+        idle-message: # This message appears when you do not have the required quest item
+        - 'bring me an item for me to speak with you!'
         quest-completed-message: 'hope to see you around soon!' # this is NOT the same as completed-message. This is the message that the NPC will say when you have completed the quest
       goal-message: 'talk to dude and give him item'
   3: 

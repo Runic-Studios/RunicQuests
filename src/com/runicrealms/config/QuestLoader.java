@@ -242,7 +242,10 @@ public class QuestLoader {
 			execute = null;
 		}
 		String npcName = configSec.getString("npc-name");
-		return new QuestFirstNpc(configSec.getInt("npc-id"), speech, idleMessage, completedMessage, npcName, execute);
+		boolean deniable = configSec.getBoolean("deniable");
+		List<String> deniedMessage = deniable ? getStringList(configSec, "denied-message") : null;
+		List<String> acceptedMessage = deniable ? getStringList(configSec, "accepted-message") : null;
+		return new QuestFirstNpc(configSec.getInt("npc-id"), speech, idleMessage, completedMessage, npcName, execute, deniable, deniedMessage, acceptedMessage);
 	}
 
 	public static QuestNpc loadNpc(ConfigurationSection configSec) {
