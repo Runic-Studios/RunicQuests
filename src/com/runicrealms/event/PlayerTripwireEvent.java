@@ -1,6 +1,7 @@
 package com.runicrealms.event;
 
 import org.apache.commons.lang.math.IntRange;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -11,6 +12,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.runicrealms.Plugin;
+import com.runicrealms.api.QuestCompleteEvent;
 import com.runicrealms.player.QuestProfile;
 import com.runicrealms.quests.FirstNpcState;
 import com.runicrealms.quests.Quest;
@@ -80,6 +82,7 @@ public class PlayerTripwireEvent implements Listener {
 										if (quest.getRewards().hasExecute()) {
 											quest.getRewards().executeCommand(player.getName());
 										}
+										Bukkit.getServer().getPluginManager().callEvent(new QuestCompleteEvent(quest, questProfile));
 									}
 								}
 							}

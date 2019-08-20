@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -12,6 +13,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 
 import com.runicrealms.Plugin;
+import com.runicrealms.api.QuestAcceptEvent;
+import com.runicrealms.api.QuestCompleteEvent;
+import com.runicrealms.api.QuestDenyEvent;
 import com.runicrealms.player.QuestProfile;
 import com.runicrealms.quests.FirstNpcState;
 import com.runicrealms.quests.Quest;
@@ -85,6 +89,7 @@ public class NpcClickEvent implements Listener {
 									}
 								});
 								queue.startTasks();
+								Bukkit.getServer().getPluginManager().callEvent(new QuestAcceptEvent(quest, questProfile));
 							} else if (quest.getFirstNPC().getState() == FirstNpcState.NEUTRAL) {
 								TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getFirstNPC().getSpeech(), quest.getFirstNPC().getNpcName()));
 								queue.setCompletedTask(new Runnable() {
@@ -180,6 +185,7 @@ public class NpcClickEvent implements Listener {
 											if (quest.getRewards().hasExecute()) {
 												quest.getRewards().executeCommand(player.getName());
 											}
+											Bukkit.getServer().getPluginManager().callEvent(new QuestCompleteEvent(quest, questProfile));
 										}
 									});
 								}
@@ -205,12 +211,14 @@ public class NpcClickEvent implements Listener {
 	@EventHandler
 	public void onNpcLeftClick(NPCLeftClickEvent event) {
 		Player player = event.getClicker();
-		for (Quest quest : Plugin.getQuestProfile(event.getClicker().getUniqueId().toString()).getQuests()) {
+		QuestProfile questProfile = Plugin.getQuestProfile(event.getClicker().getUniqueId().toString());
+		for (Quest quest : questProfile.getQuests()) {
 			if (quest.getQuestState().hasStarted() == false && quest.getQuestState().isCompleted() == false) {
 				if (quest.getFirstNPC().getCitizensNpc().getId() == event.getNPC().getId()) {
 					if (QuestObjective.getObjective(quest.getObjectives(), 1).isCompleted() == false) {
 						quest.getFirstNPC().setState(FirstNpcState.DENIED);
 						player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7[1/1] &e" + quest.getFirstNPC().getNpcName() + ": &6" + quest.getFirstNPC().getDeniedMessage()));
+						Bukkit.getServer().getPluginManager().callEvent(new QuestDenyEvent(quest, questProfile));
 					}
 				}
 			}

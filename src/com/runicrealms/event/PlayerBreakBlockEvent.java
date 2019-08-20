@@ -1,5 +1,6 @@
 package com.runicrealms.event;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -9,6 +10,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.runicrealms.Plugin;
+import com.runicrealms.api.QuestCompleteEvent;
 import com.runicrealms.player.QuestProfile;
 import com.runicrealms.quests.FirstNpcState;
 import com.runicrealms.quests.Quest;
@@ -74,6 +76,7 @@ public class PlayerBreakBlockEvent implements Listener {
 									if (quest.getRewards().hasExecute()) {
 										quest.getRewards().executeCommand(player.getName());
 									}
+									Bukkit.getServer().getPluginManager().callEvent(new QuestCompleteEvent(quest, questProfile));
 								}
 							}
 						}

@@ -3,6 +3,7 @@ package com.runicrealms.quests;
 import java.util.List;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPC;
@@ -37,6 +38,10 @@ public class QuestFirstNpc {
 		return npc;
 	}
 
+	public Location getStoredLocation() {
+		return this.npc.getStoredLocation();
+	}
+	
 	public List<String> getSpeech() {
 		return speech;
 	}
