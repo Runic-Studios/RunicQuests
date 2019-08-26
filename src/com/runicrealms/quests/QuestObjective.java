@@ -14,7 +14,7 @@ public class QuestObjective {
 	private Integer objectiveNumber;
 	private QuestObjectiveType objectiveType;
 	private List<String> completedMessage;
-	private QuestItem questItem = null;
+	private List<QuestItem> questItems;
 	private String mobName;
 	private Integer mobAmount;
 	private Integer mobsKilled = 0;
@@ -65,50 +65,50 @@ public class QuestObjective {
 		this.completedMessage = completedMessage;
 	}
 	
-	public QuestObjective(String mobName, Integer mobAmount, QuestItem questItem, List<String> goalMessage, List<String> execute, Integer objectiveNumber, List<String> completedMessage) {
+	public QuestObjective(String mobName, Integer mobAmount, List<QuestItem> questItems, List<String> goalMessage, List<String> execute, Integer objectiveNumber, List<String> completedMessage) {
 		this.mobName = mobName;
 		this.mobAmount = mobAmount;
 		this.goalMessage = goalMessage;
-		this.questItem = questItem;
+		this.questItems = questItems;
 		this.objectiveType = QuestObjectiveType.SLAY;
 		this.execute = execute;
 		this.objectiveNumber = objectiveNumber;
 		this.completedMessage = completedMessage;
 	}
 	
-	public QuestObjective(QuestNpc questNpc, QuestItem questItem, List<String> goalMessage, List<String> execute, Integer objectiveNumber, List<String> completedMessage) {
+	public QuestObjective(QuestNpc questNpc, List<QuestItem> questItems, List<String> goalMessage, List<String> execute, Integer objectiveNumber, List<String> completedMessage) {
 		this.questNpc = questNpc;
 		this.goalMessage = goalMessage;
-		this.questItem = questItem;
+		this.questItems = questItems;
 		this.objectiveType = QuestObjectiveType.TALK;
 		this.execute = execute;
 		this.objectiveNumber = objectiveNumber;
 		this.completedMessage = completedMessage;
 	}
 	
-	public QuestObjective(Location tripwire1, Location tripwire2, QuestItem questItem, List<String> goalMessage, List<String> execute, Integer objectiveNumber, List<String> completedMessage) {
+	public QuestObjective(Location tripwire1, Location tripwire2, List<QuestItem> questItems, List<String> goalMessage, List<String> execute, Integer objectiveNumber, List<String> completedMessage) {
 		this.tripwire1 = tripwire1;
 		this.tripwire2 = tripwire2;
 		this.goalMessage = goalMessage;
-		this.questItem = questItem;
+		this.questItems = questItems;
 		this.objectiveType = QuestObjectiveType.TRIPWIRE;
 		this.execute = execute;
 		this.objectiveNumber = objectiveNumber;
 		this.completedMessage = completedMessage;
 	}
 	
-	public QuestObjective(Material blockMaterial, QuestItem questItem, List<String> goalMessage, List<String> execute, Integer objectiveNumber, List<String> completedMessage) {
+	public QuestObjective(Material blockMaterial, List<QuestItem> questItems, List<String> goalMessage, List<String> execute, Integer objectiveNumber, List<String> completedMessage) {
 		this.blockMaterial = blockMaterial;
 		this.goalMessage = goalMessage;
-		this.questItem = questItem;
+		this.questItems = questItems;
 		this.objectiveType = QuestObjectiveType.BREAK;
 		this.execute = execute;
 		this.objectiveNumber = objectiveNumber;
 		this.completedMessage = completedMessage;
 	}
 	
-	public QuestItem getQuestItem() {
-		return this.questItem;
+	public List<QuestItem> getQuestItems() {
+		return this.questItems;
 	}
 	
 	public Integer getObjectiveNumber() {
@@ -168,7 +168,7 @@ public class QuestObjective {
 	}
 	
 	public boolean requiresQuestItem() {
-		return this.questItem != null;
+		return this.questItems != null;
 	}
 	
 	public boolean hasExecute() {

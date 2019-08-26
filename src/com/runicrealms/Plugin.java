@@ -3,6 +3,10 @@ package com.runicrealms;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.runicrealms.config.ConfigLoader;
@@ -58,6 +62,23 @@ public class Plugin extends JavaPlugin {
 	public static Integer getNextId() {
 		nextId++;
 		return nextId - 1;
+	}
+	
+	public static void removeItem(Inventory inventory, String name, Material type, int amount) {
+		int leftToRemove = amount;
+		for (ItemStack item : inventory.getContents()) {
+			if (item.getType() == type &&
+					ChatColor.stripColor(item.getItemMeta().getDisplayName()).equalsIgnoreCase(name)) {
+				inventory.remove(item);
+				leftToRemove -= item.getAmount();
+				if (leftToRemove <= 0) {
+					if (leftToRemove < 0) {
+						inventory.addItem(item.asQuantity(leftToRemove * -1));
+					}
+					return;
+				}
+			}
+		}
 	}
 	
 }

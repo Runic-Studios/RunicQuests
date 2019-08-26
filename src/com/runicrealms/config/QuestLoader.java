@@ -126,7 +126,7 @@ public class QuestLoader {
 				return new QuestObjective(
 						configSec.getString("requirement.mob-name"), 
 						configSec.getInt("requirement.amount"), 
-						new QuestItem(configSec.getString("requirement.requires.item-name"), configSec.getString("requirement.requires.item-type")), 
+						getQuestItems(configSec.getConfigurationSection("requirement.requires")),
 						goalMessage,
 						(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
 						objectiveNumber,
@@ -144,7 +144,7 @@ public class QuestLoader {
 			if (configSec.contains("requirement.requires")) {
 				return new QuestObjective(
 						loadNpc(configSec.getConfigurationSection("requirement.npc")),
-						new QuestItem(configSec.getString("requirement.requires.item-name"), configSec.getString("requirement.requires.item-type")), 
+						getQuestItems(configSec.getConfigurationSection("requirement.requires")),
 						goalMessage,
 						(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
 						objectiveNumber,
@@ -168,7 +168,7 @@ public class QuestLoader {
 				return new QuestObjective(
 						new Location(Bukkit.getWorld(Plugin.WORLD_NAME), x1, y1, z1),
 						new Location(Bukkit.getWorld(Plugin.WORLD_NAME), x2, y2, z2),
-						new QuestItem(configSec.getString("requirement.requires.item-name"), configSec.getString("requirement.requires.item-type")), 
+						getQuestItems(configSec.getConfigurationSection("requirement.requires")),
 						goalMessage,
 						(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
 						objectiveNumber,
@@ -192,7 +192,7 @@ public class QuestLoader {
 			if (configSec.contains("requirement.requires")) {
 				return new QuestObjective(
 						Material.getMaterial(configSec.getString("requirement.block-type").toUpperCase()),
-						new QuestItem(configSec.getString("requirement.requires.item-name"), configSec.getString("requirement.requires.item-type")), 
+						getQuestItems(configSec.getConfigurationSection("requirement.requires")),
 						goalMessage,
 						(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
 						objectiveNumber,
@@ -210,70 +210,36 @@ public class QuestLoader {
 	}
 
 	public static QuestFirstNpc loadFirstNpc(ConfigurationSection configSec) {
-		List<String> speech = new ArrayList<String>();
-		List<String> idleMessage = new ArrayList<String>();
-		List<String> completedMessage = new ArrayList<String>();
-		List<String> execute = new ArrayList<String>();
-		if (configSec.isString("speech")) {
-			speech.add(configSec.getString("speech"));
-		} else {
-			speech = configSec.getStringList("speech");
-		}
-		if (configSec.contains("idle-message")) {
-			if (configSec.isString("idle-message")) {
-				idleMessage.add(configSec.getString("idle-message"));
-			} else {
-				idleMessage = configSec.getStringList("idle-message");
-			}
-		} else {
-			idleMessage = null;
-		}
-		if (configSec.isString("quest-completed-message")) {
-			completedMessage.add(configSec.getString("quest-completed-message"));
-		} else {
-			completedMessage = configSec.getStringList("quest-completed-message");
-		}
-		if (configSec.contains("execute")) {
-			if (configSec.isString("execute")) {
-				execute.add(configSec.getString("execute"));
-			} else {
-				execute = configSec.getStringList("execute");
-			}
-		} else {
-			execute = null;
-		}
-		String npcName = configSec.getString("npc-name");
-		boolean deniable = configSec.getBoolean("deniable");
-		List<String> deniedMessage = deniable ? getStringList(configSec, "denied-message") : null;
-		List<String> acceptedMessage = deniable ? getStringList(configSec, "accepted-message") : null;
-		return new QuestFirstNpc(configSec.getInt("npc-id"), speech, idleMessage, completedMessage, npcName, execute, deniable, deniedMessage, acceptedMessage);
+		return new QuestFirstNpc(
+				configSec.getInt("npc-id"),
+				getStringList(configSec, "speech"),
+				(configSec.contains("idle-message") ? getStringList(configSec, "idle-message") : null),
+				getStringList(configSec, "completed-message"),
+				configSec.getString("npc-name"),
+				(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
+				configSec.getBoolean("deniable"),
+				(configSec.getBoolean("deniable") ? getStringList(configSec, "denied-message") : null),
+				(configSec.getBoolean("deniable") ? getStringList(configSec, "accepted-message") : null));
 	}
 
 	public static QuestNpc loadNpc(ConfigurationSection configSec) {
-		List<String> speech = new ArrayList<String>();
-		List<String> idleMessage = new ArrayList<String>();
-		List<String> completedMessage = new ArrayList<String>();
-		if (configSec.isString("speech")) {
-			speech.add(configSec.getString("speech"));
-		} else {
-			speech = configSec.getStringList("speech");
+		return new QuestNpc(
+				configSec.getInt("npc-id"),
+				getStringList(configSec, "speech"),
+				(configSec.contains("idle-message") ? getStringList(configSec, "idle-message") : null),
+				getStringList(configSec, "completed-message"),
+				configSec.getString("npc-name"));
+	}
+	
+	public static List<QuestItem> getQuestItems(ConfigurationSection configSec) {
+		List<QuestItem> questItems = new ArrayList<QuestItem>();
+		for (String key : configSec.getKeys(false)) {
+			questItems.add(new QuestItem(
+					configSec.getString(key + ".item-name"),
+					configSec.getString(key + ".item-type"),
+					configSec.getInt(key + ".item-count")));
 		}
-		if (configSec.contains("idle-message")) {
-			if (configSec.isString("idle-message")) {
-				idleMessage.add(configSec.getString("idle-message"));
-			} else {
-				idleMessage = configSec.getStringList("idle-message");
-			}
-		} else {
-			idleMessage = null;
-		}
-		if (configSec.isString("quest-completed-message")) {
-			completedMessage.add(configSec.getString("quest-completed-message"));
-		} else {
-			completedMessage = configSec.getStringList("quest-completed-message");
-		}
-		String npcName = configSec.getString("npc-name");
-		return new QuestNpc(configSec.getInt("npc-id"), speech, idleMessage, completedMessage, npcName);
+		return questItems;
 	}
 
 	private static List<String> getStringList(ConfigurationSection configSec, String path) {

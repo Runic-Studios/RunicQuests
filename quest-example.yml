@@ -18,7 +18,9 @@ firstNPC:
   quest-completed-message: 'um hello?' # This is the message that the NPC will say when you have completed the quest
   deniable: true # This is required
   denied-message: 'oof me sad now' # This are required if deniable is set to true
-  accepted-message: 'yey thenk u' # This are required if deniable is set to true
+  accepted-message: # This are required if deniable is set to true
+  - 'yey thenk u'
+  - 'for helping me'
 objectives:
   1: 
     requirement:
@@ -32,8 +34,10 @@ objectives:
     requirement:
       type: 'talk'
       requires: 
-        item-type: 'DIRT' # Must be the name of the material, for example, a diamond pickaxe is DIAMOND_PICKAXE
-        item-name: 'dirty dirt'
+        1: # Can have multiple item requirements
+          item-type: 'DIRT' # Must be the name of the material, for example, a diamond pickaxe is DIAMOND_PICKAXE
+          item-name: 'dirty dirt'
+          item-count: 1
       npc:
         npc-name: 'name2'
         npc-id: citizensNpcId

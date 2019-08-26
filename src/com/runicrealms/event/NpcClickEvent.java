@@ -19,6 +19,7 @@ import com.runicrealms.api.QuestDenyEvent;
 import com.runicrealms.player.QuestProfile;
 import com.runicrealms.quests.FirstNpcState;
 import com.runicrealms.quests.Quest;
+import com.runicrealms.quests.QuestItem;
 import com.runicrealms.quests.QuestObjective;
 import com.runicrealms.quests.QuestObjectiveType;
 import com.runicrealms.quests.SpeechState;
@@ -109,12 +110,8 @@ public class NpcClickEvent implements Listener {
 									}
 									quest.getFirstNPC().setSpeechState(SpeechState.COMPLETED);
 									quest.getFirstNPC().setState(FirstNpcState.ACCEPTED);
-									TaskQueue queue = new TaskQueue(new Runnable() {
-										@Override
-										public void run()  {
-											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7[1/1] &e" + quest.getFirstNPC().getNpcName() + ": &6" + quest.getFirstNPC().getAcceptedMessage()));
-										}
-									}, new Runnable() {
+									TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getFirstNPC().getAcceptedMessage(), quest.getFirstNPC().getNpcName()));
+									queue.addTasks(new Runnable() {
 										@Override
 										public void run() {
 											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&l&6New objective for: &r&l&e") + quest.getQuestName());
@@ -158,12 +155,8 @@ public class NpcClickEvent implements Listener {
 								}
 								quest.getFirstNPC().setSpeechState(SpeechState.COMPLETED);
 								quest.getFirstNPC().setState(FirstNpcState.ACCEPTED);
-								TaskQueue queue = new TaskQueue(new Runnable() {
-									@Override
-									public void run()  {
-										player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7[1/1] &e" + quest.getFirstNPC().getNpcName() + ": &6" + quest.getFirstNPC().getAcceptedMessage()));
-									}
-								}, new Runnable() {
+								TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getFirstNPC().getAcceptedMessage(), quest.getFirstNPC().getNpcName()));
+								queue.addTasks(new Runnable() {
 									@Override
 									public void run() {
 										player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&l&6New objective for: &r&l&e") + quest.getQuestName());
@@ -190,31 +183,38 @@ public class NpcClickEvent implements Listener {
 							continue;
 						}
 						if (objective.requiresQuestItem()) {
-							boolean hasQuestItem = false;
-							for (ItemStack item : player.getInventory().getContents()) {
-								if (item != null) {
-									if (item.getType() == Material.getMaterial(objective.getQuestItem().getItemType())) {
-										if (ChatColor.stripColor(item.getItemMeta().getDisplayName()).equalsIgnoreCase(objective.getQuestItem().getItemName())) {
-											player.getInventory().remove(item.asQuantity(1));
-											hasQuestItem = true;
-											break;
+							if (objective.requiresQuestItem()) {
+								int aquiredQuestItems = 0;
+								for (QuestItem questItem : objective.getQuestItems()) {
+									int amount = 0;
+									for (ItemStack item : player.getInventory().getContents()) {
+										Material material = Material.getMaterial(questItem.getItemType());
+										if (item.getType() == material &&
+												ChatColor.stripColor(item.getItemMeta().getDisplayName()).equalsIgnoreCase(questItem.getItemName())) {
+											amount += item.getAmount();
+											if (amount >= questItem.getAmount()) {
+												Plugin.removeItem(player.getInventory(), questItem.getItemName(), material, questItem.getAmount());
+												aquiredQuestItems++;
+												break;
+											}
 										}
 									}
 								}
-							}
-							if (!hasQuestItem) {
-								TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, objective.getQuestNpc().getIdleSpeech(), objective.getQuestNpc().getNpcName()));
-								queue.setCompletedTask(new Runnable() {
-									@Override
-									public void run() {
-										objective.getQuestNpc().setSpeechState(SpeechState.NOT_STARTED);
-										npcs.remove(objective.getQuestNpc().getId());
-									}
-								});
-								queue.startTasks();
-								objective.getQuestNpc().setSpeechState(SpeechState.STARTED);
-								npcs.put(objective.getQuestNpc().getId(), queue);
-								continue;
+								player.updateInventory();
+								if (aquiredQuestItems != objective.getQuestItems().size()) { 
+									TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, objective.getQuestNpc().getIdleSpeech(), objective.getQuestNpc().getNpcName()));
+									queue.setCompletedTask(new Runnable() {
+										@Override
+										public void run() {
+											objective.getQuestNpc().setSpeechState(SpeechState.NOT_STARTED);
+											npcs.remove(objective.getQuestNpc().getId());
+										}
+									});
+									queue.startTasks();
+									objective.getQuestNpc().setSpeechState(SpeechState.STARTED);
+									npcs.put(objective.getQuestNpc().getId(), queue);
+									continue;
+								}
 							}
 						}
 						if (objective.getObjectiveType() == QuestObjectiveType.TALK) {
@@ -293,7 +293,8 @@ public class NpcClickEvent implements Listener {
 					if (QuestObjective.getObjective(quest.getObjectives(), 1).isCompleted() == false) {
 						quest.getFirstNPC().setState(FirstNpcState.DENIED);
 						quest.getFirstNPC().setSpeechState(SpeechState.NOT_STARTED);
-						player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7[1/1] &e" + quest.getFirstNPC().getNpcName() + ": &6" + quest.getFirstNPC().getDeniedMessage()));
+						TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getFirstNPC().getDeniedMessage(), quest.getFirstNPC().getNpcName()));
+						queue.startTasks();
 						Bukkit.getServer().getPluginManager().callEvent(new QuestDenyEvent(quest, questProfile));
 					}
 				}

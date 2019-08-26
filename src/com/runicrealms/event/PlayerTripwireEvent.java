@@ -16,6 +16,7 @@ import com.runicrealms.api.QuestCompleteEvent;
 import com.runicrealms.player.QuestProfile;
 import com.runicrealms.quests.FirstNpcState;
 import com.runicrealms.quests.Quest;
+import com.runicrealms.quests.QuestItem;
 import com.runicrealms.quests.QuestObjective;
 import com.runicrealms.quests.QuestObjectiveType;
 
@@ -40,19 +41,24 @@ public class PlayerTripwireEvent implements Listener {
 								continue;
 							}
 							if (objective.requiresQuestItem()) {
-								boolean hasQuestItem = false;
-								for (ItemStack item : player.getInventory().getContents()) {
-									if (item != null) {
-										if (item.getType() == Material.getMaterial(objective.getQuestItem().getItemType())) {
-											if (ChatColor.stripColor(item.getItemMeta().getDisplayName()).equalsIgnoreCase(objective.getQuestItem().getItemName())) {
-												player.getInventory().remove(item.asQuantity(1));
-												hasQuestItem = true;
+								int aquiredQuestItems = 0;
+								for (QuestItem questItem : objective.getQuestItems()) {
+									int amount = 0;
+									for (ItemStack item : player.getInventory().getContents()) {
+										Material material = Material.getMaterial(questItem.getItemType());
+										if (item.getType() == material &&
+												ChatColor.stripColor(item.getItemMeta().getDisplayName()).equalsIgnoreCase(questItem.getItemName())) {
+											amount += item.getAmount();
+											if (amount >= questItem.getAmount()) {
+												Plugin.removeItem(player.getInventory(), questItem.getItemName(), material, questItem.getAmount());
+												aquiredQuestItems++;
 												break;
 											}
 										}
 									}
 								}
-								if (!hasQuestItem) { 
+								player.updateInventory();
+								if (aquiredQuestItems != objective.getQuestItems().size()) { 
 									continue;
 								}
 							}
