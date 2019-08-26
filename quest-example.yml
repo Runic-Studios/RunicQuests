@@ -1,6 +1,7 @@
 name: 'Example Quest'
 unique-id: 1
 repeatable: false
+side-quest: false
 requirements: # Everything here is optional, except the level requirement and level-not-met. If you only have 'level', then you only need level and level-not-met.
   level: 10
   tailoring-level: 10 # Can be any profession (jeweling-level, leatherworking-level), also crafting-level for any profession level
