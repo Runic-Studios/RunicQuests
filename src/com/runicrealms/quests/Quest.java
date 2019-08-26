@@ -10,14 +10,15 @@ public class Quest {
 	
 	private String questName;
 	private QuestFirstNpc firstNPC;
-	private HashMap<QuestObjective, QuestObjectiveState> objectives;
+	private HashMap<QuestObjective, QuestObjectiveState> objectives = new HashMap<QuestObjective, QuestObjectiveState>();
 	private QuestRewards rewards;
 	private QuestState state;
 	private Integer questID;
 	private QuestRequirements requirements;
 	private boolean sideQuest;
+	private boolean repeatable;
 	
-	public Quest(String questName, QuestFirstNpc firstNPC, ArrayList<QuestObjective> objectives, QuestRewards rewards, Integer questID, QuestRequirements requirements, boolean sideQuest) {
+	public Quest(String questName, QuestFirstNpc firstNPC, ArrayList<QuestObjective> objectives, QuestRewards rewards, Integer questID, QuestRequirements requirements, boolean sideQuest, boolean repeatable) {
 		this.questName = questName;
 		this.firstNPC = firstNPC;
 		for (QuestObjective objective : objectives) {
@@ -28,6 +29,7 @@ public class Quest {
 		this.questID = questID;
 		this.requirements = requirements;
 		this.sideQuest = sideQuest;
+		this.repeatable = repeatable;
 	}
 	
 	public Quest(Quest quest) {
@@ -39,6 +41,7 @@ public class Quest {
 		this.questID = quest.questID;
 		this.requirements = quest.requirements;
 		this.sideQuest = quest.sideQuest;
+		this.repeatable = quest.repeatable;
 	}
 
 	public String getQuestName() {
@@ -71,6 +74,10 @@ public class Quest {
 
 	public QuestRequirements getRequirements() {
 		return requirements;
+	}
+	
+	public boolean isRepeatable() {
+		return repeatable;
 	}
 
 }

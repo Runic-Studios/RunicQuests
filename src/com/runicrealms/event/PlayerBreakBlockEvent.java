@@ -29,24 +29,27 @@ public class PlayerBreakBlockEvent implements Listener {
 					if (quest.getObjectives().get(objective).isCompleted() == false) {
 						if (objective.getObjectiveNumber() != 1) {
 							if (QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() - 1).isCompleted() == false) {
-								return;
+								continue;
 							}
 						}
 						if (quest.getFirstNPC().getState() != FirstNpcState.ACCEPTED) {
-							return;
+							continue;
 						}
 						if (objective.requiresQuestItem()) {
 							boolean hasQuestItem = false;
 							for (ItemStack item : player.getInventory().getContents()) {
-								if (ChatColor.stripColor(item.getItemMeta().getDisplayName()).equalsIgnoreCase(objective.getQuestItem().getItemName())) {
+								if (item != null) {
 									if (item.getType() == Material.getMaterial(objective.getQuestItem().getItemType())) {
-										hasQuestItem = true;
-										break;
+										if (ChatColor.stripColor(item.getItemMeta().getDisplayName()).equalsIgnoreCase(objective.getQuestItem().getItemName())) {
+											player.getInventory().remove(item.asQuantity(1));
+											hasQuestItem = true;
+											break;
+										}
 									}
 								}
 							}
 							if (!hasQuestItem) { 
-								return;
+								continue;
 							}
 						}
 						if (objective.getObjectiveType() == QuestObjectiveType.BREAK) {

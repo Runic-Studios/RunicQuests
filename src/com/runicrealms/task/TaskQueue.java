@@ -1,91 +1,109 @@
 package com.runicrealms.task;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+
+import org.bukkit.scheduler.BukkitTask;
 
 import com.runicrealms.Plugin;
 
 public class TaskQueue {
-	
+
 	private List<Runnable> tasks = new ArrayList<Runnable>();
-	private HashMap<Runnable, Task> uncompletedTasks = new HashMap<Runnable, Task>();
+	private ArrayList<Task> uncompletedTasks = new ArrayList<Task>();
 	private double secsDelay = 3;
 	private Runnable completedTask = null;
-	
+
 	public TaskQueue() {}
-	
+
 	public TaskQueue(Runnable... runnables) {
 		for (Runnable runnable : runnables) {
 			tasks.add(runnable);
 		}
 	}
-	
+
 	public TaskQueue(List<Runnable> runnables) {
 		for (Runnable runnable : runnables) {
 			tasks.add(runnable);
 		}
 	}
-	
+
 	public void nextTask() {
-		for (Runnable runnable : uncompletedTasks.keySet()) {
-			if (uncompletedTasks.get(runnable).getNumber() == 0) {
-				runnable.run();
-				if (uncompletedTasks.size() == 1 && completedTask != null) {
-					completedTask.run();
-				}
-				uncompletedTasks.remove(runnable);
-				continue;
-			}
-			uncompletedTasks.get(runnable).setNumber(uncompletedTasks.get(runnable).getNumber() - 1);
-			uncompletedTasks.get(runnable).getTask().cancel();
+		uncompletedTasks.get(0).getRunnable().run();
+		if (uncompletedTasks.size() == 0 && completedTask != null) {
+			try {
+				completedTask.run();
+			} catch (Exception exception) {}
+			return;
 		}
-		HashMap<Runnable, Task> newTasks = new HashMap<Runnable, Task>();
-		for (Runnable runnable : uncompletedTasks.keySet()) {
-			newTasks.put(runnable, new Task(uncompletedTasks.get(runnable).getNumber(), Plugin.getInstance().getServer().getScheduler().runTaskLater(
+		uncompletedTasks.forEach(task -> task.getTask().cancel());
+		ArrayList<Task> newTasks = new ArrayList<Task>();
+		for (Task task : uncompletedTasks) {
+			BukkitTask bukkitTask = Plugin.getInstance().getServer().getScheduler().runTaskLater(
 					Plugin.getInstance(), 
-					runnable, 
-					(long) (this.secsDelay * (uncompletedTasks.get(runnable).getNumber() + 1) * 20))));
+					task.getRunnable(), 
+					(long) (this.secsDelay * (uncompletedTasks.indexOf(task) + 1) * 20));
+			newTasks.add(new Task(bukkitTask, task.getRunnable()));
 		}
 		uncompletedTasks = newTasks;
 	}
-	
+
 	public void startTasks() {
 		for (int i = 0; i < this.tasks.size(); i++) {
 			Runnable task = this.tasks.get(i);
-			Runnable runnable = new Runnable() {
-				@Override
-				public void run() {
+			if (i == 0) {
+				try {
 					task.run();
-					if (uncompletedTasks.size() == 1 && completedTask != null) {
+				} catch (Exception exception) {}
+				if (tasks.size() == 1 && completedTask != null) {
+					try {
 						completedTask.run();
-					}
-					uncompletedTasks.remove(this);
+					} catch (Exception exception) {}
+					return;
 				}
-			};
-			uncompletedTasks.put(runnable, new Task(i, Plugin.getInstance().getServer().getScheduler().runTaskLater(
-					Plugin.getInstance(), 
-					runnable, 
-					(long) (this.secsDelay * (i + 1) * 20))));
+			} else {
+				boolean lastTask = tasks.size() == i + 1;
+				Runnable runnable = new Runnable() {
+					@Override
+					public void run() {
+						for (Task uncompletedTask : uncompletedTasks) {
+							if (uncompletedTask.getRunnable() == this) {
+								task.run();
+								if (lastTask && completedTask != null) {
+									try {
+										completedTask.run();
+									} catch (Exception exception) {}
+									return;
+								}
+								uncompletedTasks.remove(uncompletedTask);
+								break;
+							}
+						}
+					}
+				};
+				uncompletedTasks.add(new Task(
+						Plugin.getInstance().getServer().getScheduler().runTaskLater(Plugin.getInstance(), runnable, (long) (this.secsDelay * i * 20)), 
+						runnable));
+			}
 		}
 	}
-	
+
 	public void addTasks(Runnable... runnables) {
 		for (Runnable runnable : runnables) {
 			tasks.add(runnable);
 		}
 	}
-	
+
 	public List<Runnable> getTasks() {
 		return this.tasks;
 	}
-	
+
 	public void setDelay(double delay) {
 		this.secsDelay = delay;
 	}
-	
+
 	public void setCompletedTask(Runnable task) {
 		this.completedTask = task;
 	}
-	
+
 }

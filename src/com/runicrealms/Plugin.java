@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.runicrealms.config.PlayerDataLoader;
+import com.runicrealms.config.ConfigLoader;
 import com.runicrealms.event.MythicMobsKillEvent;
 import com.runicrealms.event.NpcClickEvent;
 import com.runicrealms.event.PlayerBreakBlockEvent;
@@ -17,13 +17,20 @@ public class Plugin extends JavaPlugin {
 
 	private static Plugin plugin;
 	private static List<QuestProfile> questProfiles = new ArrayList<QuestProfile>();
+	private static Integer nextId = 0;
 	
-	public static final String WORLD_NAME = "Alterra";
+	public static String WORLD_NAME;
+	public static double NPC_MESSAGE_DELAY;
+	public static boolean CACHE_PLAYER_DATA;
 	
 	@Override
 	public void onEnable() {
 		plugin = this;
-		PlayerDataLoader.initDirs();
+		ConfigLoader.initDirs();
+		ConfigLoader.loadMainConfig();
+		WORLD_NAME = ConfigLoader.getMainConfig().getString("world-name");
+		NPC_MESSAGE_DELAY = ConfigLoader.getMainConfig().getDouble("npc-message-delay");
+		CACHE_PLAYER_DATA = ConfigLoader.getMainConfig().getBoolean("cache-player-data");
 		this.getServer().getPluginManager().registerEvents(new MythicMobsKillEvent(), this);
 		this.getServer().getPluginManager().registerEvents(new NpcClickEvent(), this);
 		this.getServer().getPluginManager().registerEvents(new PlayerBreakBlockEvent(), this);
@@ -46,6 +53,11 @@ public class Plugin extends JavaPlugin {
 			}
 		}
 		return null;
+	}
+	
+	public static Integer getNextId() {
+		nextId++;
+		return nextId - 1;
 	}
 	
 }

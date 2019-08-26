@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.runicrealms.config.DataFileConfiguration;
 import com.runicrealms.config.PlayerDataLoader;
-import com.runicrealms.quests.FirstNpcState;
 import com.runicrealms.quests.Quest;
 
 public class QuestProfile {
@@ -35,13 +34,4 @@ public class QuestProfile {
 		return savedData;
 	}
 	
-	public void dumpFirstNpcStates() {
-		for (Quest quest : this.quests) { // TODO - save NPC deny on restart
-			if (quest.getFirstNPC().getState() != FirstNpcState.ACCEPTED) {
-				quest.getFirstNPC().setState(FirstNpcState.NEUTRAL);
-			}
-		}
-		this.save();
-	}
-
 }

@@ -17,7 +17,6 @@ public class PlayerJoinQuitEvent implements Listener {
 	
 	@EventHandler
 	public void onPlayerQuit(PlayerQuitEvent event) {
-		Plugin.getQuestProfile(event.getPlayer().getUniqueId().toString()).dumpFirstNpcStates();
 		Plugin.getQuestProfiles().remove(Plugin.getQuestProfiles().indexOf(Plugin.getQuestProfile(event.getPlayer().getUniqueId().toString())));
 	}
 	

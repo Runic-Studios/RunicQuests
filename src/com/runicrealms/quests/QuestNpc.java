@@ -2,6 +2,8 @@ package com.runicrealms.quests;
 
 import java.util.List;
 
+import com.runicrealms.Plugin;
+
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPC;
 
@@ -13,6 +15,7 @@ public class QuestNpc {
 	private List<String> questCompletedSpeech;
 	private String npcName;
 	private SpeechState speechState = SpeechState.NOT_STARTED;
+	private Integer id;
 	
 	public QuestNpc(Integer npcId, List<String> speech, List<String> idleSpeech, List<String> questCompletedSpeech, String npcName) {
 		this.npc = CitizensAPI.getNPCRegistry().getById(npcId);
@@ -20,6 +23,7 @@ public class QuestNpc {
 		this.idleSpeech = idleSpeech;
 		this.questCompletedSpeech = questCompletedSpeech;
 		this.npcName = npcName;
+		this.id = Plugin.getNextId();
 	}
 
 	public NPC getCitizensNpc() {
@@ -28,6 +32,10 @@ public class QuestNpc {
 
 	public List<String> getSpeech() {
 		return speech;
+	}
+	
+	public Integer getId() {
+		return this.id;
 	}
 
 	public List<String> getIdleSpeech() {

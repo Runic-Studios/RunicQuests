@@ -5,6 +5,8 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
+import com.runicrealms.Plugin;
+
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPC;
 
@@ -21,6 +23,7 @@ public class QuestFirstNpc {
 	private List<String> acceptedMessage;
 	private FirstNpcState state = FirstNpcState.NEUTRAL;
 	private SpeechState speechState = SpeechState.NOT_STARTED;
+	private Integer id;
 	
 	public QuestFirstNpc(Integer npcId, List<String> speech, List<String> idleSpeech, List<String> questCompletedSpeech, String npcName, List<String> execute, boolean deniable, List<String> deniedMessage, List<String> acceptedMessage) {
 		this.npc = CitizensAPI.getNPCRegistry().getById(npcId);
@@ -32,6 +35,7 @@ public class QuestFirstNpc {
 		this.deniable = deniable;
 		this.deniedMessage = deniedMessage;
 		this.acceptedMessage = acceptedMessage;
+		this.id = Plugin.getNextId();
 	}
 	
 	public NPC getCitizensNpc() {
@@ -44,6 +48,10 @@ public class QuestFirstNpc {
 	
 	public List<String> getSpeech() {
 		return speech;
+	}
+	
+	public Integer getId() {
+		return this.id;
 	}
 
 	public List<String> getIdleSpeech() {
@@ -70,11 +78,11 @@ public class QuestFirstNpc {
 		return acceptedMessage;
 	}
 	
-	public SpeechState hasSpeechStarted() {
+	public SpeechState getSpeechState() {
 		return speechState;
 	}
 	
-	public void setSpeechStarted(SpeechState state) {
+	public void setSpeechState(SpeechState state) {
 		speechState = state;
 	}
 	
@@ -96,7 +104,8 @@ public class QuestFirstNpc {
 	
 	public void executeCommand(String playerName) {
 		for (String command : this.execute) {
-			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replaceAll("%player%", playerName));
+			String parsedCommand = command.startsWith("/") ? command.substring(1).replaceAll("%player%", playerName) : command.replaceAll("%player%", playerName);
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), parsedCommand);
 		}
 	}
 

@@ -36,7 +36,8 @@ public class QuestRewards {
 	
 	public void executeCommand(String playerName) {
 		for (String command : this.execute) {
-			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replaceAll("%player%", playerName));
+			String parsedCommand = command.startsWith("/") ? command.substring(1).replaceAll("%player%", playerName) : command.replaceAll("%player%", playerName);
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), parsedCommand);
 		}
 	}
 }

@@ -31,7 +31,7 @@ public class QuestLoader {
 		List<Quest> quests = new ArrayList<Quest>();
 		File folder = ConfigLoader.getSubFolder(Plugin.getInstance().getDataFolder(), "quests");
 		for (File quest : folder.listFiles()) {
-			quests.add(QuestLoader.loadQuest(ConfigLoader.getYamlConfigFile(quest.getName() + ".yml", folder)));
+			quests.add(QuestLoader.loadQuest(ConfigLoader.getYamlConfigFile(quest.getName(), folder)));
 		}
 		cachedQuests = quests;
 		return quests;
@@ -39,8 +39,8 @@ public class QuestLoader {
 
 	public static Quest loadQuest(FileConfiguration config) {
 		ArrayList<QuestObjective> objectives = new ArrayList<QuestObjective>();
-		for (int i = 1; i <= config.getKeys(false).size(); i++) {
-			objectives.add(loadObjective(config.getConfigurationSection(i + ""), i));
+		for (int i = 1; i <= config.getConfigurationSection("objectives").getKeys(false).size(); i++) {
+			objectives.add(loadObjective(config.getConfigurationSection("objectives." + i), i));
 		}
 		return new Quest(
 				config.getString("name"),
@@ -49,7 +49,8 @@ public class QuestLoader {
 				loadRewards(config.getConfigurationSection("rewards")),
 				config.getInt("unique-id"),
 				loadRequirements(config.getConfigurationSection("requirements")),
-				config.getBoolean("side-quest"));
+				config.getBoolean("side-quest"),
+				config.getBoolean("repeatable"));
 	}
 
 	public static QuestRequirements loadRequirements(ConfigurationSection configSec) {
@@ -158,12 +159,12 @@ public class QuestLoader {
 			}
 		} else if (configSec.getString("requirement.type").equalsIgnoreCase("tripwire")) {
 			if (configSec.contains("requirement.requires")) {
-				double x1 = Double.parseDouble(configSec.getString("requirement.tripwire1").split(",")[0].replaceAll(",", ""));
-				double y1 = Double.parseDouble(configSec.getString("requirement.tripwire1").split(",")[1].replaceAll(",", ""));
-				double z1 = Double.parseDouble(configSec.getString("requirement.tripwire1").split(",")[2].replaceAll(",", ""));
-				double x2 = Double.parseDouble(configSec.getString("requirement.tripwire2").split(",")[0].replaceAll(",", ""));
-				double y2 = Double.parseDouble(configSec.getString("requirement.tripwire2").split(",")[1].replaceAll(",", ""));
-				double z2 = Double.parseDouble(configSec.getString("requirement.tripwire2").split(",")[2].replaceAll(",", ""));
+				double x1 = Double.parseDouble(configSec.getString("requirement.tripwire-one").split(",")[0].replaceAll(",", ""));
+				double y1 = Double.parseDouble(configSec.getString("requirement.tripwire-one").split(",")[1].replaceAll(",", ""));
+				double z1 = Double.parseDouble(configSec.getString("requirement.tripwire-one").split(",")[2].replaceAll(",", ""));
+				double x2 = Double.parseDouble(configSec.getString("requirement.tripwire-two").split(",")[0].replaceAll(",", ""));
+				double y2 = Double.parseDouble(configSec.getString("requirement.tripwire-two").split(",")[1].replaceAll(",", ""));
+				double z2 = Double.parseDouble(configSec.getString("requirement.tripwire-two").split(",")[2].replaceAll(",", ""));
 				return new QuestObjective(
 						new Location(Bukkit.getWorld(Plugin.WORLD_NAME), x1, y1, z1),
 						new Location(Bukkit.getWorld(Plugin.WORLD_NAME), x2, y2, z2),
@@ -173,12 +174,12 @@ public class QuestLoader {
 						objectiveNumber,
 						(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
 			} else {
-				double x1 = Double.parseDouble(configSec.getString("requirement.tripwire1").split(",")[0].replaceAll(",", ""));
-				double y1 = Double.parseDouble(configSec.getString("requirement.tripwire1").split(",")[1].replaceAll(",", ""));
-				double z1 = Double.parseDouble(configSec.getString("requirement.tripwire1").split(",")[2].replaceAll(",", ""));
-				double x2 = Double.parseDouble(configSec.getString("requirement.tripwire2").split(",")[0].replaceAll(",", ""));
-				double y2 = Double.parseDouble(configSec.getString("requirement.tripwire2").split(",")[1].replaceAll(",", ""));
-				double z2 = Double.parseDouble(configSec.getString("requirement.tripwire2").split(",")[2].replaceAll(",", ""));
+				double x1 = Double.parseDouble(configSec.getString("requirement.tripwire-one").split(",")[0].replaceAll(",", ""));
+				double y1 = Double.parseDouble(configSec.getString("requirement.tripwire-one").split(",")[1].replaceAll(",", ""));
+				double z1 = Double.parseDouble(configSec.getString("requirement.tripwire-one").split(",")[2].replaceAll(",", ""));
+				double x2 = Double.parseDouble(configSec.getString("requirement.tripwire-two").split(",")[0].replaceAll(",", ""));
+				double y2 = Double.parseDouble(configSec.getString("requirement.tripwire-two").split(",")[1].replaceAll(",", ""));
+				double z2 = Double.parseDouble(configSec.getString("requirement.tripwire-two").split(",")[2].replaceAll(",", ""));
 				return new QuestObjective(
 						new Location(Bukkit.getWorld(Plugin.WORLD_NAME), x1, y1, z1),
 						new Location(Bukkit.getWorld(Plugin.WORLD_NAME), x2, y2, z2),
@@ -228,9 +229,9 @@ public class QuestLoader {
 			idleMessage = null;
 		}
 		if (configSec.isString("quest-completed-message")) {
-			speech.add(configSec.getString("quest-completed-message"));
+			completedMessage.add(configSec.getString("quest-completed-message"));
 		} else {
-			speech = configSec.getStringList("quest-completed-message");
+			completedMessage = configSec.getStringList("quest-completed-message");
 		}
 		if (configSec.contains("execute")) {
 			if (configSec.isString("execute")) {
@@ -267,9 +268,9 @@ public class QuestLoader {
 			idleMessage = null;
 		}
 		if (configSec.isString("quest-completed-message")) {
-			speech.add(configSec.getString("quest-completed-message"));
+			completedMessage.add(configSec.getString("quest-completed-message"));
 		} else {
-			speech = configSec.getStringList("quest-completed-message");
+			completedMessage = configSec.getStringList("quest-completed-message");
 		}
 		String npcName = configSec.getString("npc-name");
 		return new QuestNpc(configSec.getInt("npc-id"), speech, idleMessage, completedMessage, npcName);

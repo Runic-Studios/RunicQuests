@@ -4,24 +4,20 @@ import org.bukkit.scheduler.BukkitTask;
 
 public class Task {
 
-	private int number;
 	private BukkitTask task;
+	private Runnable runnable;
 	
-	public Task(int number, BukkitTask task) {
-		this.number = number;
+	public Task(BukkitTask task, Runnable runnable) {
 		this.task = task;
-	}
-	
-	public int getNumber() {
-		return this.number;
-	}
-	
-	public void setNumber(int number) {
-		this.number = number;
+		this.runnable = runnable;
 	}
 	
 	public BukkitTask getTask() {
 		return this.task;
+	}
+	
+	public Runnable getRunnable() {
+		return this.runnable;
 	}
 	
 }
