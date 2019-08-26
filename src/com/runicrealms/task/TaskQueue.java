@@ -14,18 +14,22 @@ public class TaskQueue {
 	private double secsDelay = 3;
 	private Runnable completedTask = null;
 
-	public TaskQueue() {}
+	public TaskQueue() {
+		this.secsDelay = Plugin.NPC_MESSAGE_DELAY;
+	}
 
 	public TaskQueue(Runnable... runnables) {
 		for (Runnable runnable : runnables) {
 			tasks.add(runnable);
 		}
+		this.secsDelay = Plugin.NPC_MESSAGE_DELAY;
 	}
 
 	public TaskQueue(List<Runnable> runnables) {
 		for (Runnable runnable : runnables) {
 			tasks.add(runnable);
 		}
+		this.secsDelay = Plugin.NPC_MESSAGE_DELAY;
 	}
 
 	public void nextTask() {
