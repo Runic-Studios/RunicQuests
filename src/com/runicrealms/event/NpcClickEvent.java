@@ -70,7 +70,8 @@ public class NpcClickEvent implements Listener {
 					}
 				}
 			}
-			if (quest.getQuestState().hasStarted() == false && quest.getQuestState().isCompleted() == false) {
+			if ((quest.getQuestState().hasStarted() == false && quest.getQuestState().isCompleted() == false) ||
+					(quest.isRepeatable() && quest.getQuestState().hasStarted() && quest.getQuestState().isCompleted())) {
 				if (quest.getFirstNPC().getCitizensNpc().getId() == event.getNPC().getId()) {
 					if (QuestObjective.getObjective(quest.getObjectives(), 1).isCompleted() == false) {
 						Bukkit.getLogger().log(Level.INFO, quest.getFirstNPC().getState().getName() + " : " + quest.getFirstNPC().getSpeechState().getName());
