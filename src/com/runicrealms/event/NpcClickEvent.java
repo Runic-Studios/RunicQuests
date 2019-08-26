@@ -3,7 +3,6 @@ package com.runicrealms.event;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -74,7 +73,6 @@ public class NpcClickEvent implements Listener {
 					(quest.isRepeatable() && quest.getQuestState().hasStarted() && quest.getQuestState().isCompleted())) {
 				if (quest.getFirstNPC().getCitizensNpc().getId() == event.getNPC().getId()) {
 					if (QuestObjective.getObjective(quest.getObjectives(), 1).isCompleted() == false) {
-						Bukkit.getLogger().log(Level.INFO, quest.getFirstNPC().getState().getName() + " : " + quest.getFirstNPC().getSpeechState().getName());
 						if (quest.getFirstNPC().getSpeechState() == SpeechState.NOT_STARTED) {
 							if (!quest.getFirstNPC().isDeniable()) {
 								quest.getQuestState().setStarted(true);
