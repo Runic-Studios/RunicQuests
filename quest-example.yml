@@ -37,7 +37,7 @@ objectives:
         1: # Can have multiple item requirements
           item-type: 'DIRT' # Must be the name of the material, for example, a diamond pickaxe is DIAMOND_PICKAXE
           item-name: 'dirty dirt'
-          item-count: 1
+          item-count: 5
       npc:
         npc-name: 'name2'
         npc-id: citizensNpcId

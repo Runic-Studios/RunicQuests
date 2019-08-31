@@ -2,7 +2,9 @@ package com.runicrealms.task;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
+import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
 
 import com.runicrealms.Plugin;
@@ -10,9 +12,10 @@ import com.runicrealms.Plugin;
 public class TaskQueue {
 
 	private List<Runnable> tasks = new ArrayList<Runnable>();
-	private ArrayList<Task> uncompletedTasks = new ArrayList<Task>();
+	private volatile ArrayList<Task> uncompletedTasks = new ArrayList<Task>();
 	private double secsDelay = 3;
-	private Runnable completedTask = null;
+	private volatile Runnable completedTask = null;
+	private volatile boolean canceled = false;
 
 	public TaskQueue() {
 		this.secsDelay = Plugin.NPC_MESSAGE_DELAY;
@@ -33,23 +36,31 @@ public class TaskQueue {
 	}
 
 	public void nextTask() {
-		uncompletedTasks.get(0).getRunnable().run();
-		if (uncompletedTasks.size() == 0 && completedTask != null) {
-			try {
-				completedTask.run();
-			} catch (Exception exception) {}
-			return;
+		if (!canceled) {
+			if (uncompletedTasks.get(0).hasRun() == false) {
+				uncompletedTasks.get(0).getRunnable().run();
+			}
+			if (uncompletedTasks.size() == 0 && completedTask != null) {
+				try {
+					completedTask.run();
+					completedTask = null;
+					canceled = true;
+					uncompletedTasks.forEach(task -> task.getTask().cancel());
+				} catch (Exception exception) {}
+				return;
+			}
+			uncompletedTasks.forEach(task -> task.getTask().cancel());
+			ArrayList<Task> newTasks = new ArrayList<Task>();
+			for (Task task : uncompletedTasks) {
+				BukkitTask bukkitTask = Plugin.getInstance().getServer().getScheduler().runTaskLater(
+						Plugin.getInstance(), 
+						task.getRunnable(), 
+						(long) (this.secsDelay * (uncompletedTasks.indexOf(task) + 1) * 20));
+				newTasks.add(new Task(bukkitTask, task.getRunnable(), task.hasRun()));
+			}
+			uncompletedTasks = newTasks;
+			Bukkit.getLogger().log(Level.INFO, uncompletedTasks.size() + "");
 		}
-		uncompletedTasks.forEach(task -> task.getTask().cancel());
-		ArrayList<Task> newTasks = new ArrayList<Task>();
-		for (Task task : uncompletedTasks) {
-			BukkitTask bukkitTask = Plugin.getInstance().getServer().getScheduler().runTaskLater(
-					Plugin.getInstance(), 
-					task.getRunnable(), 
-					(long) (this.secsDelay * (uncompletedTasks.indexOf(task) + 1) * 20));
-			newTasks.add(new Task(bukkitTask, task.getRunnable()));
-		}
-		uncompletedTasks = newTasks;
 	}
 
 	public void startTasks() {
@@ -62,6 +73,9 @@ public class TaskQueue {
 				if (tasks.size() == 1 && completedTask != null) {
 					try {
 						completedTask.run();
+						completedTask = null;
+						canceled = true;
+						uncompletedTasks.forEach(task_ -> task_.getTask().cancel());
 					} catch (Exception exception) {}
 					return;
 				}
@@ -72,10 +86,16 @@ public class TaskQueue {
 					public void run() {
 						for (Task uncompletedTask : uncompletedTasks) {
 							if (uncompletedTask.getRunnable() == this) {
-								task.run();
+								if (uncompletedTask.hasRun() == false) {
+									task.run();
+								}
 								if (lastTask && completedTask != null) {
 									try {
 										completedTask.run();
+										completedTask = null;
+										canceled = true;
+										uncompletedTasks.forEach(task_ -> task_.getTask().cancel());
+										uncompletedTasks.remove(uncompletedTask);
 									} catch (Exception exception) {}
 									return;
 								}
@@ -86,8 +106,7 @@ public class TaskQueue {
 					}
 				};
 				uncompletedTasks.add(new Task(
-						Plugin.getInstance().getServer().getScheduler().runTaskLater(Plugin.getInstance(), runnable, (long) (this.secsDelay * i * 20)), 
-						runnable));
+						Plugin.getInstance().getServer().getScheduler().runTaskLater(Plugin.getInstance(), runnable, (long) (this.secsDelay * i * 20)), runnable, false));
 			}
 		}
 	}

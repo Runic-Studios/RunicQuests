@@ -40,32 +40,37 @@ public class PlayerTripwireEvent implements Listener {
 							if (quest.getFirstNPC().getState() != FirstNpcState.ACCEPTED) {
 								continue;
 							}
-							if (objective.requiresQuestItem()) {
-								int aquiredQuestItems = 0;
-								for (QuestItem questItem : objective.getQuestItems()) {
-									int amount = 0;
-									for (ItemStack item : player.getInventory().getContents()) {
-										Material material = Material.getMaterial(questItem.getItemType());
-										if (item.getType() == material &&
-												ChatColor.stripColor(item.getItemMeta().getDisplayName()).equalsIgnoreCase(questItem.getItemName())) {
-											amount += item.getAmount();
-											if (amount >= questItem.getAmount()) {
-												Plugin.removeItem(player.getInventory(), questItem.getItemName(), material, questItem.getAmount());
-												aquiredQuestItems++;
-												break;
-											}
-										}
-									}
-								}
-								player.updateInventory();
-								if (aquiredQuestItems != objective.getQuestItems().size()) { 
-									continue;
-								}
-							}
 							if (objective.getObjectiveType() == QuestObjectiveType.TRIPWIRE) {
 								if (new IntRange(objective.getTripwire1().getBlockX(), objective.getTripwire2().getBlockX()).containsInteger(event.getClickedBlock().getX()) &&
 										new IntRange(objective.getTripwire1().getBlockY(), objective.getTripwire2().getBlockY()).containsInteger(event.getClickedBlock().getY()) &&
 										new IntRange(objective.getTripwire1().getBlockZ(), objective.getTripwire2().getBlockZ()).containsInteger(event.getClickedBlock().getZ())) {
+									if (objective.requiresQuestItem()) {
+										int aquiredQuestItems = 0;
+										for (QuestItem questItem : objective.getQuestItems()) {
+											int amount = 0;
+											for (ItemStack item : player.getInventory().getContents()) {
+												if (item != null) {
+													Material material = Material.getMaterial(questItem.getItemType());
+													if (item.getType() == material &&
+															ChatColor.stripColor(item.getItemMeta().getDisplayName()).equalsIgnoreCase(questItem.getItemName())) {
+														amount += item.getAmount();
+														if (amount >= questItem.getAmount()) {
+															aquiredQuestItems++;
+															break;
+														}
+													}
+												}
+											}
+										}
+										if (aquiredQuestItems != objective.getQuestItems().size()) { 
+											continue;
+										} else {
+											for (QuestItem questItem : objective.getQuestItems()) {
+												Plugin.removeItem(player.getInventory(), questItem.getItemName(), Material.getMaterial(questItem.getItemType()), questItem.getAmount());
+											}
+											player.updateInventory();
+										}
+									}
 									objective.setCompleted(true);
 									questProfile.save();
 									if (objective.hasExecute()) {

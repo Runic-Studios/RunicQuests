@@ -14,7 +14,6 @@ public class QuestNpc {
 	private List<String> idleSpeech;
 	private List<String> questCompletedSpeech;
 	private String npcName;
-	private SpeechState speechState = SpeechState.NOT_STARTED;
 	private Integer id;
 	
 	public QuestNpc(Integer npcId, List<String> speech, List<String> idleSpeech, List<String> questCompletedSpeech, String npcName) {
@@ -50,14 +49,6 @@ public class QuestNpc {
 		return this.npcName;
 	}
 	
-	public SpeechState getSpeechState() {
-		return speechState;
-	}
-	
-	public void setSpeechState(SpeechState started) {
-		speechState = started;
-	}
-
 	public boolean hasIdleSpeech() {
 		return this.idleSpeech != null;
 	}

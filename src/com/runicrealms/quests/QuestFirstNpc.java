@@ -22,7 +22,6 @@ public class QuestFirstNpc {
 	private List<String> deniedMessage;
 	private List<String> acceptedMessage;
 	private FirstNpcState state = FirstNpcState.NEUTRAL;
-	private SpeechState speechState = SpeechState.NOT_STARTED;
 	private Integer id;
 	
 	public QuestFirstNpc(Integer npcId, List<String> speech, List<String> idleSpeech, List<String> questCompletedSpeech, String npcName, List<String> execute, boolean deniable, List<String> deniedMessage, List<String> acceptedMessage) {
@@ -76,14 +75,6 @@ public class QuestFirstNpc {
 	
 	public List<String> getAcceptedMessage() {
 		return acceptedMessage;
-	}
-	
-	public SpeechState getSpeechState() {
-		return speechState;
-	}
-	
-	public void setSpeechState(SpeechState state) {
-		speechState = state;
 	}
 	
 	public void setState(FirstNpcState state) {
