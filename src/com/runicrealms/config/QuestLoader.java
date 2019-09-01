@@ -44,7 +44,7 @@ public class QuestLoader {
 		}
 		return new Quest(
 				config.getString("name"),
-				loadFirstNpc(config.getConfigurationSection("firstNPC")),
+				loadFirstNpc(config.getConfigurationSection("first-npc")),
 				objectives,
 				loadRewards(config.getConfigurationSection("rewards")),
 				config.getInt("unique-id"),
