@@ -38,28 +38,32 @@ public class NpcClickEvent implements Listener {
 		for (Quest quest : questProfile.getQuests()) {
 			if (quest.getQuestState().isCompleted()) {
 				if (quest.getFirstNPC().getCitizensNpc().getId() == event.getNPC().getId()) {
-					TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getFirstNPC().getQuestCompletedSpeech(), quest.getFirstNPC().getNpcName()));
-					queue.setCompletedTask(new Runnable() {
-						@Override
-						public void run() {
-							npcs.remove(quest.getFirstNPC().getId());
-						}
-					});
-					queue.startTasks();
-					npcs.put(quest.getFirstNPC().getId(), queue);
+					if (quest.getFirstNPC().hasQuestCompletedSpeech()) {
+						TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getFirstNPC().getQuestCompletedSpeech(), quest.getFirstNPC().getNpcName()));
+						queue.setCompletedTask(new Runnable() {
+							@Override
+							public void run() {
+								npcs.remove(quest.getFirstNPC().getId());
+							}
+						});
+						queue.startTasks();
+						npcs.put(quest.getFirstNPC().getId(), queue);
+					}
 				} else {
 					for (QuestObjective objective : quest.getObjectives().keySet()) {
 						if (objective.getObjectiveType() == QuestObjectiveType.TALK) {
 							if (objective.getQuestNpc().getCitizensNpc().getId() == event.getNPC().getId()) {
-								TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, objective.getQuestNpc().getQuestCompletedSpeech(), objective.getQuestNpc().getNpcName()));
-								queue.setCompletedTask(new Runnable() {
-									@Override
-									public void run() {
-										npcs.remove(objective.getQuestNpc().getId());
-									}
-								});
-								queue.startTasks();
-								npcs.put(objective.getQuestNpc().getId(), queue);
+								if (objective.getQuestNpc().hasQuestCompletedSpeech()) {
+									TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, objective.getQuestNpc().getQuestCompletedSpeech(), objective.getQuestNpc().getNpcName()));
+									queue.setCompletedTask(new Runnable() {
+										@Override
+										public void run() {
+											npcs.remove(objective.getQuestNpc().getId());
+										}
+									});
+									queue.startTasks();
+									npcs.put(objective.getQuestNpc().getId(), queue);
+								}
 							}
 						}
 					}
@@ -111,12 +115,6 @@ public class NpcClickEvent implements Listener {
 											for (String message : QuestObjective.getObjective(quest.getObjectives(), 1).getGoalMessage()) {
 												player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + message));
 											}
-										}
-									});
-									queue.setCompletedTask(new Runnable() {
-										@Override
-										public void run() {
-											npcs.remove(quest.getFirstNPC().getId());
 										}
 									});
 									queue.startTasks();
@@ -255,6 +253,8 @@ public class NpcClickEvent implements Listener {
 															}
 														});
 													}
+													TaskQueue secondQueue = new TaskQueue(runnables);
+													secondQueue.startTasks();
 												}
 											}
 										}

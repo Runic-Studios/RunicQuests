@@ -56,6 +56,10 @@ public class QuestFirstNpc {
 	public List<String> getIdleSpeech() {
 		return idleSpeech;
 	}
+	
+	public boolean hasQuestCompletedSpeech() {
+		return questCompletedSpeech != null;
+	}
 
 	public List<String> getQuestCompletedSpeech() {
 		return questCompletedSpeech;

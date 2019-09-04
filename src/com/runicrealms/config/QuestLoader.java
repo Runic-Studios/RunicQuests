@@ -216,7 +216,7 @@ public class QuestLoader {
 				configSec.getInt("npc-id"),
 				getStringList(configSec, "speech"),
 				(configSec.contains("idle-message") ? getStringList(configSec, "idle-message") : null),
-				getStringList(configSec, "completed-message"),
+				(configSec.contains("quest-completed-message") ? getStringList(configSec, "quest-completed-message") : null),
 				configSec.getString("npc-name"),
 				(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
 				configSec.getBoolean("deniable"),
@@ -229,7 +229,7 @@ public class QuestLoader {
 				configSec.getInt("npc-id"),
 				getStringList(configSec, "speech"),
 				(configSec.contains("idle-message") ? getStringList(configSec, "idle-message") : null),
-				getStringList(configSec, "completed-message"),
+				(configSec.contains("quest-completed-message") ? getStringList(configSec, "quest-completed-message") : null),
 				configSec.getString("npc-name"));
 	}
 	
