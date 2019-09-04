@@ -63,7 +63,11 @@ rewards:
   quest-points: 1
   money: 100
   execute: '/give %player% dirt'
+completion-message: '&6nice job' # OPTIONAL. This message is run after the rewards are given
+use-last-npc-name-for-completion-speech: false # This works ONLY if: you have a completion-message and your last objective is of 
+                                               # type: 'talk', then it will display an NPC speech message using completion-message
 # NOTES:
 # firstNPC can contain 'execute' but other NPCs cannot (execute should be under each objective)
 # idle-message and execute are optional for NPCs. execute is optional for rewards
 # ANY message type (completed-message, speech, execute, goal-messsage...) can be multi-lined (using '-'s on every new line)
+# ALL color codes use & for example &6 is gold

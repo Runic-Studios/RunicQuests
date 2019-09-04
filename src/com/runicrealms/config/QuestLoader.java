@@ -50,7 +50,9 @@ public class QuestLoader {
 				config.getInt("unique-id"),
 				loadRequirements(config.getConfigurationSection("requirements")),
 				config.getBoolean("side-quest"),
-				config.getBoolean("repeatable"));
+				config.getBoolean("repeatable"),
+				config.contains("completion-speech") ? getStringList(config, "completion-speech") : null,
+				config.contains("use-last-npc-name-for-completion-speech") ? config.getBoolean("use-last-npc-name-for-completion-speech") : null);
 	}
 
 	public static QuestRequirements loadRequirements(ConfigurationSection configSec) {

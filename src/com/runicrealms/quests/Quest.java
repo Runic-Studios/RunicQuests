@@ -2,6 +2,7 @@ package com.runicrealms.quests;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import com.runicrealms.player.QuestObjectiveState;
 import com.runicrealms.player.QuestState;
@@ -17,8 +18,10 @@ public class Quest {
 	private QuestRequirements requirements;
 	private boolean sideQuest;
 	private boolean repeatable;
+	private List<String> completionSpeech;
+	private Boolean useLastNpcNameForCompletionSpeech;
 	
-	public Quest(String questName, QuestFirstNpc firstNPC, ArrayList<QuestObjective> objectives, QuestRewards rewards, Integer questID, QuestRequirements requirements, boolean sideQuest, boolean repeatable) {
+	public Quest(String questName, QuestFirstNpc firstNPC, ArrayList<QuestObjective> objectives, QuestRewards rewards, Integer questID, QuestRequirements requirements, boolean sideQuest, boolean repeatable, List<String> completionSpeech, Boolean useLastNpcNameForCompletionSpeech) {
 		this.questName = questName;
 		this.firstNPC = firstNPC;
 		for (QuestObjective objective : objectives) {
@@ -30,6 +33,8 @@ public class Quest {
 		this.requirements = requirements;
 		this.sideQuest = sideQuest;
 		this.repeatable = repeatable;
+		this.completionSpeech = completionSpeech;
+		this.useLastNpcNameForCompletionSpeech = useLastNpcNameForCompletionSpeech;
 	}
 	
 	public Quest(Quest quest) {
@@ -42,6 +47,8 @@ public class Quest {
 		this.requirements = quest.requirements;
 		this.sideQuest = quest.sideQuest;
 		this.repeatable = quest.repeatable;
+		this.completionSpeech = quest.completionSpeech;
+		this.useLastNpcNameForCompletionSpeech = quest.useLastNpcNameForCompletionSpeech;
 	}
 
 	public String getQuestName() {
@@ -78,6 +85,18 @@ public class Quest {
 	
 	public boolean isRepeatable() {
 		return repeatable;
+	}
+	
+	public boolean hasCompletionSpeech() {
+		return completionSpeech != null;
+	}
+	
+	public List<String> getCompletionSpeech() {
+		return completionSpeech;
+	}
+	
+	public Boolean useLastNpcNameForCompletionSpeech() {
+		return useLastNpcNameForCompletionSpeech;
 	}
 
 }

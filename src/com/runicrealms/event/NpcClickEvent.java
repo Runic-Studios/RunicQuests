@@ -241,6 +241,22 @@ public class NpcClickEvent implements Listener {
 												quest.getRewards().executeCommand(player.getName());
 											}
 											Bukkit.getServer().getPluginManager().callEvent(new QuestCompleteEvent(quest, questProfile));
+											if (quest.hasCompletionSpeech()) {
+												if (quest.useLastNpcNameForCompletionSpeech()) {
+													TaskQueue secondQueue = new TaskQueue(makeSpeechRunnables(player, quest.getCompletionSpeech(), objective.getQuestNpc().getNpcName()));
+													secondQueue.startTasks();
+												} else {
+													List<Runnable> runnables = new ArrayList<Runnable>();
+													for (String message : quest.getCompletionSpeech()) {
+														runnables.add(new Runnable() {
+															@Override
+															public void run() {
+																player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+															}
+														});
+													}
+												}
+											}
 										}
 									});
 								}
@@ -265,12 +281,6 @@ public class NpcClickEvent implements Listener {
 						quest.getFirstNPC().setState(FirstNpcState.DENIED);
 						questProfile.save();
 						TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getFirstNPC().getDeniedMessage(), quest.getFirstNPC().getNpcName()));
-						queue.setCompletedTask(new Runnable() {
-							@Override
-							public void run() {
-								npcs.remove(quest.getFirstNPC().getId());
-							}
-						});
 						queue.startTasks();
 						Bukkit.getServer().getPluginManager().callEvent(new QuestDenyEvent(quest, questProfile));
 					}

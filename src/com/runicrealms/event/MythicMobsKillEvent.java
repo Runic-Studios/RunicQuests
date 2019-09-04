@@ -1,5 +1,8 @@
 package com.runicrealms.event;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -16,6 +19,7 @@ import com.runicrealms.quests.Quest;
 import com.runicrealms.quests.QuestItem;
 import com.runicrealms.quests.QuestObjective;
 import com.runicrealms.quests.QuestObjectiveType;
+import com.runicrealms.task.TaskQueue;
 
 import io.lumine.xikage.mythicmobs.api.bukkit.events.MythicMobDeathEvent;
 
@@ -95,6 +99,19 @@ public class MythicMobsKillEvent implements Listener {
 												quest.getRewards().executeCommand(player.getName());
 											}
 											Bukkit.getServer().getPluginManager().callEvent(new QuestCompleteEvent(quest, questProfile));
+											if (quest.hasCompletionSpeech()) {
+												List<Runnable> runnables = new ArrayList<Runnable>();
+												for (String message : quest.getCompletionSpeech()) {
+													runnables.add(new Runnable() {
+														@Override
+														public void run() {
+															player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+														}
+													});
+												}
+												TaskQueue secondQueue = new TaskQueue(runnables);
+												secondQueue.startTasks();
+											}
 										}
 									}
 								}
