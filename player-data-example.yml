@@ -3,6 +3,7 @@
   name: 'Example Quest'
   completed: false
   started: true
+  first-npc-state: 'accepted'
   objectives:
     1:
       completed: true

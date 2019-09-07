@@ -20,6 +20,7 @@ import com.runicrealms.quests.QuestItem;
 import com.runicrealms.quests.QuestObjective;
 import com.runicrealms.quests.QuestObjectiveType;
 import com.runicrealms.task.TaskQueue;
+import com.runicrealms.util.RunicCoreHook;
 
 import io.lumine.xikage.mythicmobs.api.bukkit.events.MythicMobDeathEvent;
 
@@ -98,6 +99,7 @@ public class MythicMobsKillEvent implements Listener {
 											if (quest.getRewards().hasExecute()) {
 												quest.getRewards().executeCommand(player.getName());
 											}
+											RunicCoreHook.giveRewards(player, quest.getRewards());
 											Bukkit.getServer().getPluginManager().callEvent(new QuestCompleteEvent(quest, questProfile));
 											if (quest.hasCompletionSpeech()) {
 												List<Runnable> runnables = new ArrayList<Runnable>();

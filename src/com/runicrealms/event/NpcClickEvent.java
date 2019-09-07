@@ -23,6 +23,7 @@ import com.runicrealms.quests.QuestItem;
 import com.runicrealms.quests.QuestObjective;
 import com.runicrealms.quests.QuestObjectiveType;
 import com.runicrealms.task.TaskQueue;
+import com.runicrealms.util.RunicCoreHook;
 
 import net.citizensnpcs.api.event.NPCLeftClickEvent;
 import net.citizensnpcs.api.event.NPCRightClickEvent;
@@ -120,24 +121,47 @@ public class NpcClickEvent implements Listener {
 									queue.startTasks();
 									Bukkit.getServer().getPluginManager().callEvent(new QuestAcceptEvent(quest, questProfile));
 								} else if (quest.getFirstNPC().getState() == FirstNpcState.NEUTRAL) {
-									List<Runnable> runnables = makeSpeechRunnables(player, quest.getFirstNPC().getSpeech(), quest.getFirstNPC().getNpcName());
-									runnables.add(new Runnable() {
-										@Override
-										public void run() {
-											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7Left click to deny quest, right click to accept"));
+									boolean meetsRequirements = true;
+									if (!RunicCoreHook.isRequiredLevel(player, quest.getRequirements().getLevelRequirement())) {
+										meetsRequirements = false;
+										TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getLevelNotMetMsg(), quest.getFirstNPC().getNpcName()));
+										queue.setCompletedTask(new Runnable() {
+											@Override
+											public void run() {
+												npcs.remove(quest.getFirstNPC().getId());
+											}
+										});
+										queue.startTasks();
+										npcs.put(quest.getFirstNPC().getId(), queue);
+									} else if (quest.getRequirements().hasCraftingRequirement()) {
+										if (!RunicCoreHook.isRequiredCraftingLevel(player, quest.getRequirements().getCraftingProfessionType(), quest.getRequirements().getCraftingRequirement())) {
+											meetsRequirements = false;
 										}
-									});
-									TaskQueue queue = new TaskQueue(runnables);
-									queue.setCompletedTask(new Runnable() {
-										@Override
-										public void run() {
-											quest.getFirstNPC().setState(FirstNpcState.PENDING);
-											questProfile.save();
-											npcs.remove(quest.getFirstNPC().getId());
+									} else if (quest.getRequirements().hasCompletedQuestRequirement()) {
+										if (!RunicCoreHook.hasCompletedRequiredQuests(player, quest.getRequirements().getCompletedQuestsRequirement())) {
+											meetsRequirements = false;
 										}
-									});
-									queue.startTasks();
-									npcs.put(quest.getFirstNPC().getId(), queue);
+									}
+									if (meetsRequirements) {
+										List<Runnable> runnables = makeSpeechRunnables(player, quest.getFirstNPC().getSpeech(), quest.getFirstNPC().getNpcName());
+										runnables.add(new Runnable() {
+											@Override
+											public void run() {
+												player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7Left click to deny quest, right click to accept"));
+											}
+										});
+										TaskQueue queue = new TaskQueue(runnables);
+										queue.setCompletedTask(new Runnable() {
+											@Override
+											public void run() {
+												quest.getFirstNPC().setState(FirstNpcState.PENDING);
+												questProfile.save();
+												npcs.remove(quest.getFirstNPC().getId());
+											}
+										});
+										queue.startTasks();
+										npcs.put(quest.getFirstNPC().getId(), queue);
+									}
 								}
 							}
 						} else {

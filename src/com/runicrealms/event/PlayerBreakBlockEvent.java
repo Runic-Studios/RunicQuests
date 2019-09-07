@@ -21,6 +21,7 @@ import com.runicrealms.quests.QuestItem;
 import com.runicrealms.quests.QuestObjective;
 import com.runicrealms.quests.QuestObjectiveType;
 import com.runicrealms.task.TaskQueue;
+import com.runicrealms.util.RunicCoreHook;
 
 public class PlayerBreakBlockEvent implements Listener {
 
@@ -94,6 +95,7 @@ public class PlayerBreakBlockEvent implements Listener {
 									if (quest.getRewards().hasExecute()) {
 										quest.getRewards().executeCommand(player.getName());
 									}
+									RunicCoreHook.giveRewards(player, quest.getRewards());
 									Bukkit.getServer().getPluginManager().callEvent(new QuestCompleteEvent(quest, questProfile));
 									if (quest.hasCompletionSpeech()) {
 										List<Runnable> runnables = new ArrayList<Runnable>();
