@@ -52,7 +52,7 @@ public class QuestLoader {
 				config.getBoolean("side-quest"),
 				config.getBoolean("repeatable"),
 				config.contains("completion-speech") ? getStringList(config, "completion-speech") : null,
-				config.contains("use-last-npc-name-for-completion-speech") ? config.getBoolean("use-last-npc-name-for-completion-speech") : null);
+						config.contains("use-last-npc-name-for-completion-speech") ? config.getBoolean("use-last-npc-name-for-completion-speech") : null);
 	}
 
 	public static QuestRequirements loadRequirements(ConfigurationSection configSec) {
@@ -126,7 +126,7 @@ public class QuestLoader {
 		if (configSec.getString("requirement.type").equalsIgnoreCase("slay")) {
 			if (configSec.contains("requirement.requires")) {
 				return new QuestObjective(
-						configSec.getString("requirement.mob-name"), 
+						getStringList(configSec, "requirement.mob-name"), 
 						configSec.getInt("requirement.amount"), 
 						getQuestItems(configSec.getConfigurationSection("requirement.requires")),
 						goalMessage,
@@ -135,7 +135,7 @@ public class QuestLoader {
 						(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
 			} else {
 				return new QuestObjective(
-						configSec.getString("requirement.mob-name"), 
+						getStringList(configSec, "requirement.mob-name"), 
 						configSec.getInt("requirement.amount"), 
 						goalMessage,
 						(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
@@ -232,7 +232,7 @@ public class QuestLoader {
 				(configSec.contains("quest-completed-message") ? getStringList(configSec, "quest-completed-message") : null),
 				configSec.getString("npc-name"));
 	}
-	
+
 	public static List<QuestItem> getQuestItems(ConfigurationSection configSec) {
 		List<QuestItem> questItems = new ArrayList<QuestItem>();
 		for (String key : configSec.getKeys(false)) {

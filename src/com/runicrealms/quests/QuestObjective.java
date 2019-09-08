@@ -15,7 +15,7 @@ public class QuestObjective {
 	private QuestObjectiveType objectiveType;
 	private List<String> completedMessage;
 	private List<QuestItem> questItems;
-	private String mobName;
+	private List<String> mobNames;
 	private Integer mobAmount;
 	private Integer mobsKilled = 0;
 	private QuestNpc questNpc;
@@ -27,8 +27,8 @@ public class QuestObjective {
 	
 	private boolean completed = false;
 	
-	public QuestObjective(String mobName, Integer mobAmount, List<String> goalMessage, List<String> execute, Integer objectiveNumber, List<String> completedMessage) {
-		this.mobName = mobName;
+	public QuestObjective(List<String> mobNames, Integer mobAmount, List<String> goalMessage, List<String> execute, Integer objectiveNumber, List<String> completedMessage) {
+		this.mobNames = mobNames;
 		this.mobAmount = mobAmount;
 		this.goalMessage = goalMessage;
 		this.objectiveType = QuestObjectiveType.SLAY;
@@ -65,8 +65,8 @@ public class QuestObjective {
 		this.completedMessage = completedMessage;
 	}
 	
-	public QuestObjective(String mobName, Integer mobAmount, List<QuestItem> questItems, List<String> goalMessage, List<String> execute, Integer objectiveNumber, List<String> completedMessage) {
-		this.mobName = mobName;
+	public QuestObjective(List<String> mobNames, Integer mobAmount, List<QuestItem> questItems, List<String> goalMessage, List<String> execute, Integer objectiveNumber, List<String> completedMessage) {
+		this.mobNames = mobNames;
 		this.mobAmount = mobAmount;
 		this.goalMessage = goalMessage;
 		this.questItems = questItems;
@@ -119,8 +119,8 @@ public class QuestObjective {
 		return this.objectiveType;
 	}
 	
-	public String getMobName() {
-		return this.mobName;
+	public List<String> getMobNames() {
+		return this.mobNames;
 	}
 	
 	public Integer getMobAmount() {

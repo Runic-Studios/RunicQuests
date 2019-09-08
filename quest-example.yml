@@ -25,7 +25,7 @@ objectives:
   1: 
     requirement:
       type: 'slay'
-      mob-name: 'evil-kitty-cat' # From MythicMobs config
+      mob-names: 'evil-kitty-cat' # From MythicMobs config, can be multiple for multiple options
       amount: 5
     goal-message: 'slay mythic mobs'
     execute: '/give %player% diamond' # %player% is replaced with the player name
