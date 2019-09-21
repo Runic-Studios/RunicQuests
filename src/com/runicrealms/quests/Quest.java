@@ -20,8 +20,9 @@ public class Quest {
 	private boolean repeatable;
 	private List<String> completionSpeech;
 	private Boolean useLastNpcNameForCompletionSpeech;
+	private Integer cooldown;
 	
-	public Quest(String questName, QuestFirstNpc firstNPC, ArrayList<QuestObjective> objectives, QuestRewards rewards, Integer questID, QuestRequirements requirements, boolean sideQuest, boolean repeatable, List<String> completionSpeech, Boolean useLastNpcNameForCompletionSpeech) {
+	public Quest(String questName, QuestFirstNpc firstNPC, ArrayList<QuestObjective> objectives, QuestRewards rewards, Integer questID, QuestRequirements requirements, boolean sideQuest, boolean repeatable, List<String> completionSpeech, Boolean useLastNpcNameForCompletionSpeech, Integer cooldown) {
 		this.questName = questName;
 		this.firstNPC = firstNPC;
 		for (QuestObjective objective : objectives) {
@@ -35,6 +36,7 @@ public class Quest {
 		this.repeatable = repeatable;
 		this.completionSpeech = completionSpeech;
 		this.useLastNpcNameForCompletionSpeech = useLastNpcNameForCompletionSpeech;
+		this.cooldown = cooldown;
 	}
 	
 	public Quest(Quest quest) {
@@ -49,6 +51,7 @@ public class Quest {
 		this.repeatable = quest.repeatable;
 		this.completionSpeech = quest.completionSpeech;
 		this.useLastNpcNameForCompletionSpeech = quest.useLastNpcNameForCompletionSpeech;
+		this.cooldown = quest.cooldown;
 	}
 
 	public String getQuestName() {
@@ -97,6 +100,14 @@ public class Quest {
 	
 	public Boolean useLastNpcNameForCompletionSpeech() {
 		return useLastNpcNameForCompletionSpeech;
+	}
+	
+	public boolean hasCooldown() {
+		return this.cooldown != null;
+	}
+	
+	public Integer getCooldown() {
+		return this.cooldown;
 	}
 
 }

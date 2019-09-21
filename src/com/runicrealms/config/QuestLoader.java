@@ -51,8 +51,9 @@ public class QuestLoader {
 				loadRequirements(config.getConfigurationSection("requirements")),
 				config.getBoolean("side-quest"),
 				config.getBoolean("repeatable"),
-				config.contains("completion-speech") ? getStringList(config, "completion-speech") : null,
-						config.contains("use-last-npc-name-for-completion-speech") ? config.getBoolean("use-last-npc-name-for-completion-speech") : null);
+				(config.contains("completion-speech") ? getStringList(config, "completion-speech") : null),
+				(config.contains("use-last-npc-name-for-completion-speech") ? config.getBoolean("use-last-npc-name-for-completion-speech") : null),
+				(config.getBoolean("repeatable") ? config.getInt("quest-cooldown") : null));
 	}
 
 	public static QuestRequirements loadRequirements(ConfigurationSection configSec) {

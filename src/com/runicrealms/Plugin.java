@@ -21,6 +21,7 @@ public class Plugin extends JavaPlugin {
 
 	private static Plugin plugin;
 	private static List<QuestProfile> questProfiles = new ArrayList<QuestProfile>();
+	public static List<Integer> cooldowns = new ArrayList<Integer>();
 	private static Integer nextId = 0;
 	
 	public static String WORLD_NAME;

@@ -3,6 +3,7 @@ package com.runicrealms.event;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -33,11 +34,11 @@ public class NpcClickEvent implements Listener {
 	private static HashMap<Integer, TaskQueue> npcs = new HashMap<Integer, TaskQueue>();
 
 	@EventHandler
-	public void onNpcRightClick(NPCRightClickEvent event) { // TODO check for requirements
+	public void onNpcRightClick(NPCRightClickEvent event) {
 		Player player = event.getClicker();
 		QuestProfile questProfile = Plugin.getQuestProfile(player.getUniqueId().toString());
 		for (Quest quest : questProfile.getQuests()) {
-			if (quest.getQuestState().isCompleted()) {
+			if (quest.getQuestState().isCompleted() && quest.isRepeatable() == false) {
 				if (quest.getFirstNPC().getCitizensNpc().getId() == event.getNPC().getId()) {
 					if (quest.getFirstNPC().hasQuestCompletedSpeech()) {
 						TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getFirstNPC().getQuestCompletedSpeech(), quest.getFirstNPC().getNpcName()));
@@ -72,7 +73,8 @@ public class NpcClickEvent implements Listener {
 			}
 			if ((quest.getQuestState().hasStarted() == false && quest.getQuestState().isCompleted() == false) ||
 					(quest.isRepeatable() && quest.getQuestState().hasStarted() && quest.getQuestState().isCompleted())) {
-				if (quest.getFirstNPC().getCitizensNpc().getId() == event.getNPC().getId()) {
+				if (quest.getFirstNPC().getCitizensNpc().getId() == event.getNPC().getId() &&
+						Plugin.cooldowns.contains(quest.getFirstNPC().getId()) == false) {
 					if (QuestObjective.getObjective(quest.getObjectives(), 1).isCompleted() == false) {
 						if (!npcs.containsKey(quest.getFirstNPC().getId())) {
 							if (!quest.getFirstNPC().isDeniable()) {
@@ -136,10 +138,28 @@ public class NpcClickEvent implements Listener {
 									} else if (quest.getRequirements().hasCraftingRequirement()) {
 										if (!RunicCoreHook.isRequiredCraftingLevel(player, quest.getRequirements().getCraftingProfessionType(), quest.getRequirements().getCraftingRequirement())) {
 											meetsRequirements = false;
+											TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getCraftingLevelNotMetMsg(), quest.getFirstNPC().getNpcName()));
+											queue.setCompletedTask(new Runnable() {
+												@Override
+												public void run() {
+													npcs.remove(quest.getFirstNPC().getId());
+												}
+											});
+											queue.startTasks();
+											npcs.put(quest.getFirstNPC().getId(), queue);
 										}
 									} else if (quest.getRequirements().hasCompletedQuestRequirement()) {
 										if (!RunicCoreHook.hasCompletedRequiredQuests(player, quest.getRequirements().getCompletedQuestsRequirement())) {
 											meetsRequirements = false;
+											TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getCompletedQuestsNotMetMsg(), quest.getFirstNPC().getNpcName()));
+											queue.setCompletedTask(new Runnable() {
+												@Override
+												public void run() {
+													npcs.remove(quest.getFirstNPC().getId());
+												}
+											});
+											queue.startTasks();
+											npcs.put(quest.getFirstNPC().getId(), queue);
 										}
 									}
 									if (meetsRequirements) {
@@ -261,6 +281,20 @@ public class NpcClickEvent implements Listener {
 											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getExperienceReward() + " &r&aExperience"));
 											if (quest.getRewards().hasExecute()) {
 												quest.getRewards().executeCommand(player.getName());
+											}
+											RunicCoreHook.giveRewards(player, quest.getRewards());
+											if (quest.isRepeatable() == true) {
+												Plugin.cooldowns.add(quest.getFirstNPC().getId());
+												Bukkit.getScheduler().runTaskLater(Plugin.getInstance(), new Runnable() {
+													@Override
+													public void run() {
+														if (Plugin.cooldowns.contains(quest.getFirstNPC().getId())) {
+															Plugin.cooldowns.remove(Plugin.cooldowns.indexOf(quest.getFirstNPC().getId()));
+														} else {
+															Bukkit.getLogger().log(Level.INFO, "[RunicQuests] ERROR - failed to remove quest cooldown from player \"" + questProfile.getPlayerUUID() + "\"!");
+														}
+													}
+												}, quest.getCooldown() * 20);
 											}
 											Bukkit.getServer().getPluginManager().callEvent(new QuestCompleteEvent(quest, questProfile));
 											if (quest.hasCompletionSpeech()) {

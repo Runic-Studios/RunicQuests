@@ -2,6 +2,7 @@ package com.runicrealms.event;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -96,6 +97,19 @@ public class PlayerBreakBlockEvent implements Listener {
 										quest.getRewards().executeCommand(player.getName());
 									}
 									RunicCoreHook.giveRewards(player, quest.getRewards());
+									if (quest.isRepeatable() == true) {
+										Plugin.cooldowns.add(quest.getFirstNPC().getId());
+										Bukkit.getScheduler().runTaskLater(Plugin.getInstance(), new Runnable() {
+											@Override
+											public void run() {
+												if (Plugin.cooldowns.contains(quest.getFirstNPC().getId())) {
+													Plugin.cooldowns.remove(Plugin.cooldowns.indexOf(quest.getFirstNPC().getId()));
+												} else {
+													Bukkit.getLogger().log(Level.INFO, "[RunicQuests] ERROR - failed to remove quest cooldown from player \"" + questProfile.getPlayerUUID() + "\"!");
+												}
+											}
+										}, quest.getCooldown() * 20);
+									}
 									Bukkit.getServer().getPluginManager().callEvent(new QuestCompleteEvent(quest, questProfile));
 									if (quest.hasCompletionSpeech()) {
 										List<Runnable> runnables = new ArrayList<Runnable>();

@@ -1,6 +1,7 @@
 name: 'Example Quest'
 unique-id: 1
-repeatable: false
+repeatable: true
+cooldown: 300 # This is REQUIRED if you have repeatable: true. THIS IS IN SECONDS.
 side-quest: false
 requirements: # Everything here is optional, except the level requirement and level-not-met. If you only have 'level', then you only need level and level-not-met.
   level: 10
