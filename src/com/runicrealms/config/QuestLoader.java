@@ -31,7 +31,9 @@ public class QuestLoader {
 		List<Quest> quests = new ArrayList<Quest>();
 		File folder = ConfigLoader.getSubFolder(Plugin.getInstance().getDataFolder(), "quests");
 		for (File quest : folder.listFiles()) {
-			quests.add(QuestLoader.loadQuest(ConfigLoader.getYamlConfigFile(quest.getName(), folder)));
+			if (!quest.isDirectory()) {
+				quests.add(QuestLoader.loadQuest(ConfigLoader.getYamlConfigFile(quest.getName(), folder)));
+			}
 		}
 		cachedQuests = quests;
 		return quests;
