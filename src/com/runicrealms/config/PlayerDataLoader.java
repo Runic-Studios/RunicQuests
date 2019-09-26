@@ -1,5 +1,6 @@
 package com.runicrealms.config;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -15,6 +16,7 @@ public class PlayerDataLoader {
 
 	public static List<Quest> getQuestDataForUser(String uuid) {
 		List<Quest> quests = QuestLoader.getBlankQuestList();
+		List<Quest> newQuests = new ArrayList<Quest>();
 		DataFileConfiguration runicFileConfig = getConfigFromCache(uuid);
 		FileConfiguration data = runicFileConfig.getConfig();
 		for (Quest quest : quests) {
@@ -28,15 +30,31 @@ public class PlayerDataLoader {
 					for (String objectiveNumber : data.getConfigurationSection(quest.getQuestID() + "").getConfigurationSection("objectives").getKeys(false)) {
 						for (QuestObjective questObjective : quest.getObjectives().keySet()) {
 							if (objectiveNumber.equalsIgnoreCase(questObjective.getObjectiveNumber() + "")) {
-								newQuest.getObjectives().get(questObjective).setCompleted(data.getConfigurationSection(quest.getQuestID() + "").getBoolean("objectives." + objectiveNumber + ".completed"));
+								newQuest.getObjectives().get(questObjective).setCompleted(data.getConfigurationSection(quest.getQuestID() + "").getBoolean("objectives." + objectiveNumber));
 							}
 						}
 					}
-					quests.add(newQuest);
+					newQuests.add(newQuest);
 				}
 			}
 		}
-		return quests;
+		List<Quest> missingQuests = new ArrayList<Quest>();
+		for (Quest newQuest : newQuests) {
+			boolean containsUnprocessedQuest = false;
+			for (Quest unprocessedQuest : quests) {
+				if (newQuest.getQuestID() == unprocessedQuest.getQuestID()) {
+					containsUnprocessedQuest = true;
+					break;
+				}
+				if (containsUnprocessedQuest == false) {
+					missingQuests.add(unprocessedQuest);
+				}
+			}
+		}
+		for (Quest quest : missingQuests) {
+			newQuests.add(quest);
+		}
+		return newQuests;
 	}
 
 	public static DataFileConfiguration getConfigFromCache(String uuid) {

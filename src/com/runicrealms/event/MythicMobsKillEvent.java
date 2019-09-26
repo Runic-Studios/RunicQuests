@@ -35,104 +35,105 @@ public class MythicMobsKillEvent implements Listener {
 			for (Quest quest : questProfile.getQuests()) {
 				if (quest.getQuestState().isCompleted() == false && quest.getQuestState().hasStarted()) {
 					for (QuestObjective objective : quest.getObjectives().keySet()) {
-						if (quest.getObjectives().get(objective).isCompleted() == false) {
-							if (objective.getObjectiveNumber() != 1) {
-								if (QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() - 1).isCompleted() == false) {
-									continue;
-								}
-							}
-							if (quest.getFirstNPC().getState() != FirstNpcState.ACCEPTED) {
+						if (objective.isCompleted()) {
+							continue;
+						}
+						if (objective.getObjectiveNumber() != 1) {
+							if (QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() - 1).isCompleted() == false) {
 								continue;
 							}
-							if (objective.getObjectiveType() == QuestObjectiveType.SLAY) {
-								for (String mob : objective.getMobNames()) {
-									if (event.getMob().getType().getInternalName().equalsIgnoreCase(mob)) {
-										objective.setMobsKilled(objective.getMobsKilled() + 1);
-										if (objective.getMobsKilled() == objective.getMobAmount()) {
-											if (objective.requiresQuestItem()) {
-												int aquiredQuestItems = 0;
-												for (QuestItem questItem : objective.getQuestItems()) {
-													int amount = 0;
-													for (ItemStack item : player.getInventory().getContents()) {
-														if (item != null) {
-															Material material = Material.getMaterial(questItem.getItemType());
-															if (item.getType() == material &&
-																	ChatColor.stripColor(item.getItemMeta().getDisplayName()).equalsIgnoreCase(questItem.getItemName())) {
-																amount += item.getAmount();
-																if (amount >= questItem.getAmount()) {
-																	aquiredQuestItems++;
-																	break;
-																}
+						}
+						if (quest.getFirstNPC().getState() != FirstNpcState.ACCEPTED) {
+							continue;
+						}
+						if (objective.getObjectiveType() == QuestObjectiveType.SLAY) {
+							for (String mob : objective.getMobNames()) {
+								if (event.getMob().getType().getInternalName().equalsIgnoreCase(mob)) {
+									objective.setMobsKilled(objective.getMobsKilled() + 1);
+									if (objective.getMobsKilled() == objective.getMobAmount()) {
+										if (objective.requiresQuestItem()) {
+											int aquiredQuestItems = 0;
+											for (QuestItem questItem : objective.getQuestItems()) {
+												int amount = 0;
+												for (ItemStack item : player.getInventory().getContents()) {
+													if (item != null) {
+														Material material = Material.getMaterial(questItem.getItemType());
+														if (item.getType() == material &&
+																ChatColor.stripColor(item.getItemMeta().getDisplayName()).equalsIgnoreCase(questItem.getItemName())) {
+															amount += item.getAmount();
+															if (amount >= questItem.getAmount()) {
+																aquiredQuestItems++;
+																break;
 															}
 														}
 													}
 												}
-												if (aquiredQuestItems != objective.getQuestItems().size()) { 
-													continue;
-												} else {
-													for (QuestItem questItem : objective.getQuestItems()) {
-														Plugin.removeItem(player.getInventory(), questItem.getItemName(), Material.getMaterial(questItem.getItemType()), questItem.getAmount());
-													}
-													player.updateInventory();
-												}
 											}
-											objective.setCompleted(true);
-											questProfile.save();
-											if (objective.hasExecute()) {
-												objective.executeCommand(player.getName());
-											}
-											if (objective.hasCompletedMessage()) {
-												for (String message : objective.getCompletedMessage()) {
-													player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
-												}
-											}
-											if (objective.getObjectiveNumber() != QuestObjective.getLastObjective(quest.getObjectives()).getObjectiveNumber()) {
-												player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&l&6New objective for: &r&l&e") + quest.getQuestName());
-												for (String message : QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() + 1).getGoalMessage()) {
-													player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + message));
-												}
+											if (aquiredQuestItems != objective.getQuestItems().size()) { 
+												continue;
 											} else {
-												quest.getQuestState().setCompleted(true);
-												questProfile.save();
-												player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&2&lRewards:"));
-												player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getQuestPointsReward() + " &r&aQuest Point" + (quest.getRewards().getQuestPointsReward() > 1 ? "s" : "")));
-												player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getMoneyReward() + " &r&aCoin" + (quest.getRewards().getMoneyReward() > 1 ? "s" : "")));
-												player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getExperienceReward() + " &r&aExperience"));
-												if (quest.getRewards().hasExecute()) {
-													quest.getRewards().executeCommand(player.getName());
+												for (QuestItem questItem : objective.getQuestItems()) {
+													Plugin.removeItem(player.getInventory(), questItem.getItemName(), Material.getMaterial(questItem.getItemType()), questItem.getAmount());
 												}
-												RunicCoreHook.giveRewards(player, quest.getRewards());
-												if (quest.isRepeatable() == true) {
-													Plugin.cooldowns.add(quest.getFirstNPC().getId());
-													Bukkit.getScheduler().runTaskLater(Plugin.getInstance(), new Runnable() {
-														@Override
-														public void run() {
-															if (Plugin.cooldowns.contains(quest.getFirstNPC().getId())) {
-																Plugin.cooldowns.remove(Plugin.cooldowns.indexOf(quest.getFirstNPC().getId()));
-															} else {
-																Bukkit.getLogger().log(Level.INFO, "[RunicQuests] ERROR - failed to remove quest cooldown from player \"" + questProfile.getPlayerUUID() + "\"!");
-															}
-														}
-													}, quest.getCooldown() * 20);
-												}
-												Bukkit.getServer().getPluginManager().callEvent(new QuestCompleteEvent(quest, questProfile));
-												if (quest.hasCompletionSpeech()) {
-													List<Runnable> runnables = new ArrayList<Runnable>();
-													for (String message : quest.getCompletionSpeech()) {
-														runnables.add(new Runnable() {
-															@Override
-															public void run() {
-																player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
-															}
-														});
-													}
-													TaskQueue secondQueue = new TaskQueue(runnables);
-													secondQueue.startTasks();
-												}
+												player.updateInventory();
 											}
 										}
-										break;
+										objective.setCompleted(true);
+										questProfile.save();
+										if (objective.hasExecute()) {
+											objective.executeCommand(player.getName());
+										}
+										if (objective.hasCompletedMessage()) {
+											for (String message : objective.getCompletedMessage()) {
+												player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+											}
+										}
+										if (objective.getObjectiveNumber() != QuestObjective.getLastObjective(quest.getObjectives()).getObjectiveNumber()) {
+											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&l&6New objective for: &r&l&e") + quest.getQuestName());
+											for (String message : QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() + 1).getGoalMessage()) {
+												player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + message));
+											}
+										} else {
+											quest.getQuestState().setCompleted(true);
+											questProfile.save();
+											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&2&lRewards:"));
+											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getQuestPointsReward() + " &r&aQuest Point" + (quest.getRewards().getQuestPointsReward() > 1 ? "s" : "")));
+											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getMoneyReward() + " &r&aCoin" + (quest.getRewards().getMoneyReward() > 1 ? "s" : "")));
+											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getExperienceReward() + " &r&aExperience"));
+											if (quest.getRewards().hasExecute()) {
+												quest.getRewards().executeCommand(player.getName());
+											}
+											RunicCoreHook.giveRewards(player, quest.getRewards());
+											if (quest.isRepeatable() == true) {
+												Plugin.cooldowns.add(quest.getFirstNPC().getId());
+												Bukkit.getScheduler().runTaskLater(Plugin.getInstance(), new Runnable() {
+													@Override
+													public void run() {
+														if (Plugin.cooldowns.contains(quest.getFirstNPC().getId())) {
+															Plugin.cooldowns.remove(Plugin.cooldowns.indexOf(quest.getFirstNPC().getId()));
+														} else {
+															Bukkit.getLogger().log(Level.INFO, "[RunicQuests] ERROR - failed to remove quest cooldown from player \"" + questProfile.getPlayerUUID() + "\"!");
+														}
+													}
+												}, quest.getCooldown() * 20);
+											}
+											Bukkit.getServer().getPluginManager().callEvent(new QuestCompleteEvent(quest, questProfile));
+											if (quest.hasCompletionSpeech()) {
+												List<Runnable> runnables = new ArrayList<Runnable>();
+												for (String message : quest.getCompletionSpeech()) {
+													runnables.add(new Runnable() {
+														@Override
+														public void run() {
+															player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+														}
+													});
+												}
+												TaskQueue secondQueue = new TaskQueue(runnables);
+												secondQueue.startTasks();
+											}
+										}
 									}
+									break;
 								}
 							}
 						}

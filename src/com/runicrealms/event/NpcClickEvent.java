@@ -88,6 +88,8 @@ public class NpcClickEvent implements Listener {
 									@Override
 									public void run() {
 										npcs.remove(quest.getFirstNPC().getId());
+										quest.getFirstNPC().setState(FirstNpcState.ACCEPTED);
+										questProfile.save();
 									}
 								});
 								queue.addTasks(new Runnable() {
@@ -195,7 +197,7 @@ public class NpcClickEvent implements Listener {
 						if (objective.getQuestNpc().getCitizensNpc().getId() == event.getNPC().getId()) {
 							if (npcs.containsKey(objective.getQuestNpc().getId())) {
 								npcs.get(objective.getQuestNpc().getId()).nextTask();
-								return;
+								break;
 							}
 							if (objective.isCompleted() == false) {
 								if (objective.getObjectiveNumber() != 1) {

@@ -38,6 +38,9 @@ public class PlayerTripwireEvent implements Listener {
 				for (Quest quest : questProfile.getQuests()) {
 					if (quest.getQuestState().isCompleted() == false && quest.getQuestState().hasStarted()) {
 						for (QuestObjective objective : quest.getObjectives().keySet()) {
+							if (objective.isCompleted()) {
+								continue;
+							}
 							if (objective.getObjectiveNumber() != 1) {
 								if (QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() - 1).isCompleted() == false) {
 									continue;

@@ -129,7 +129,7 @@ public class QuestLoader {
 		if (configSec.getString("requirement.type").equalsIgnoreCase("slay")) {
 			if (configSec.contains("requirement.requires")) {
 				return new QuestObjective(
-						getStringList(configSec, "requirement.mob-name"), 
+						getStringList(configSec, "requirement.mob-names"), 
 						configSec.getInt("requirement.amount"), 
 						getQuestItems(configSec.getConfigurationSection("requirement.requires")),
 						goalMessage,
@@ -138,7 +138,7 @@ public class QuestLoader {
 						(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
 			} else {
 				return new QuestObjective(
-						getStringList(configSec, "requirement.mob-name"), 
+						getStringList(configSec, "requirement.mob-names"), 
 						configSec.getInt("requirement.amount"), 
 						goalMessage,
 						(configSec.contains("execute") ? getStringList(configSec, "execute") : null),

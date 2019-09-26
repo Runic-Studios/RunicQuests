@@ -59,7 +59,6 @@ public class TaskQueue {
 				newTasks.add(new Task(bukkitTask, task.getRunnable(), task.hasRun()));
 			}
 			uncompletedTasks = newTasks;
-			Bukkit.getLogger().log(Level.INFO, uncompletedTasks.size() + "");
 		}
 	}
 
