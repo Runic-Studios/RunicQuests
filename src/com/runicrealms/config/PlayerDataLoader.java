@@ -23,14 +23,14 @@ public class PlayerDataLoader {
 			for (String dataQuestID : data.getKeys(false)) {
 				if (dataQuestID.equalsIgnoreCase(quest.getQuestID() + "")) {
 					Quest newQuest = new Quest(quest);
-					quests.remove(quests.indexOf(quest));
+					
 					newQuest.getQuestState().setCompleted(data.getConfigurationSection(quest.getQuestID() + "").getBoolean("completed"));
 					newQuest.getQuestState().setStarted(data.getConfigurationSection(quest.getQuestID() + "").getBoolean("started"));
 					newQuest.getFirstNPC().setState(FirstNpcState.fromString(data.getConfigurationSection(quest.getQuestID() + "").getString("first-npc-state")));
 					for (String objectiveNumber : data.getConfigurationSection(quest.getQuestID() + "").getConfigurationSection("objectives").getKeys(false)) {
-						for (QuestObjective questObjective : quest.getObjectives().keySet()) {
+						for (QuestObjective questObjective : quest.getObjectives()) {
 							if (objectiveNumber.equalsIgnoreCase(questObjective.getObjectiveNumber() + "")) {
-								newQuest.getObjectives().get(questObjective).setCompleted(data.getConfigurationSection(quest.getQuestID() + "").getBoolean("objectives." + objectiveNumber));
+								questObjective.setCompleted(data.getConfigurationSection(quest.getQuestID() + "").getBoolean("objectives." + objectiveNumber));
 							}
 						}
 					}
@@ -38,21 +38,17 @@ public class PlayerDataLoader {
 				}
 			}
 		}
-		List<Quest> missingQuests = new ArrayList<Quest>();
-		for (Quest newQuest : newQuests) {
-			boolean containsUnprocessedQuest = false;
-			for (Quest unprocessedQuest : quests) {
-				if (newQuest.getQuestID() == unprocessedQuest.getQuestID()) {
-					containsUnprocessedQuest = true;
+		for (Quest unloadedQuest : quests) {
+			boolean containsQuest = false;
+			for (Quest newQuest : newQuests) {
+				if (unloadedQuest.getQuestID() == newQuest.getQuestID()) {
+					containsQuest = true;
 					break;
 				}
-				if (containsUnprocessedQuest == false) {
-					missingQuests.add(unprocessedQuest);
-				}
 			}
-		}
-		for (Quest quest : missingQuests) {
-			newQuests.add(quest);
+			if (containsQuest == false) {
+				newQuests.add(unloadedQuest);
+			}
 		}
 		return newQuests;
 	}

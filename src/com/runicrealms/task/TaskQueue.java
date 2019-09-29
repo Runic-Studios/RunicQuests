@@ -2,9 +2,7 @@ package com.runicrealms.task;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 
-import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
 
 import com.runicrealms.Plugin;

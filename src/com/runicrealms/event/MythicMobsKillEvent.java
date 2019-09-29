@@ -6,7 +6,6 @@ import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -33,8 +32,9 @@ public class MythicMobsKillEvent implements Listener {
 			Player player = (Player) event.getKiller();
 			QuestProfile questProfile = Plugin.getQuestProfile(player.getUniqueId().toString());
 			for (Quest quest : questProfile.getQuests()) {
-				if (quest.getQuestState().isCompleted() == false && quest.getQuestState().hasStarted()) {
-					for (QuestObjective objective : quest.getObjectives().keySet()) {
+				if ((quest.getQuestState().isCompleted() == false && quest.getQuestState().hasStarted())
+						|| (quest.isRepeatable() && quest.getQuestState().isCompleted() && quest.getQuestState().hasStarted())) {
+					for (QuestObjective objective : quest.getObjectives()) {
 						if (objective.isCompleted()) {
 							continue;
 						}
@@ -57,8 +57,7 @@ public class MythicMobsKillEvent implements Listener {
 												int amount = 0;
 												for (ItemStack item : player.getInventory().getContents()) {
 													if (item != null) {
-														Material material = Material.getMaterial(questItem.getItemType());
-														if (item.getType() == material &&
+														if (item.getType().name().equalsIgnoreCase(questItem.getItemType()) &&
 																ChatColor.stripColor(item.getItemMeta().getDisplayName()).equalsIgnoreCase(questItem.getItemName())) {
 															amount += item.getAmount();
 															if (amount >= questItem.getAmount()) {
@@ -73,7 +72,7 @@ public class MythicMobsKillEvent implements Listener {
 												continue;
 											} else {
 												for (QuestItem questItem : objective.getQuestItems()) {
-													Plugin.removeItem(player.getInventory(), questItem.getItemName(), Material.getMaterial(questItem.getItemType()), questItem.getAmount());
+													Plugin.removeItem(player.getInventory(), questItem.getItemName(), questItem.getItemType(), questItem.getAmount());
 												}
 												player.updateInventory();
 											}
@@ -83,23 +82,59 @@ public class MythicMobsKillEvent implements Listener {
 										if (objective.hasExecute()) {
 											objective.executeCommand(player.getName());
 										}
-										if (objective.hasCompletedMessage()) {
-											for (String message : objective.getCompletedMessage()) {
-												player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
-											}
-										}
 										if (objective.getObjectiveNumber() != QuestObjective.getLastObjective(quest.getObjectives()).getObjectiveNumber()) {
-											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&l&6New objective for: &r&l&e") + quest.getQuestName());
-											for (String message : QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() + 1).getGoalMessage()) {
-												player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + message));
+											if (objective.hasCompletedMessage()) {
+												List<Runnable> runnables = new ArrayList<Runnable>();
+												for (String message : objective.getCompletedMessage()) {
+													runnables.add(new Runnable() {
+														@Override
+														public void run() {
+															player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+														}
+													});
+												}
+												runnables.add(new Runnable() {
+													@Override
+													public void run() {
+														player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&l&6New objective for: &r&l&e") + quest.getQuestName());
+														for (String message : QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() + 1).getGoalMessage()) {
+															player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + message));
+														}
+													}
+												});
+												TaskQueue queue = new TaskQueue(runnables);
+												queue.startTasks();
 											}
 										} else {
 											quest.getQuestState().setCompleted(true);
 											questProfile.save();
-											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&2&lRewards:"));
-											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getQuestPointsReward() + " &r&aQuest Point" + (quest.getRewards().getQuestPointsReward() > 1 ? "s" : "")));
-											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getMoneyReward() + " &r&aCoin" + (quest.getRewards().getMoneyReward() > 1 ? "s" : "")));
-											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getExperienceReward() + " &r&aExperience"));
+											if (objective.hasCompletedMessage()) {
+												List<Runnable> runnables = new ArrayList<Runnable>();
+												for (String message : objective.getCompletedMessage()) {
+													runnables.add(new Runnable() {
+														@Override
+														public void run() {
+															player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+														}
+													});
+												}
+												TaskQueue queue = new TaskQueue(runnables);
+												queue.addTasks(new Runnable() {
+													@Override
+													public void run() {
+														player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&2&lRewards:"));
+														player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getQuestPointsReward() + " &r&aQuest Point" + (quest.getRewards().getQuestPointsReward() == 1 ? "" : "s")));
+														player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getMoneyReward() + " &r&aCoin" + (quest.getRewards().getMoneyReward() == 1 ? "" : "s")));
+														player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getExperienceReward() + " &r&aExperience Point" + (quest.getRewards().getExperienceReward() == 1 ? "" : "s")));
+													}
+												});
+												queue.startTasks();
+											} else {
+												player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&2&lRewards:"));
+												player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getQuestPointsReward() + " &r&aQuest Point" + (quest.getRewards().getQuestPointsReward() == 1 ? "" : "s")));
+												player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getMoneyReward() + " &r&aCoin" + (quest.getRewards().getMoneyReward() == 1 ? "" : "s")));
+												player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getExperienceReward() + " &r&aExperience Point" + (quest.getRewards().getExperienceReward() == 1 ? "" : "s")));
+											}
 											if (quest.getRewards().hasExecute()) {
 												quest.getRewards().executeCommand(player.getName());
 											}

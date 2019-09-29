@@ -1,13 +1,10 @@
 package com.runicrealms.quests;
 
-import java.util.HashMap;
 import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-
-import com.runicrealms.player.QuestObjectiveState;
 
 public class QuestObjective {
 	
@@ -186,8 +183,8 @@ public class QuestObjective {
 		}
 	}
 	
-	public static QuestObjective getObjective(HashMap<QuestObjective, QuestObjectiveState> objectives, Integer objectiveNumber) {
-		for (QuestObjective objective : objectives.keySet()) {
+	public static QuestObjective getObjective(List<QuestObjective> objectives, Integer objectiveNumber) {
+		for (QuestObjective objective : objectives) {
 			if (objective.objectiveNumber == objectiveNumber) {
 				return objective;
 			}
@@ -195,9 +192,9 @@ public class QuestObjective {
 		return null;
 	}
 	
-	public static QuestObjective getLastObjective(HashMap<QuestObjective, QuestObjectiveState> objectives) {
-		for (QuestObjective objective : objectives.keySet()) {
-			if (objective.objectiveNumber == objectives.keySet().size()) {
+	public static QuestObjective getLastObjective(List<QuestObjective> objectives) {
+		for (QuestObjective objective : objectives) {
+			if (objective.objectiveNumber == objectives.size()) {
 				return objective;
 			}
 		}

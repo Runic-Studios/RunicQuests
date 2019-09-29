@@ -33,8 +33,8 @@ public class DataFileConfiguration {
 			config.set(quest.getQuestID() + ".started", quest.getQuestState().hasStarted());
 			config.set(quest.getQuestID() + ".completed", quest.getQuestState().isCompleted());
 			config.set(quest.getQuestID() + ".first-npc-state", quest.getFirstNPC().getState().getName());
-			for (QuestObjective objective : quest.getObjectives().keySet()) {
-				config.set(quest.getQuestID() + ".objectives." + objective.getObjectiveNumber(), objective.isCompleted());
+			for (QuestObjective objective : quest.getObjectives()) {
+				config.set(quest.getQuestID() + ".objectives." + objective.getObjectiveNumber() + "", objective.isCompleted());
 			}
 		}
 		this.saveToFile();
