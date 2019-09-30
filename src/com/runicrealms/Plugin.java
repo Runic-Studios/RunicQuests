@@ -1,7 +1,9 @@
 package com.runicrealms;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.bukkit.ChatColor;
 import org.bukkit.inventory.Inventory;
@@ -22,7 +24,7 @@ public class Plugin extends JavaPlugin {
 
 	private static Plugin plugin;
 	private static List<QuestProfile> questProfiles = new ArrayList<QuestProfile>();
-	public static List<Integer> cooldowns = new ArrayList<Integer>();
+	public static Map<String, List<Integer>> cooldowns = new HashMap<String, List<Integer>>();
 	private static Integer nextId = 0;
 
 	public static String WORLD_NAME;

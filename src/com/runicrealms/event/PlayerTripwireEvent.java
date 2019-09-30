@@ -143,12 +143,12 @@ public class PlayerTripwireEvent implements Listener {
 										}
 										RunicCoreHook.giveRewards(player, quest.getRewards());
 										if (quest.isRepeatable() == true) {
-											Plugin.cooldowns.add(quest.getFirstNPC().getId());
+											Plugin.cooldowns.get(player.getUniqueId().toString()).add(quest.getFirstNPC().getId());
 											Bukkit.getScheduler().runTaskLater(Plugin.getInstance(), new Runnable() {
 												@Override
 												public void run() {
-													if (Plugin.cooldowns.contains(quest.getFirstNPC().getId())) {
-														Plugin.cooldowns.remove(Plugin.cooldowns.indexOf(quest.getFirstNPC().getId()));
+													if (Plugin.cooldowns.get(player.getUniqueId().toString()).contains(quest.getQuestID())) {
+														Plugin.cooldowns.get(player.getUniqueId().toString()).remove(quest.getQuestID());
 													} else {
 														Bukkit.getLogger().log(Level.INFO, "[RunicQuests] ERROR - failed to remove quest cooldown from player \"" + questProfile.getPlayerUUID() + "\"!");
 													}
