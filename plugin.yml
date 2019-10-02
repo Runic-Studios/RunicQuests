@@ -3,3 +3,4 @@ description: Runic Realms Questing Plugin, by Excel
 version: 1.0
 main: com.runicrealms.Plugin
 depend: [Citizens, MythicMobs]
+api-version: 1.13
