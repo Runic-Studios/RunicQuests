@@ -17,7 +17,7 @@ public class PlayerJoinQuitEvent implements Listener {
 
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {
-		Plugin.cooldowns.put(event.getPlayer().getUniqueId().toString(), new ArrayList<Integer>());
+		Plugin.getQuestCooldowns().put(event.getPlayer().getUniqueId().toString(), new ArrayList<Integer>());
 		if (Plugin.CACHE_PLAYER_DATA) {
 			for (QuestProfile profile : Plugin.getQuestProfiles()) {
 				if (profile.getPlayerUUID().equalsIgnoreCase(event.getPlayer().getUniqueId().toString())) {
@@ -32,13 +32,13 @@ public class PlayerJoinQuitEvent implements Listener {
 
 	@EventHandler
 	public void onPlayerQuit(PlayerQuitEvent event) {
-		Plugin.cooldowns.remove(event.getPlayer().getUniqueId().toString());
+		Plugin.getQuestCooldowns().remove(event.getPlayer().getUniqueId().toString());
 		QuestProfile questProfile = Plugin.getQuestProfile(event.getPlayer().getUniqueId().toString());
 		for (Quest quest : questProfile.getQuests()) {
 			for (QuestObjective objective : quest.getObjectives()) {
 				if (objective.getObjectiveType() == QuestObjectiveType.TALK) {
-					if (NpcClickEvent.npcs.containsKey(objective.getQuestNpc().getId())) {
-						NpcClickEvent.npcs.remove(objective.getQuestNpc().getId());
+					if (Plugin.getNpcTaskQueues().containsKey(objective.getQuestNpc().getId())) {
+						Plugin.getNpcTaskQueues().remove(objective.getQuestNpc().getId());
 					}
 				}
 			}

@@ -3,6 +3,7 @@ package com.runicrealms.event;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
@@ -30,12 +31,12 @@ import net.citizensnpcs.api.event.NPCRightClickEvent;
 
 public class NpcClickEvent implements Listener {
 
-	public static volatile HashMap<Integer, TaskQueue> npcs = new HashMap<Integer, TaskQueue>();
-
 	@EventHandler
 	public void onNpcRightClick(NPCRightClickEvent event) {
 		Player player = event.getClicker();
 		QuestProfile questProfile = Plugin.getQuestProfile(player.getUniqueId().toString());
+		HashMap<Integer, TaskQueue> npcs = Plugin.getNpcTaskQueues();
+		Map<String, List<Integer>> questCooldowns = Plugin.getQuestCooldowns();
 		for (Quest quest : questProfile.getQuests()) {
 			if (quest.getQuestState().isCompleted() && quest.isRepeatable() == false) {
 				if (quest.getFirstNPC().getCitizensNpc().getId() == event.getNPC().getId()) {
@@ -74,7 +75,7 @@ public class NpcClickEvent implements Listener {
 			if ((quest.getQuestState().isCompleted() == false) ||
 					(quest.isRepeatable() && quest.getQuestState().hasStarted() && quest.getQuestState().isCompleted())) {
 				if (quest.getFirstNPC().getCitizensNpc().getId() == event.getNPC().getId() &&
-						Plugin.cooldowns.get(player.getUniqueId().toString()).contains(quest.getQuestID()) == false) {
+						questCooldowns.get(player.getUniqueId().toString()).contains(quest.getQuestID()) == false) {
 					if (QuestObjective.getObjective(quest.getObjectives(), 1).isCompleted() == false || quest.isRepeatable()) {
 						if (!npcs.containsKey(quest.getFirstNPC().getId())) {
 							if (quest.getFirstNPC().getState() != FirstNpcState.ACCEPTED || (quest.isRepeatable() && Plugin.allObjectivesComplete(quest))) {
@@ -204,7 +205,7 @@ public class NpcClickEvent implements Listener {
 					}
 				}
 				if (quest.getFirstNPC().getCitizensNpc().getId() == event.getNPC().getId() &&
-						Plugin.cooldowns.get(player.getUniqueId().toString()).contains(quest.getQuestID())) {
+						questCooldowns.get(player.getUniqueId().toString()).contains(quest.getQuestID())) {
 					int hours = (quest.getCooldown() - (quest.getCooldown() % 3600)) / 3600;
 					int minutes = (quest.getCooldown() - (quest.getCooldown() % 60)) / 60 - (hours * 60);
 					int seconds = quest.getCooldown() - (hours * 3600) - (minutes * 60);
@@ -314,12 +315,12 @@ public class NpcClickEvent implements Listener {
 											}
 											RunicCoreHook.giveRewards(player, quest.getRewards());
 											if (quest.isRepeatable() == true) {
-												Plugin.cooldowns.get(player.getUniqueId().toString()).add(quest.getFirstNPC().getId());
+												questCooldowns.get(player.getUniqueId().toString()).add(quest.getFirstNPC().getId());
 												Bukkit.getScheduler().runTaskLater(Plugin.getInstance(), new Runnable() {
 													@Override
 													public void run() {
-														if (Plugin.cooldowns.get(player.getUniqueId().toString()).contains(quest.getQuestID())) {
-															Plugin.cooldowns.get(player.getUniqueId().toString()).remove(quest.getQuestID());
+														if (questCooldowns.get(player.getUniqueId().toString()).contains(quest.getQuestID())) {
+															questCooldowns.get(player.getUniqueId().toString()).remove(quest.getQuestID());
 														} else {
 															Bukkit.getLogger().log(Level.INFO, "[RunicQuests] ERROR - failed to remove quest cooldown from player \"" + questProfile.getPlayerUUID() + "\"!");
 														}
