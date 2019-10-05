@@ -55,7 +55,8 @@ public class PlayerTripwireEvent implements Listener {
 							if (objective.getObjectiveType() == QuestObjectiveType.TRIPWIRE) {
 								if (new IntRange(objective.getTripwire1().getBlockX(), objective.getTripwire2().getBlockX()).containsInteger(event.getClickedBlock().getX()) &&
 										new IntRange(objective.getTripwire1().getBlockY(), objective.getTripwire2().getBlockY()).containsInteger(event.getClickedBlock().getY()) &&
-										new IntRange(objective.getTripwire1().getBlockZ(), objective.getTripwire2().getBlockZ()).containsInteger(event.getClickedBlock().getZ())) {
+										new IntRange(objective.getTripwire1().getBlockZ(), objective.getTripwire2().getBlockZ()).containsInteger(event.getClickedBlock().getZ()) &&
+										event.getClickedBlock().getWorld().toString().equalsIgnoreCase(Plugin.WORLD_NAME)) {
 									if (objective.requiresQuestItem()) {
 										int aquiredQuestItems = 0;
 										for (QuestItem questItem : objective.getQuestItems()) {

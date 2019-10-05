@@ -51,7 +51,8 @@ public class PlayerBreakBlockEvent implements Listener {
 							if (objective.hasBlockLocation()) {
 								if (event.getBlock().getLocation().getBlockX() != objective.getBlockLocation().getBlockX() ||
 										event.getBlock().getLocation().getBlockY() != objective.getBlockLocation().getBlockY() ||
-										event.getBlock().getLocation().getBlockZ() != objective.getBlockLocation().getBlockZ()) {
+										event.getBlock().getLocation().getBlockZ() != objective.getBlockLocation().getBlockZ() ||
+										event.getBlock().getWorld().toString().equalsIgnoreCase(Plugin.WORLD_NAME) == false) {
 									continue;
 								}
 							}
