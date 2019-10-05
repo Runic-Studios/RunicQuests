@@ -92,7 +92,7 @@ public class PlayerTripwireEvent implements Listener {
 												runnables.add(new Runnable() {
 													@Override
 													public void run() {
-														player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+														player.sendMessage(ChatColor.translateAlternateColorCodes('&', message.replaceAll("%player%", player.getName())));
 													}
 												});
 											}
@@ -117,7 +117,7 @@ public class PlayerTripwireEvent implements Listener {
 												runnables.add(new Runnable() {
 													@Override
 													public void run() {
-														player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+														player.sendMessage(ChatColor.translateAlternateColorCodes('&', message.replaceAll("%player%", player.getName())));
 													}
 												});
 											}
@@ -162,7 +162,7 @@ public class PlayerTripwireEvent implements Listener {
 												runnables.add(new Runnable() {
 													@Override
 													public void run() {
-														player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+														player.sendMessage(ChatColor.translateAlternateColorCodes('&', message.replaceAll("%player%", player.getName())));
 													}
 												});
 											}

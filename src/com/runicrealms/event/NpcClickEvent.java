@@ -279,7 +279,7 @@ public class NpcClickEvent implements Listener {
 								}
 								if (objective.hasCompletedMessage()) {
 									for (String message : objective.getCompletedMessage()) {
-										player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+										player.sendMessage(ChatColor.translateAlternateColorCodes('&', message.replaceAll("%player%", player.getName())));
 									}
 								}
 								TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, objective.getQuestNpc().getSpeech(), objective.getQuestNpc().getNpcName()));
@@ -337,7 +337,7 @@ public class NpcClickEvent implements Listener {
 														runnables.add(new Runnable() {
 															@Override
 															public void run() {
-																player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+																player.sendMessage(ChatColor.translateAlternateColorCodes('&', message.replaceAll("%player%", player.getName())));
 															}
 														});
 													}
@@ -384,7 +384,7 @@ public class NpcClickEvent implements Listener {
 			runnables.add(new Runnable() {
 				@Override
 				public void run() {
-					player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7[" + (messages.indexOf(message) + 1) + "/" + messages.size() + "] &e" + name + ": &6" + message));
+					player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7[" + (messages.indexOf(message) + 1) + "/" + messages.size() + "] &e" + name + ": &6" + message.replaceAll("%player%", player.getName())));
 				}
 			});
 		}
