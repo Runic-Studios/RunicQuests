@@ -19,12 +19,14 @@ import com.runicrealms.event.PlayerTripwireEvent;
 import com.runicrealms.player.QuestProfile;
 import com.runicrealms.quests.Quest;
 import com.runicrealms.quests.QuestObjective;
+import com.runicrealms.task.TaskQueue;
 
 public class Plugin extends JavaPlugin {
 
 	private static Plugin plugin;
 	private static List<QuestProfile> questProfiles = new ArrayList<QuestProfile>();
-	public static Map<String, List<Integer>> cooldowns = new HashMap<String, List<Integer>>();
+	private static volatile HashMap<Integer, TaskQueue> npcTaskQueues = new HashMap<Integer, TaskQueue>();
+	private static Map<String, List<Integer>> cooldowns = new HashMap<String, List<Integer>>();
 	private static Integer nextId = 0;
 
 	public static String WORLD_NAME;
@@ -48,6 +50,14 @@ public class Plugin extends JavaPlugin {
 
 	public static Plugin getInstance() {
 		return plugin;
+	}
+	
+	public static HashMap<Integer, TaskQueue> getNpcTaskQueues() {
+		return npcTaskQueues;
+	}
+	
+	public static Map<String, List<Integer>> getQuestCooldowns() {
+		return cooldowns;
 	}
 
 	public static List<QuestProfile> getQuestProfiles() {
