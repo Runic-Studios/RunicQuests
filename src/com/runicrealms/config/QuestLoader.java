@@ -194,9 +194,14 @@ public class QuestLoader {
 						(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
 			}
 		} else if (configSec.getString("requirement.type").equalsIgnoreCase("break")) {
+			Double x = configSec.contains("requirement.location") ? Double.parseDouble(configSec.getString("requirement.location").split(",")[0].replaceAll(",", "")) : null;
+			Double y = configSec.contains("requirement.location") ? Double.parseDouble(configSec.getString("requirement.location").split(",")[1].replaceAll(",", "")) : null;
+			Double z = configSec.contains("requirement.location") ? Double.parseDouble(configSec.getString("requirement.location").split(",")[2].replaceAll(",", "")) : null;
 			if (configSec.contains("requirement.requires")) {
 				return new QuestObjective(
 						Material.getMaterial(configSec.getString("requirement.block-type").toUpperCase()),
+						(configSec.contains("requirement.amount") ? configSec.getInt("requirement.amount") : null),
+						(configSec.contains("requirement.location") ? new Location(Bukkit.getWorld(Plugin.WORLD_NAME), x, y, z) : null),
 						getQuestItems(configSec.getConfigurationSection("requirement.requires")),
 						goalMessage,
 						(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
@@ -205,6 +210,8 @@ public class QuestLoader {
 			} else {
 				return new QuestObjective(
 						Material.getMaterial(configSec.getString("requirement.block-type").toUpperCase()),
+						(configSec.contains("requirement.amount") ? configSec.getInt("requirement.amount") : null),
+						(configSec.contains("requirement.location") ? new Location(Bukkit.getWorld(Plugin.WORLD_NAME), x, y, z) : null),
 						goalMessage,
 						(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
 						objectiveNumber,

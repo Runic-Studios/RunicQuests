@@ -58,6 +58,8 @@ objectives:
     requirement:
       type: 'break'
       block-type: 'GRASS'
+      amount: 1 # this is OPTIONAL
+      location: '0,0,0' # this is OPTIONAL
     goal-message: 'kill meh grass'
 rewards:
   exp: 100

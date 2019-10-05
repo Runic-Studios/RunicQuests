@@ -85,6 +85,11 @@ public class NpcClickEvent implements Listener {
 										if (qobjective.getObjectiveType() == QuestObjectiveType.SLAY) {
 											qobjective.setMobsKilled(0);
 										}
+										if (qobjective.getObjectiveType() == QuestObjectiveType.BREAK) {
+											if (qobjective.hasBlockAmount()) {
+												qobjective.setBlocksBroken(0);
+											}
+										}
 									}
 									questProfile.save();
 								}

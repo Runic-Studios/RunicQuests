@@ -47,6 +47,19 @@ public class PlayerBreakBlockEvent implements Listener {
 						continue;
 					}
 					if (objective.getObjectiveType() == QuestObjectiveType.BREAK) {
+						if (objective.hasBlockAmount()) {
+							if (objective.hasBlockLocation()) {
+								if (event.getBlock().getLocation().getBlockX() != objective.getBlockLocation().getBlockX() ||
+										event.getBlock().getLocation().getBlockY() != objective.getBlockLocation().getBlockY() ||
+										event.getBlock().getLocation().getBlockZ() != objective.getBlockLocation().getBlockZ()) {
+									continue;
+								}
+							}
+							objective.setBlocksBroken(objective.getBlocksBroken() + 1);
+							if (objective.getBlocksBroken() != objective.getBlockAmount()) {
+								continue;
+							}
+						}
 						if (objective.getBlockMaterial() == event.getBlock().getType()) {
 							if (objective.requiresQuestItem()) {
 								int aquiredQuestItems = 0;

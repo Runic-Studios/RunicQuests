@@ -19,6 +19,9 @@ public class QuestObjective {
 	private Location tripwire1;
 	private Location tripwire2;
 	private Material blockMaterial;
+	private Integer blockAmount;
+	private Location blockLocation;
+	private Integer blocksBroken;
 	private List<String> goalMessage;
 	private List<String> execute;
 	
@@ -53,8 +56,10 @@ public class QuestObjective {
 		this.completedMessage = completedMessage;
 	}
 	
-	public QuestObjective(Material blockMaterial, List<String> goalMessage, List<String> execute, Integer objectiveNumber, List<String> completedMessage) {
+	public QuestObjective(Material blockMaterial, Integer blockAmount, Location blockLocation, List<String> goalMessage, List<String> execute, Integer objectiveNumber, List<String> completedMessage) {
 		this.blockMaterial = blockMaterial;
+		this.blockAmount = blockAmount;
+		this.blockLocation = blockLocation;
 		this.goalMessage = goalMessage;
 		this.objectiveType = QuestObjectiveType.BREAK;
 		this.execute = execute;
@@ -94,8 +99,10 @@ public class QuestObjective {
 		this.completedMessage = completedMessage;
 	}
 	
-	public QuestObjective(Material blockMaterial, List<QuestItem> questItems, List<String> goalMessage, List<String> execute, Integer objectiveNumber, List<String> completedMessage) {
+	public QuestObjective(Material blockMaterial, Integer blockAmount, Location blockLocation, List<QuestItem> questItems, List<String> goalMessage, List<String> execute, Integer objectiveNumber, List<String> completedMessage) {
 		this.blockMaterial = blockMaterial;
+		this.blockAmount = blockAmount;
+		this.blockLocation = blockLocation;
 		this.goalMessage = goalMessage;
 		this.questItems = questItems;
 		this.objectiveType = QuestObjectiveType.BREAK;
@@ -174,6 +181,30 @@ public class QuestObjective {
 	
 	public boolean hasCompletedMessage() {
 		return this.completedMessage != null;
+	}
+	
+	public boolean hasBlockAmount() {
+		return this.blockAmount != null;
+	}
+	
+	public Integer getBlockAmount() {
+		return this.blockAmount;
+	}
+	
+	public boolean hasBlockLocation() {
+		return this.blockLocation != null;
+	}
+	
+	public Location getBlockLocation() {
+		return this.blockLocation;
+	}
+	
+	public void setBlocksBroken(Integer amount) {
+		this.blocksBroken = amount;
+	}
+	
+	public Integer getBlocksBroken() {
+		return this.blocksBroken;
 	}
 	
 	public void executeCommand(String playerName) {
