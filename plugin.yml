@@ -4,3 +4,7 @@ version: 1.0
 main: com.runicrealms.Plugin
 depend: [Citizens, MythicMobs]
 api-version: 1.13
+commands:
+  quests:
+    description: Shows you your current objectives
+    aliases: [quest, objective, objectives]

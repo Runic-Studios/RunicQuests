@@ -6,10 +6,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.bukkit.ChatColor;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.runicrealms.command.QuestsCommand;
 import com.runicrealms.config.ConfigLoader;
 import com.runicrealms.event.MythicMobsKillEvent;
 import com.runicrealms.event.NpcClickEvent;
@@ -46,6 +48,12 @@ public class Plugin extends JavaPlugin {
 		this.getServer().getPluginManager().registerEvents(new PlayerBreakBlockEvent(), this);
 		this.getServer().getPluginManager().registerEvents(new PlayerJoinQuitEvent(), this);
 		this.getServer().getPluginManager().registerEvents(new PlayerTripwireEvent(), this);
+		QuestsCommand commandExecutor = new QuestsCommand();
+		String[] commands = new String[] {"quests", "quest", "objectives", "objective"};
+		for (int i = 0; i < commands.length; i++) {
+			PluginCommand pluginCommand = this.getCommand(commands[i]);
+			pluginCommand.setExecutor(commandExecutor);
+		}
 	}
 
 	public static Plugin getInstance() {
