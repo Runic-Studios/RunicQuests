@@ -14,6 +14,8 @@ import com.runicrealms.Plugin;
 import com.runicrealms.quests.CraftingProfessionType;
 import com.runicrealms.quests.Quest;
 import com.runicrealms.quests.QuestFirstNpc;
+import com.runicrealms.quests.QuestIdleMessage;
+import com.runicrealms.quests.QuestIdleMessageConditions;
 import com.runicrealms.quests.QuestItem;
 import com.runicrealms.quests.QuestNpc;
 import com.runicrealms.quests.QuestObjective;
@@ -41,12 +43,13 @@ public class QuestLoader {
 
 	public static Quest loadQuest(FileConfiguration config) {
 		ArrayList<QuestObjective> objectives = new ArrayList<QuestObjective>();
-		for (int i = 1; i <= config.getConfigurationSection("objectives").getKeys(false).size(); i++) {
-			objectives.add(loadObjective(config.getConfigurationSection("objectives." + i), i));
+		int objectivesNumber = config.getConfigurationSection("objectives").getKeys(false).size();
+		for (int i = 1; i <= objectivesNumber; i++) {
+			objectives.add(loadObjective(config.getConfigurationSection("objectives." + i), i, objectivesNumber));
 		}
 		return new Quest(
 				config.getString("name"),
-				loadFirstNpc(config.getConfigurationSection("first-npc")),
+				loadFirstNpc(config.getConfigurationSection("first-npc"), objectivesNumber),
 				objectives,
 				loadRewards(config.getConfigurationSection("rewards")),
 				config.getInt("unique-id"),
@@ -56,6 +59,29 @@ public class QuestLoader {
 				(config.contains("completion-speech") ? getStringList(config, "completion-speech") : null),
 				(config.contains("use-last-npc-name-for-completion-speech") ? config.getBoolean("use-last-npc-name-for-completion-speech") : null),
 				(config.getBoolean("repeatable") ? config.getInt("quest-cooldown") : null));
+	}
+
+	public static List<QuestIdleMessage> loadIdleMessages(ConfigurationSection configSec, int objectivesNumber) {
+		List<QuestIdleMessage> idleMessages = new ArrayList<QuestIdleMessage>();
+		for (String key : configSec.getKeys(false)) {
+			List<Boolean> objectives = null;
+			if (configSec.contains(key + ".condition.objectives")) {
+				objectives = new ArrayList<Boolean>();
+				for (int i = 0; i < objectivesNumber; i++) {
+					objectives.add(null);
+				}
+				for (String objectiveNumber : configSec.getConfigurationSection(key + ".condition.objectives").getKeys(false)) {
+					objectives.add(Integer.parseInt(objectiveNumber), configSec.getConfigurationSection(key + ".condition.objectives").getBoolean(objectiveNumber));
+				}
+			}
+			QuestIdleMessageConditions conditions = new QuestIdleMessageConditions(
+					(configSec.contains(key + ".condition.quest.started") ? configSec.getBoolean(key + ".condition.quest.started") : null),
+					(configSec.contains(key + ".condition.quest.completed") ? configSec.getBoolean(key + ".condition.quest.completed") : null),
+					objectives,
+					(configSec.contains(key + ".condition.quest-items") ? configSec.getBoolean(key + ".condition.quest-items") : null));
+			idleMessages.add(new QuestIdleMessage(conditions, getStringList(configSec, key + ".speech")));
+		}
+		return idleMessages;
 	}
 
 	public static QuestRequirements loadRequirements(ConfigurationSection configSec) {
@@ -119,7 +145,7 @@ public class QuestLoader {
 				execute);
 	}
 
-	public static QuestObjective loadObjective(ConfigurationSection configSec, Integer objectiveNumber) {
+	public static QuestObjective loadObjective(ConfigurationSection configSec, Integer objectiveNumber, int objectivesNumber) {
 		List<String> goalMessage = new ArrayList<String>();
 		if (configSec.isString("goal-message")) {
 			goalMessage.add(configSec.getString("goal-message"));
@@ -148,7 +174,7 @@ public class QuestLoader {
 		} else if (configSec.getString("requirement.type").equalsIgnoreCase("talk")) {
 			if (configSec.contains("requirement.requires")) {
 				return new QuestObjective(
-						loadNpc(configSec.getConfigurationSection("requirement.npc")),
+						loadNpc(configSec.getConfigurationSection("requirement.npc"), objectivesNumber),
 						getQuestItems(configSec.getConfigurationSection("requirement.requires")),
 						goalMessage,
 						(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
@@ -156,7 +182,7 @@ public class QuestLoader {
 						(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
 			} else {
 				return new QuestObjective(
-						loadNpc(configSec.getConfigurationSection("requirement.npc")),
+						loadNpc(configSec.getConfigurationSection("requirement.npc"), objectivesNumber),
 						goalMessage,
 						(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
 						objectiveNumber,
@@ -221,11 +247,11 @@ public class QuestLoader {
 		return null;
 	}
 
-	public static QuestFirstNpc loadFirstNpc(ConfigurationSection configSec) {
+	public static QuestFirstNpc loadFirstNpc(ConfigurationSection configSec, int objectivesNumber) {
 		return new QuestFirstNpc(
 				configSec.getInt("npc-id"),
 				getStringList(configSec, "speech"),
-				(configSec.contains("idle-message") ? getStringList(configSec, "idle-message") : null),
+				(configSec.contains("idle-messages") ? loadIdleMessages(configSec.getConfigurationSection("idle-messages"), objectivesNumber) : null),
 				(configSec.contains("quest-completed-message") ? getStringList(configSec, "quest-completed-message") : null),
 				configSec.getString("npc-name"),
 				(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
@@ -234,11 +260,11 @@ public class QuestLoader {
 				(configSec.getBoolean("deniable") ? getStringList(configSec, "accepted-message") : null));
 	}
 
-	public static QuestNpc loadNpc(ConfigurationSection configSec) {
+	public static QuestNpc loadNpc(ConfigurationSection configSec, int objectivesNumber) {
 		return new QuestNpc(
 				configSec.getInt("npc-id"),
 				getStringList(configSec, "speech"),
-				(configSec.contains("idle-message") ? getStringList(configSec, "idle-message") : null),
+				(configSec.contains("idle-messages") ? loadIdleMessages(configSec.getConfigurationSection("idle-messages"), objectivesNumber) : null),
 				(configSec.contains("quest-completed-message") ? getStringList(configSec, "quest-completed-message") : null),
 				configSec.getString("npc-name"));
 	}

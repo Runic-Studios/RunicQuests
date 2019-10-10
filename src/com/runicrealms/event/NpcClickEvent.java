@@ -12,7 +12,6 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.inventory.ItemStack;
 
 import com.runicrealms.Plugin;
 import com.runicrealms.api.QuestAcceptEvent;
@@ -21,6 +20,7 @@ import com.runicrealms.api.QuestDenyEvent;
 import com.runicrealms.player.QuestProfile;
 import com.runicrealms.quests.FirstNpcState;
 import com.runicrealms.quests.Quest;
+import com.runicrealms.quests.QuestIdleMessage;
 import com.runicrealms.quests.QuestItem;
 import com.runicrealms.quests.QuestObjective;
 import com.runicrealms.quests.QuestObjectiveType;
@@ -166,7 +166,7 @@ public class NpcClickEvent implements Listener {
 												});
 												npcs.put(quest.getFirstNPC().getId(), queue);
 												queue.startTasks();
-												
+
 											}
 										} else if (quest.getRequirements().hasCompletedQuestRequirement()) {
 											if (!RunicCoreHook.hasCompletedRequiredQuests(player, quest.getRequirements().getCompletedQuestsRequirement())) {
@@ -245,34 +245,7 @@ public class NpcClickEvent implements Listener {
 									continue;
 								}
 								if (objective.requiresQuestItem()) {
-									int aquiredQuestItems = 0;
-									for (QuestItem questItem : objective.getQuestItems()) {
-										int amount = 0;
-										for (ItemStack item : player.getInventory().getContents()) {
-											if (item != null) {
-												if (Plugin.getItemName(item).equalsIgnoreCase(ChatColor.stripColor(questItem.getItemName())) &&
-														item.getType().name().equalsIgnoreCase(questItem.getItemType())) {
-													amount += item.getAmount();
-													if (amount >= questItem.getAmount()) {
-														aquiredQuestItems++;
-														break;
-													}
-												}
-											}
-										}
-									}
-									if (aquiredQuestItems != objective.getQuestItems().size()) {
-										TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, objective.getQuestNpc().getIdleSpeech(), objective.getQuestNpc().getNpcName()));
-										queue.setCompletedTask(new Runnable() {
-											@Override
-											public void run() {
-												npcs.remove(objective.getQuestNpc().getId());
-											}
-										});
-										npcs.put(objective.getQuestNpc().getId(), queue);
-										queue.startTasks();
-										return;
-									} else {
+									if (Plugin.hasQuestItems(objective, player)) {
 										for (QuestItem questItem : objective.getQuestItems()) {
 											Plugin.removeItem(player.getInventory(), questItem.getItemName(), questItem.getItemType(), questItem.getAmount());
 										}
@@ -361,6 +334,61 @@ public class NpcClickEvent implements Listener {
 								npcs.put(objective.getQuestNpc().getId(), queue);
 								queue.startTasks();
 								break;
+							}
+						}
+					}
+				}
+			}
+		}
+		for (Quest quest : questProfile.getQuests()) {
+			for (QuestObjective objective : quest.getObjectives()) {
+				if (objective.getObjectiveType() == QuestObjectiveType.TALK) {
+					if (objective.getQuestNpc().getCitizensNpc().getId() == event.getNPC().getId()) {
+						if (objective.getQuestNpc().hasIdleSpeech()) {
+							for (QuestIdleMessage idleMessage : objective.getQuestNpc().getIdleSpeech()) {
+								if (idleMessage.getConditions().hasQuestCompleted()) {
+									if (quest.getQuestState().isCompleted() != idleMessage.getConditions().getQuestCompleted()) {
+										continue;
+									}
+								}
+								if (idleMessage.getConditions().hasQuestStarted()) {
+									if (quest.getQuestState().hasStarted() != idleMessage.getConditions().getQuestStarted()) {
+										continue;
+									}
+								}
+								if (idleMessage.getConditions().hasObjectiveStates()) {
+									boolean meetsReqs = true;
+									objectivesLoop: for (int i = 0; i < quest.getObjectives().size(); i++) {
+										if (i < idleMessage.getConditions().getObjectiveStates().size()) {
+											if (idleMessage.getConditions().getObjectiveStates().get(i) != null) {
+												for (Boolean state : idleMessage.getConditions().getObjectiveStates()) {
+													if (quest.getObjectives().get(i).isCompleted() != state) {
+														meetsReqs = false;
+														break objectivesLoop;
+													}
+												}
+											}
+										}
+									}
+									if (!meetsReqs) {
+										continue;
+									}
+								}
+								if (idleMessage.getConditions().hasRequiresQuestItems()) {
+									if (Plugin.hasQuestItems(objective, player) != idleMessage.getConditions().requiresQuestItems()) {
+										continue;
+									}
+								}
+								TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, idleMessage.getSpeech(), objective.getQuestNpc().getNpcName()));
+								queue.setCompletedTask(new Runnable() {
+									@Override
+									public void run() {
+										npcs.remove(objective.getQuestNpc().getId());
+									}
+								});
+								npcs.put(objective.getQuestNpc().getId(), queue);
+								queue.startTasks();
+								return;
 							}
 						}
 					}
