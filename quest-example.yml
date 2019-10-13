@@ -12,6 +12,8 @@ requirements: # Everything here is optional, except the level requirement and le
   - 'Come back when you are level 10'
   crafting-level-not-met: 'You gotta be better at making armor for me bro'
   required-quests-not-met: 'Em go help me fren with somthing'
+  class: 'mage' # Can be any one of the classes
+  class-not-met: 'You have to be a mage : ('
 first-npc: 
   npc-name: 'firstNPC'
   npc-id: citizensNpcId
@@ -56,13 +58,14 @@ objectives:
                 2: false
                 3: false
                 4: false
-        quest-completed-message: 'hope to see you around soon!' # OPTIONAL. this is NOT the same as completed-message. This is the message that the NPC will say when you have completed the quest
     goal-message: 'talk to dude and give him item'
   3: 
     requirement:
       type: 'tripwire'
-      tripwire-one: '2,2,2'
-      tripwire-two: '3,3,3'
+      tripwires:
+        1: # Can have multiple tripwires
+          corner-one: 'world,2,2,2' # Box shape of string. These are the corners coordinates.
+          corner-two: 'world,3,3,3'
     goal-message: 'step on the wire (enter an area)'
     completed-message: 'break some grass'
   4: 
@@ -70,7 +73,7 @@ objectives:
       type: 'break'
       block-type: 'GRASS'
       amount: 1 # this is OPTIONAL
-      location: '0,0,0' # this is OPTIONAL
+      location: 'world,0,0,0' # this is OPTIONAL
     goal-message: 'kill meh grass'
 rewards:
   exp: 100
@@ -78,7 +81,7 @@ rewards:
   money: 100
   execute: '/give %player% dirt'
 completion-message: '&6nice job' # OPTIONAL. This message is run after the rewards are given
-use-last-npc-name-for-completion-message: false # This works ONLY if: you have a completion-message and your last objective is of 
+use-last-npc-name-for-completion-speech: false # This works ONLY if: you have a completion-message and your last objective is of 
                                                # type: 'talk', then it will display an NPC speech message using completion-message
 # NOTES:
 # firstNPC can contain 'execute' but other NPCs cannot (execute should be under each objective)
