@@ -43,8 +43,19 @@ objectives:
         npc-name: 'name2'
         npc-id: citizensNpcId
         speech: 'wassup'
-        idle-message: # This message appears when you do not have the required quest item
-        - 'bring me an item for me to speak with you!'
+        idle-messages: # This message appears according to the conditions below
+          1: # Can have multiple messages
+            speech: 'bring me an item for me to speak with you!'
+            conditions:
+              quest:
+                started: true
+                completed: false
+              quest-items: false # Make sure that the player doesn't have the required quest items
+              objectives: # Which objectives are completed
+                1: true
+                2: false
+                3: false
+                4: false
         quest-completed-message: 'hope to see you around soon!' # OPTIONAL. this is NOT the same as completed-message. This is the message that the NPC will say when you have completed the quest
     goal-message: 'talk to dude and give him item'
   3: 
@@ -67,7 +78,7 @@ rewards:
   money: 100
   execute: '/give %player% dirt'
 completion-message: '&6nice job' # OPTIONAL. This message is run after the rewards are given
-use-last-npc-name-for-completion-speech: false # This works ONLY if: you have a completion-message and your last objective is of 
+use-last-npc-name-for-completion-message: false # This works ONLY if: you have a completion-message and your last objective is of 
                                                # type: 'talk', then it will display an NPC speech message using completion-message
 # NOTES:
 # firstNPC can contain 'execute' but other NPCs cannot (execute should be under each objective)
