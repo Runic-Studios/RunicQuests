@@ -7,11 +7,13 @@ import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.runicrealms.command.QuestsCommand;
 import com.runicrealms.config.ConfigLoader;
 import com.runicrealms.event.MythicMobsKillEvent;
 import com.runicrealms.event.NpcClickEvent;
@@ -20,6 +22,7 @@ import com.runicrealms.event.PlayerJoinQuitEvent;
 import com.runicrealms.event.PlayerTripwireEvent;
 import com.runicrealms.player.QuestProfile;
 import com.runicrealms.quests.Quest;
+import com.runicrealms.quests.QuestItem;
 import com.runicrealms.quests.QuestObjective;
 import com.runicrealms.task.TaskQueue;
 
@@ -51,16 +54,22 @@ public class Plugin extends JavaPlugin {
 		for (Player player : Bukkit.getOnlinePlayers()) {
 			PlayerJoinQuitEvent.runJoinEvent(player);
 		}
+		QuestsCommand commandExecutor = new QuestsCommand();
+		String[] commands = new String[] {"quests", "quest", "objectives", "objective"};
+		for (int i = 0; i < commands.length; i++) {
+			PluginCommand pluginCommand = this.getCommand(commands[i]);
+			pluginCommand.setExecutor(commandExecutor);
+		}
 	}
 
 	public static Plugin getInstance() {
 		return plugin;
 	}
-	
+
 	public static HashMap<Integer, TaskQueue> getNpcTaskQueues() {
 		return npcTaskQueues;
 	}
-	
+
 	public static Map<String, List<Integer>> getQuestCooldowns() {
 		return cooldowns;
 	}
@@ -109,7 +118,7 @@ public class Plugin extends JavaPlugin {
 			return ChatColor.stripColor(item.getItemMeta().getDisplayName());
 		}
 	}
-	
+
 	public static boolean allObjectivesComplete(Quest quest) {
 		for (QuestObjective objective : quest.getObjectives()) {
 			if (objective.isCompleted() == false) {
@@ -117,6 +126,26 @@ public class Plugin extends JavaPlugin {
 			}
 		}
 		return true;
+	}
+
+	public static boolean hasQuestItems(QuestObjective objective, Player player) {
+		int aquiredQuestItems = 0;
+		for (QuestItem questItem : objective.getQuestItems()) {
+			int amount = 0;
+			for (ItemStack item : player.getInventory().getContents()) {
+				if (item != null) {
+					if (Plugin.getItemName(item).equalsIgnoreCase(ChatColor.stripColor(questItem.getItemName())) &&
+							item.getType().name().equalsIgnoreCase(questItem.getItemType())) {
+						amount += item.getAmount();
+						if (amount >= questItem.getAmount()) {
+							aquiredQuestItems++;
+							break;
+						}
+					}
+				}
+			}
+		}
+		return aquiredQuestItems == objective.getQuestItems().size();
 	}
 
 }

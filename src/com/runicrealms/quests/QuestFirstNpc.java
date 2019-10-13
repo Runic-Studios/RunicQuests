@@ -14,7 +14,7 @@ public class QuestFirstNpc {
 	
 	private NPC npc;
 	private List<String> speech;
-	private List<String> idleSpeech = null;
+	private List<QuestIdleMessage> idleSpeech = null;
 	private List<String> questCompletedSpeech;
 	private String npcName;
 	private List<String> execute;
@@ -24,7 +24,7 @@ public class QuestFirstNpc {
 	private FirstNpcState state = FirstNpcState.NEUTRAL;
 	private Integer id;
 	
-	public QuestFirstNpc(Integer npcId, List<String> speech, List<String> idleSpeech, List<String> questCompletedSpeech, String npcName, List<String> execute, boolean deniable, List<String> deniedMessage, List<String> acceptedMessage) {
+	public QuestFirstNpc(Integer npcId, List<String> speech, List<QuestIdleMessage> idleSpeech, List<String> questCompletedSpeech, String npcName, List<String> execute, boolean deniable, List<String> deniedMessage, List<String> acceptedMessage) {
 		this.npc = CitizensAPI.getNPCRegistry().getById(npcId);
 		this.speech = speech;
 		this.idleSpeech = idleSpeech;
@@ -53,7 +53,7 @@ public class QuestFirstNpc {
 		return this.id;
 	}
 
-	public List<String> getIdleSpeech() {
+	public List<QuestIdleMessage> getIdleSpeech() {
 		return idleSpeech;
 	}
 	

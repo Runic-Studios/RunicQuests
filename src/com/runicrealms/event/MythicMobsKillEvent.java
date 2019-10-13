@@ -7,6 +7,7 @@ import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -84,7 +85,10 @@ public class MythicMobsKillEvent implements Listener {
 										if (objective.hasExecute()) {
 											objective.executeCommand(player.getName());
 										}
+										player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 10, 0);
 										if (objective.getObjectiveNumber() != QuestObjective.getLastObjective(quest.getObjectives()).getObjectiveNumber()) {
+											String goalMessage = QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() + 1).getGoalMessage().get(0);
+											player.sendTitle(ChatColor.GOLD + "New Objective", ChatColor.YELLOW + goalMessage, 10, 40, 10);
 											if (objective.hasCompletedMessage()) {
 												List<Runnable> runnables = new ArrayList<Runnable>();
 												for (String message : objective.getCompletedMessage()) {
