@@ -5,7 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -46,6 +48,9 @@ public class Plugin extends JavaPlugin {
 		this.getServer().getPluginManager().registerEvents(new PlayerBreakBlockEvent(), this);
 		this.getServer().getPluginManager().registerEvents(new PlayerJoinQuitEvent(), this);
 		this.getServer().getPluginManager().registerEvents(new PlayerTripwireEvent(), this);
+		for (Player player : Bukkit.getOnlinePlayers()) {
+			PlayerJoinQuitEvent.runJoinEvent(player);
+		}
 	}
 
 	public static Plugin getInstance() {

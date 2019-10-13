@@ -2,6 +2,7 @@ package com.runicrealms.event;
 
 import java.util.ArrayList;
 
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -17,17 +18,7 @@ public class PlayerJoinQuitEvent implements Listener {
 
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {
-		Plugin.getQuestCooldowns().put(event.getPlayer().getUniqueId().toString(), new ArrayList<Integer>());
-		if (Plugin.CACHE_PLAYER_DATA) {
-			for (QuestProfile profile : Plugin.getQuestProfiles()) {
-				if (profile.getPlayerUUID().equalsIgnoreCase(event.getPlayer().getUniqueId().toString())) {
-					return;
-				}
-			}
-			Plugin.getQuestProfiles().add(new QuestProfile(event.getPlayer().getUniqueId().toString()));
-		} else {
-			Plugin.getQuestProfiles().add(new QuestProfile(event.getPlayer().getUniqueId().toString()));
-		}
+		runJoinEvent(event.getPlayer());
 	}
 
 	@EventHandler
@@ -45,6 +36,20 @@ public class PlayerJoinQuitEvent implements Listener {
 		}
 		if (!Plugin.CACHE_PLAYER_DATA) {
 			Plugin.getQuestProfiles().remove(Plugin.getQuestProfiles().indexOf(questProfile));
+		}
+	}
+	
+	public static void runJoinEvent(Player player) {
+		Plugin.getQuestCooldowns().put(player.getUniqueId().toString(), new ArrayList<Integer>());
+		if (Plugin.CACHE_PLAYER_DATA) {
+			for (QuestProfile profile : Plugin.getQuestProfiles()) {
+				if (profile.getPlayerUUID().equalsIgnoreCase(player.getUniqueId().toString())) {
+					return;
+				}
+			}
+			Plugin.getQuestProfiles().add(new QuestProfile(player.getUniqueId().toString()));
+		} else {
+			Plugin.getQuestProfiles().add(new QuestProfile(player.getUniqueId().toString()));
 		}
 	}
 
