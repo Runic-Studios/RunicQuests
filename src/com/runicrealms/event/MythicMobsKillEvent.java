@@ -19,8 +19,9 @@ import com.runicrealms.player.QuestProfile;
 import com.runicrealms.quests.FirstNpcState;
 import com.runicrealms.quests.Quest;
 import com.runicrealms.quests.QuestItem;
-import com.runicrealms.quests.QuestObjective;
 import com.runicrealms.quests.QuestObjectiveType;
+import com.runicrealms.quests.objective.QuestObjective;
+import com.runicrealms.quests.objective.QuestObjectiveSlay;
 import com.runicrealms.task.TaskQueue;
 import com.runicrealms.util.RunicCoreHook;
 
@@ -50,10 +51,11 @@ public class MythicMobsKillEvent implements Listener {
 							continue;
 						}
 						if (objective.getObjectiveType() == QuestObjectiveType.SLAY) {
-							for (String mob : objective.getMobNames()) {
+							QuestObjectiveSlay slayObjective = (QuestObjectiveSlay) objective;
+							for (String mob : slayObjective.getMobNames()) {
 								if (event.getMob().getType().getInternalName().equalsIgnoreCase(mob)) {
-									objective.setMobsKilled(objective.getMobsKilled() + 1);
-									if (objective.getMobsKilled() == objective.getMobAmount()) {
+									slayObjective.setMobsKilled(slayObjective.getMobsKilled() + 1);
+									if (slayObjective.getMobsKilled() == slayObjective.getMobAmount()) {
 										if (objective.requiresQuestItem()) {
 											int aquiredQuestItems = 0;
 											for (QuestItem questItem : objective.getQuestItems()) {

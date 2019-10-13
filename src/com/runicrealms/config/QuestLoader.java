@@ -18,9 +18,13 @@ import com.runicrealms.quests.QuestIdleMessage;
 import com.runicrealms.quests.QuestIdleMessageConditions;
 import com.runicrealms.quests.QuestItem;
 import com.runicrealms.quests.QuestNpc;
-import com.runicrealms.quests.QuestObjective;
 import com.runicrealms.quests.QuestRequirements;
 import com.runicrealms.quests.QuestRewards;
+import com.runicrealms.quests.objective.QuestObjective;
+import com.runicrealms.quests.objective.QuestObjectiveBreak;
+import com.runicrealms.quests.objective.QuestObjectiveSlay;
+import com.runicrealms.quests.objective.QuestObjectiveTalk;
+import com.runicrealms.quests.objective.QuestObjectiveTripwire;
 
 public class QuestLoader {
 
@@ -154,7 +158,7 @@ public class QuestLoader {
 		}
 		if (configSec.getString("requirement.type").equalsIgnoreCase("slay")) {
 			if (configSec.contains("requirement.requires")) {
-				return new QuestObjective(
+				return new QuestObjectiveSlay(
 						getStringList(configSec, "requirement.mob-names"), 
 						configSec.getInt("requirement.amount"), 
 						getQuestItems(configSec.getConfigurationSection("requirement.requires")),
@@ -163,7 +167,7 @@ public class QuestLoader {
 						objectiveNumber,
 						(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
 			} else {
-				return new QuestObjective(
+				return new QuestObjectiveSlay(
 						getStringList(configSec, "requirement.mob-names"), 
 						configSec.getInt("requirement.amount"), 
 						goalMessage,
@@ -173,7 +177,7 @@ public class QuestLoader {
 			}
 		} else if (configSec.getString("requirement.type").equalsIgnoreCase("talk")) {
 			if (configSec.contains("requirement.requires")) {
-				return new QuestObjective(
+				return new QuestObjectiveTalk(
 						loadNpc(configSec.getConfigurationSection("requirement.npc"), objectivesNumber),
 						getQuestItems(configSec.getConfigurationSection("requirement.requires")),
 						goalMessage,
@@ -181,7 +185,7 @@ public class QuestLoader {
 						objectiveNumber,
 						(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
 			} else {
-				return new QuestObjective(
+				return new QuestObjectiveTalk(
 						loadNpc(configSec.getConfigurationSection("requirement.npc"), objectivesNumber),
 						goalMessage,
 						(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
@@ -196,7 +200,7 @@ public class QuestLoader {
 				double x2 = Double.parseDouble(configSec.getString("requirement.tripwire-two").split(",")[0].replaceAll(",", ""));
 				double y2 = Double.parseDouble(configSec.getString("requirement.tripwire-two").split(",")[1].replaceAll(",", ""));
 				double z2 = Double.parseDouble(configSec.getString("requirement.tripwire-two").split(",")[2].replaceAll(",", ""));
-				return new QuestObjective(
+				return new QuestObjectiveTripwire(
 						new Location(Bukkit.getWorld(Plugin.WORLD_NAME), x1, y1, z1),
 						new Location(Bukkit.getWorld(Plugin.WORLD_NAME), x2, y2, z2),
 						getQuestItems(configSec.getConfigurationSection("requirement.requires")),
@@ -211,7 +215,7 @@ public class QuestLoader {
 				double x2 = Double.parseDouble(configSec.getString("requirement.tripwire-two").split(",")[0].replaceAll(",", ""));
 				double y2 = Double.parseDouble(configSec.getString("requirement.tripwire-two").split(",")[1].replaceAll(",", ""));
 				double z2 = Double.parseDouble(configSec.getString("requirement.tripwire-two").split(",")[2].replaceAll(",", ""));
-				return new QuestObjective(
+				return new QuestObjectiveTripwire(
 						new Location(Bukkit.getWorld(Plugin.WORLD_NAME), x1, y1, z1),
 						new Location(Bukkit.getWorld(Plugin.WORLD_NAME), x2, y2, z2),
 						goalMessage,
@@ -224,7 +228,7 @@ public class QuestLoader {
 			Double y = configSec.contains("requirement.location") ? Double.parseDouble(configSec.getString("requirement.location").split(",")[1].replaceAll(",", "")) : null;
 			Double z = configSec.contains("requirement.location") ? Double.parseDouble(configSec.getString("requirement.location").split(",")[2].replaceAll(",", "")) : null;
 			if (configSec.contains("requirement.requires")) {
-				return new QuestObjective(
+				return new QuestObjectiveBreak(
 						Material.getMaterial(configSec.getString("requirement.block-type").toUpperCase()),
 						(configSec.contains("requirement.amount") ? configSec.getInt("requirement.amount") : null),
 						(configSec.contains("requirement.location") ? new Location(Bukkit.getWorld(Plugin.WORLD_NAME), x, y, z) : null),
@@ -234,7 +238,7 @@ public class QuestLoader {
 						objectiveNumber,
 						(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
 			} else {
-				return new QuestObjective(
+				return new QuestObjectiveBreak(
 						Material.getMaterial(configSec.getString("requirement.block-type").toUpperCase()),
 						(configSec.contains("requirement.amount") ? configSec.getInt("requirement.amount") : null),
 						(configSec.contains("requirement.location") ? new Location(Bukkit.getWorld(Plugin.WORLD_NAME), x, y, z) : null),

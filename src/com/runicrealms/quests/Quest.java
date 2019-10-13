@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.runicrealms.player.QuestState;
+import com.runicrealms.quests.objective.QuestObjective;
 
 public class Quest {
 	

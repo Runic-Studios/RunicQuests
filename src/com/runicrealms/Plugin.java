@@ -23,7 +23,7 @@ import com.runicrealms.event.PlayerTripwireEvent;
 import com.runicrealms.player.QuestProfile;
 import com.runicrealms.quests.Quest;
 import com.runicrealms.quests.QuestItem;
-import com.runicrealms.quests.QuestObjective;
+import com.runicrealms.quests.objective.QuestObjective;
 import com.runicrealms.task.TaskQueue;
 
 public class Plugin extends JavaPlugin {

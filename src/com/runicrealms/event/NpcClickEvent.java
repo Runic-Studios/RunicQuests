@@ -22,8 +22,11 @@ import com.runicrealms.quests.FirstNpcState;
 import com.runicrealms.quests.Quest;
 import com.runicrealms.quests.QuestIdleMessage;
 import com.runicrealms.quests.QuestItem;
-import com.runicrealms.quests.QuestObjective;
 import com.runicrealms.quests.QuestObjectiveType;
+import com.runicrealms.quests.objective.QuestObjective;
+import com.runicrealms.quests.objective.QuestObjectiveBreak;
+import com.runicrealms.quests.objective.QuestObjectiveSlay;
+import com.runicrealms.quests.objective.QuestObjectiveTalk;
 import com.runicrealms.task.TaskQueue;
 import com.runicrealms.util.RunicCoreHook;
 
@@ -55,16 +58,17 @@ public class NpcClickEvent implements Listener {
 					}
 					for (QuestObjective objective : quest.getObjectives()) {
 						if (objective.getObjectiveType() == QuestObjectiveType.TALK) {
-							if (objective.getQuestNpc().getCitizensNpc().getId() == event.getNPC().getId()) {
-								if (objective.getQuestNpc().hasQuestCompletedSpeech()) {
-									TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, objective.getQuestNpc().getQuestCompletedSpeech(), objective.getQuestNpc().getNpcName()));
+							QuestObjectiveTalk talkObjective = (QuestObjectiveTalk) objective;
+							if (talkObjective.getQuestNpc().getCitizensNpc().getId() == event.getNPC().getId()) {
+								if (talkObjective.getQuestNpc().hasQuestCompletedSpeech()) {
+									TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, talkObjective.getQuestNpc().getQuestCompletedSpeech(), talkObjective.getQuestNpc().getNpcName()));
 									queue.setCompletedTask(new Runnable() {
 										@Override
 										public void run() {
-											npcs.remove(objective.getQuestNpc().getId());
+											npcs.remove(talkObjective.getQuestNpc().getId());
 										}
 									});
-									npcs.put(objective.getQuestNpc().getId(), queue);
+									npcs.put(talkObjective.getQuestNpc().getId(), queue);
 									queue.startTasks();
 									break;
 								}
@@ -84,11 +88,11 @@ public class NpcClickEvent implements Listener {
 									for (QuestObjective qobjective : quest.getObjectives()) {
 										qobjective.setCompleted(false);
 										if (qobjective.getObjectiveType() == QuestObjectiveType.SLAY) {
-											qobjective.setMobsKilled(0);
+											((QuestObjectiveSlay) qobjective).setMobsKilled(0);
 										}
 										if (qobjective.getObjectiveType() == QuestObjectiveType.BREAK) {
-											if (qobjective.hasBlockAmount()) {
-												qobjective.setBlocksBroken(0);
+											if (((QuestObjectiveBreak) qobjective).hasBlockAmount()) {
+												((QuestObjectiveBreak) qobjective).setBlocksBroken(0);
 											}
 										}
 									}
@@ -225,14 +229,15 @@ public class NpcClickEvent implements Listener {
 			if (quest.getQuestState().hasStarted()) {
 				for (QuestObjective objective : quest.getObjectives()) {
 					if (objective.getObjectiveType() == QuestObjectiveType.TALK) {
-						if (objective.getQuestNpc().getCitizensNpc().getId() == event.getNPC().getId()) {
-							if (objective.getQuestNpc().getCitizensNpc().getId() == quest.getFirstNPC().getCitizensNpc().getId()) {
+						QuestObjectiveTalk talkObjective = (QuestObjectiveTalk) objective;
+						if (talkObjective.getQuestNpc().getCitizensNpc().getId() == event.getNPC().getId()) {
+							if (talkObjective.getQuestNpc().getCitizensNpc().getId() == quest.getFirstNPC().getCitizensNpc().getId()) {
 								if (npcs.containsKey(quest.getFirstNPC().getId())) {
 									continue;
 								}
 							}
-							if (npcs.containsKey(objective.getQuestNpc().getId())) {
-								npcs.get(objective.getQuestNpc().getId()).nextTask();
+							if (npcs.containsKey(talkObjective.getQuestNpc().getId())) {
+								npcs.get(talkObjective.getQuestNpc().getId()).nextTask();
 								break;
 							}
 							if (objective.isCompleted() == false) {
@@ -263,11 +268,11 @@ public class NpcClickEvent implements Listener {
 										player.sendMessage(ChatColor.translateAlternateColorCodes('&', message.replaceAll("%player%", player.getName())));
 									}
 								}
-								TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, objective.getQuestNpc().getSpeech(), objective.getQuestNpc().getNpcName()));
+								TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, talkObjective.getQuestNpc().getSpeech(), talkObjective.getQuestNpc().getNpcName()));
 								queue.setCompletedTask(new Runnable() {
 									@Override
 									public void run() {
-										npcs.remove(objective.getQuestNpc().getId());
+										npcs.remove(talkObjective.getQuestNpc().getId());
 									}
 								});
 								if (objective.getObjectiveNumber() != QuestObjective.getLastObjective(quest.getObjectives()).getObjectiveNumber()) {
@@ -312,7 +317,7 @@ public class NpcClickEvent implements Listener {
 											Bukkit.getServer().getPluginManager().callEvent(new QuestCompleteEvent(quest, questProfile));
 											if (quest.hasCompletionSpeech()) {
 												if (quest.useLastNpcNameForCompletionSpeech()) {
-													TaskQueue secondQueue = new TaskQueue(makeSpeechRunnables(player, quest.getCompletionSpeech(), objective.getQuestNpc().getNpcName()));
+													TaskQueue secondQueue = new TaskQueue(makeSpeechRunnables(player, quest.getCompletionSpeech(), talkObjective.getQuestNpc().getNpcName()));
 													secondQueue.startTasks();
 												} else {
 													List<Runnable> runnables = new ArrayList<Runnable>();
@@ -331,7 +336,7 @@ public class NpcClickEvent implements Listener {
 										}
 									});
 								}
-								npcs.put(objective.getQuestNpc().getId(), queue);
+								npcs.put(talkObjective.getQuestNpc().getId(), queue);
 								queue.startTasks();
 								break;
 							}
@@ -343,9 +348,10 @@ public class NpcClickEvent implements Listener {
 		for (Quest quest : questProfile.getQuests()) {
 			for (QuestObjective objective : quest.getObjectives()) {
 				if (objective.getObjectiveType() == QuestObjectiveType.TALK) {
-					if (objective.getQuestNpc().getCitizensNpc().getId() == event.getNPC().getId()) {
-						if (objective.getQuestNpc().hasIdleSpeech()) {
-							for (QuestIdleMessage idleMessage : objective.getQuestNpc().getIdleSpeech()) {
+					QuestObjectiveTalk talkObjective = (QuestObjectiveTalk) objective;
+					if (talkObjective.getQuestNpc().getCitizensNpc().getId() == event.getNPC().getId()) {
+						if (talkObjective.getQuestNpc().hasIdleSpeech()) {
+							for (QuestIdleMessage idleMessage : talkObjective.getQuestNpc().getIdleSpeech()) {
 								if (idleMessage.getConditions().hasQuestCompleted()) {
 									if (quest.getQuestState().isCompleted() != idleMessage.getConditions().getQuestCompleted()) {
 										continue;
@@ -379,14 +385,14 @@ public class NpcClickEvent implements Listener {
 										continue;
 									}
 								}
-								TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, idleMessage.getSpeech(), objective.getQuestNpc().getNpcName()));
+								TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, idleMessage.getSpeech(), talkObjective.getQuestNpc().getNpcName()));
 								queue.setCompletedTask(new Runnable() {
 									@Override
 									public void run() {
-										npcs.remove(objective.getQuestNpc().getId());
+										npcs.remove(talkObjective.getQuestNpc().getId());
 									}
 								});
-								npcs.put(objective.getQuestNpc().getId(), queue);
+								npcs.put(talkObjective.getQuestNpc().getId(), queue);
 								queue.startTasks();
 								return;
 							}

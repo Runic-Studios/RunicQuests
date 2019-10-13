@@ -8,7 +8,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 
 import com.runicrealms.Plugin;
 import com.runicrealms.quests.Quest;
-import com.runicrealms.quests.QuestObjective;
+import com.runicrealms.quests.objective.QuestObjective;
 
 public class DataFileConfiguration {
 	

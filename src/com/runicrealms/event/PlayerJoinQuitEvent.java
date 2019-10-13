@@ -11,8 +11,9 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import com.runicrealms.Plugin;
 import com.runicrealms.player.QuestProfile;
 import com.runicrealms.quests.Quest;
-import com.runicrealms.quests.QuestObjective;
 import com.runicrealms.quests.QuestObjectiveType;
+import com.runicrealms.quests.objective.QuestObjective;
+import com.runicrealms.quests.objective.QuestObjectiveTalk;
 
 public class PlayerJoinQuitEvent implements Listener {
 
@@ -28,8 +29,8 @@ public class PlayerJoinQuitEvent implements Listener {
 		for (Quest quest : questProfile.getQuests()) {
 			for (QuestObjective objective : quest.getObjectives()) {
 				if (objective.getObjectiveType() == QuestObjectiveType.TALK) {
-					if (Plugin.getNpcTaskQueues().containsKey(objective.getQuestNpc().getId())) {
-						Plugin.getNpcTaskQueues().remove(objective.getQuestNpc().getId());
+					if (Plugin.getNpcTaskQueues().containsKey(((QuestObjectiveTalk) objective).getQuestNpc().getId())) {
+						Plugin.getNpcTaskQueues().remove(((QuestObjectiveTalk) objective).getQuestNpc().getId());
 					}
 				}
 			}

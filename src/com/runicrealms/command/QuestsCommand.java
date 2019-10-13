@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
 
 import com.runicrealms.Plugin;
 import com.runicrealms.quests.Quest;
-import com.runicrealms.quests.QuestObjective;
+import com.runicrealms.quests.objective.QuestObjective;
 
 public class QuestsCommand implements CommandExecutor {
 

@@ -23,8 +23,9 @@ import com.runicrealms.player.QuestProfile;
 import com.runicrealms.quests.FirstNpcState;
 import com.runicrealms.quests.Quest;
 import com.runicrealms.quests.QuestItem;
-import com.runicrealms.quests.QuestObjective;
 import com.runicrealms.quests.QuestObjectiveType;
+import com.runicrealms.quests.objective.QuestObjective;
+import com.runicrealms.quests.objective.QuestObjectiveTripwire;
 import com.runicrealms.task.TaskQueue;
 import com.runicrealms.util.RunicCoreHook;
 
@@ -54,9 +55,10 @@ public class PlayerTripwireEvent implements Listener {
 								continue;
 							}
 							if (objective.getObjectiveType() == QuestObjectiveType.TRIPWIRE) {
-								if (new IntRange(objective.getTripwire1().getBlockX(), objective.getTripwire2().getBlockX()).containsInteger(event.getClickedBlock().getX()) &&
-										new IntRange(objective.getTripwire1().getBlockY(), objective.getTripwire2().getBlockY()).containsInteger(event.getClickedBlock().getY()) &&
-										new IntRange(objective.getTripwire1().getBlockZ(), objective.getTripwire2().getBlockZ()).containsInteger(event.getClickedBlock().getZ()) &&
+								QuestObjectiveTripwire tripwireObjective = (QuestObjectiveTripwire) objective;
+								if (new IntRange(tripwireObjective.getTripwire1().getBlockX(), tripwireObjective.getTripwire2().getBlockX()).containsInteger(event.getClickedBlock().getX()) &&
+										new IntRange(tripwireObjective.getTripwire1().getBlockY(), tripwireObjective.getTripwire2().getBlockY()).containsInteger(event.getClickedBlock().getY()) &&
+										new IntRange(tripwireObjective.getTripwire1().getBlockZ(), tripwireObjective.getTripwire2().getBlockZ()).containsInteger(event.getClickedBlock().getZ()) &&
 										event.getClickedBlock().getWorld().toString().equalsIgnoreCase(Plugin.WORLD_NAME)) {
 									if (objective.requiresQuestItem()) {
 										int aquiredQuestItems = 0;

@@ -20,8 +20,9 @@ import com.runicrealms.player.QuestProfile;
 import com.runicrealms.quests.FirstNpcState;
 import com.runicrealms.quests.Quest;
 import com.runicrealms.quests.QuestItem;
-import com.runicrealms.quests.QuestObjective;
 import com.runicrealms.quests.QuestObjectiveType;
+import com.runicrealms.quests.objective.QuestObjective;
+import com.runicrealms.quests.objective.QuestObjectiveBreak;
 import com.runicrealms.task.TaskQueue;
 import com.runicrealms.util.RunicCoreHook;
 
@@ -48,21 +49,22 @@ public class PlayerBreakBlockEvent implements Listener {
 						continue;
 					}
 					if (objective.getObjectiveType() == QuestObjectiveType.BREAK) {
-						if (objective.hasBlockAmount()) {
-							if (objective.hasBlockLocation()) {
-								if (event.getBlock().getLocation().getBlockX() != objective.getBlockLocation().getBlockX() ||
-										event.getBlock().getLocation().getBlockY() != objective.getBlockLocation().getBlockY() ||
-										event.getBlock().getLocation().getBlockZ() != objective.getBlockLocation().getBlockZ() ||
+						QuestObjectiveBreak breakObjective = (QuestObjectiveBreak) objective;
+						if (breakObjective.hasBlockAmount()) {
+							if (breakObjective.hasBlockLocation()) {
+								if (event.getBlock().getLocation().getBlockX() != breakObjective.getBlockLocation().getBlockX() ||
+										event.getBlock().getLocation().getBlockY() != breakObjective.getBlockLocation().getBlockY() ||
+										event.getBlock().getLocation().getBlockZ() != breakObjective.getBlockLocation().getBlockZ() ||
 										event.getBlock().getWorld().toString().equalsIgnoreCase(Plugin.WORLD_NAME) == false) {
 									continue;
 								}
 							}
-							objective.setBlocksBroken(objective.getBlocksBroken() + 1);
-							if (objective.getBlocksBroken() != objective.getBlockAmount()) {
+							breakObjective.setBlocksBroken(breakObjective.getBlocksBroken() + 1);
+							if (breakObjective.getBlocksBroken() != breakObjective.getBlockAmount()) {
 								continue;
 							}
 						}
-						if (objective.getBlockMaterial() == event.getBlock().getType()) {
+						if (breakObjective.getBlockMaterial() == event.getBlock().getType()) {
 							if (objective.requiresQuestItem()) {
 								int aquiredQuestItems = 0;
 								for (QuestItem questItem : objective.getQuestItems()) {
