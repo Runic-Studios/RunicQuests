@@ -12,6 +12,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 
 import com.runicrealms.Plugin;
 import com.runicrealms.quests.CraftingProfessionType;
+import com.runicrealms.quests.PlayerClassType;
 import com.runicrealms.quests.Quest;
 import com.runicrealms.quests.QuestFirstNpc;
 import com.runicrealms.quests.QuestIdleMessage;
@@ -129,7 +130,9 @@ public class QuestLoader {
 				requiredQuests = configSec.getIntegerList("required-quests");
 			}
 		}
-		return new QuestRequirements(levelReq, craftingReq, professionType, requiredQuests, levelNotMet, craftingNotMet, requiredQuestsNotMet);
+		PlayerClassType classType = configSec.contains("class") ? PlayerClassType.getFromString(configSec.getString("class")) : null;
+		List<String> classTypeNotMet = configSec.contains("class") ? getStringList(configSec, "class-not-met") : null;
+		return new QuestRequirements(levelReq, craftingReq, professionType, requiredQuests, levelNotMet, craftingNotMet, requiredQuestsNotMet, classType, classTypeNotMet);
 	}
 
 	public static QuestRewards loadRewards(ConfigurationSection configSec) {

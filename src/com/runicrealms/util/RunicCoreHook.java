@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import com.runicrealms.Plugin;
 import com.runicrealms.player.QuestProfile;
 import com.runicrealms.quests.CraftingProfessionType;
+import com.runicrealms.quests.PlayerClassType;
 import com.runicrealms.quests.QuestRewards;
 
 public class RunicCoreHook {
@@ -37,5 +38,8 @@ public class RunicCoreHook {
 		// TODO *you do NOT have to execute the commands with QuestRewards, just give money, exp, and quest points
 	}
 	
+	public static boolean isRequiredClass(PlayerClassType classType, Player player) {
+		return true; // TODO
+	}
 	
 }

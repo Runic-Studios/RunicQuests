@@ -185,6 +185,19 @@ public class NpcClickEvent implements Listener {
 												npcs.put(quest.getFirstNPC().getId(), queue);
 												queue.startTasks();
 											}
+										} else if (quest.getRequirements().hasClassTypeRequirement()) {
+											if (!RunicCoreHook.isRequiredClass(quest.getRequirements().getClassTypeRequirement(), player)) {
+												meetsRequirements = false;
+												TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getClassTypeNotMetMsg(), quest.getFirstNPC().getNpcName()));
+												queue.setCompletedTask(new Runnable() {
+													@Override
+													public void run() {
+														npcs.remove(quest.getFirstNPC().getId());
+													}
+												});
+												npcs.put(quest.getFirstNPC().getId(), queue);
+												queue.startTasks();
+											}
 										}
 										if (meetsRequirements) {
 											List<Runnable> runnables = makeSpeechRunnables(player, quest.getFirstNPC().getSpeech(), quest.getFirstNPC().getNpcName());
