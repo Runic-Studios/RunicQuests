@@ -56,25 +56,6 @@ public class NpcClickEvent implements Listener {
 						queue.startTasks();
 						continue;
 					}
-					for (QuestObjective objective : quest.getObjectives()) {
-						if (objective.getObjectiveType() == QuestObjectiveType.TALK) {
-							QuestObjectiveTalk talkObjective = (QuestObjectiveTalk) objective;
-							if (talkObjective.getQuestNpc().getCitizensNpc().getId() == event.getNPC().getId()) {
-								if (talkObjective.getQuestNpc().hasQuestCompletedSpeech()) {
-									TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, talkObjective.getQuestNpc().getQuestCompletedSpeech(), talkObjective.getQuestNpc().getNpcName()));
-									queue.setCompletedTask(new Runnable() {
-										@Override
-										public void run() {
-											npcs.remove(talkObjective.getQuestNpc().getId());
-										}
-									});
-									npcs.put(talkObjective.getQuestNpc().getId(), queue);
-									queue.startTasks();
-									break;
-								}
-							}
-						}
-					}
 				}
 			}
 			if ((quest.getQuestState().isCompleted() == false) ||

@@ -267,7 +267,6 @@ public class QuestLoader {
 				configSec.getInt("npc-id"),
 				getStringList(configSec, "speech"),
 				(configSec.contains("idle-messages") ? loadIdleMessages(configSec.getConfigurationSection("idle-messages"), objectivesNumber) : null),
-				(configSec.contains("quest-completed-message") ? getStringList(configSec, "quest-completed-message") : null),
 				configSec.getString("npc-name"));
 	}
 
