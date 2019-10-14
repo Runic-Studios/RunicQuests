@@ -106,7 +106,7 @@ public class PlayerBreakBlockEvent implements Listener {
 										runnables.add(new Runnable() {
 											@Override
 											public void run() {
-												player.sendMessage(ChatColor.translateAlternateColorCodes('&', message.replaceAll("%player%", player.getName())));
+												player.sendMessage(ChatColor.translateAlternateColorCodes('&', Plugin.parseMessage(message, player.getName())));
 											}
 										});
 									}
@@ -129,7 +129,7 @@ public class PlayerBreakBlockEvent implements Listener {
 										runnables.add(new Runnable() {
 											@Override
 											public void run() {
-												player.sendMessage(ChatColor.translateAlternateColorCodes('&', message.replaceAll("%player%", player.getName())));
+												player.sendMessage(ChatColor.translateAlternateColorCodes('&', Plugin.parseMessage(message, player.getName())));
 											}
 										});
 									}
@@ -174,7 +174,7 @@ public class PlayerBreakBlockEvent implements Listener {
 										runnables.add(new Runnable() {
 											@Override
 											public void run() {
-												player.sendMessage(ChatColor.translateAlternateColorCodes('&', message.replaceAll("%player%", player.getName())));
+												player.sendMessage(ChatColor.translateAlternateColorCodes('&', Plugin.parseMessage(message, player.getName())));
 											}
 										});
 									}

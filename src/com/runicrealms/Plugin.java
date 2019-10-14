@@ -146,4 +146,29 @@ public class Plugin extends JavaPlugin {
 		return aquiredQuestItems == objective.getQuestItems().size();
 	}
 
+	public static String parseMessage(String msg, String playerName) {
+		String outputString = msg.replaceAll("%player%", playerName);
+		String command = null;
+		boolean lastCharSlash = false;
+		String[] chars = msg.split("(?!^)");
+		for (int i = 0; i < chars.length; i++) {
+			String character = chars[i];
+			if (character.equalsIgnoreCase("/")) {
+				if (!lastCharSlash) {
+					lastCharSlash = true;
+				} else {
+					command = outputString.substring(i, outputString.length());
+					outputString = outputString.substring(0, i - 2);
+					break;
+				}
+			} else {
+				lastCharSlash = false;
+			}
+		}
+		if (command != null) {
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
+		}
+		return outputString;
+	}
+
 }
