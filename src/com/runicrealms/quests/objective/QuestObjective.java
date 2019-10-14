@@ -13,12 +13,12 @@ public abstract class QuestObjective {
 	private QuestObjectiveType objectiveType;
 	private List<String> completedMessage;
 	private List<QuestItem> questItems;
-	private List<String> goalMessage;
+	private String goalMessage;
 	private List<String> execute;
 	
 	private boolean completed = false;
 	
-	public QuestObjective(Integer objectiveNumber, QuestObjectiveType objectiveType, List<String> completedMessage, List<QuestItem> questItems, List<String> goalMessage, List<String> execute) {
+	public QuestObjective(Integer objectiveNumber, QuestObjectiveType objectiveType, List<String> completedMessage, List<QuestItem> questItems, String goalMessage, List<String> execute) {
 		this.objectiveNumber = objectiveNumber;
 		this.objectiveType = objectiveType;
 		this.completedMessage = completedMessage;
@@ -27,7 +27,7 @@ public abstract class QuestObjective {
 		this.execute = execute;
 	}
 	
-	public QuestObjective(Integer objectiveNumber, QuestObjectiveType objectiveType, List<String> completedMessage, List<String> goalMessage, List<String> execute) {
+	public QuestObjective(Integer objectiveNumber, QuestObjectiveType objectiveType, List<String> completedMessage, String goalMessage, List<String> execute) {
 		this.objectiveNumber = objectiveNumber;
 		this.objectiveType = objectiveType;
 		this.completedMessage = completedMessage;
@@ -47,7 +47,7 @@ public abstract class QuestObjective {
 		return this.objectiveType;
 	}
 	
-	public List<String> getGoalMessage() {
+	public String getGoalMessage() {
 		return this.goalMessage;
 	}
 	

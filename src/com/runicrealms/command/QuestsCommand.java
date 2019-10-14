@@ -30,7 +30,7 @@ public class QuestsCommand implements CommandExecutor {
 				}
 			}
 			if (lowestUncompletedObjective != null) {
-				goalMessages.put(quest.getQuestName(), lowestUncompletedObjective.getGoalMessage().get(0));
+				goalMessages.put(quest.getQuestName(), lowestUncompletedObjective.getGoalMessage());
 			}
 		}
 		player.sendMessage(ChatColor.GOLD + "Current Objectives:");

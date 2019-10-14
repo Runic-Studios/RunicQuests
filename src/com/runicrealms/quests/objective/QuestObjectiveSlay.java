@@ -11,13 +11,13 @@ public class QuestObjectiveSlay extends QuestObjective {
 	private Integer mobAmount;
 	private Integer mobsKilled = 0;
 	
-	public QuestObjectiveSlay(List<String> mobNames, Integer mobAmount, List<String> goalMessage, List<String> execute, Integer objectiveNumber, List<String> completedMessage) {
+	public QuestObjectiveSlay(List<String> mobNames, Integer mobAmount, String goalMessage, List<String> execute, Integer objectiveNumber, List<String> completedMessage) {
 		super(objectiveNumber, QuestObjectiveType.SLAY, completedMessage, goalMessage, execute);
 		this.mobNames = mobNames;
 		this.mobAmount = mobAmount;
 	}
 	
-	public QuestObjectiveSlay(List<String> mobNames, Integer mobAmount, List<QuestItem> questItems, List<String> goalMessage, List<String> execute, Integer objectiveNumber, List<String> completedMessage) {
+	public QuestObjectiveSlay(List<String> mobNames, Integer mobAmount, List<QuestItem> questItems, String goalMessage, List<String> execute, Integer objectiveNumber, List<String> completedMessage) {
 		super(objectiveNumber, QuestObjectiveType.SLAY, completedMessage, questItems, goalMessage, execute);
 		this.mobNames = mobNames;
 		this.mobAmount = mobAmount;

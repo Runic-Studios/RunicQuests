@@ -153,12 +153,7 @@ public class QuestLoader {
 	}
 
 	public static QuestObjective loadObjective(ConfigurationSection configSec, Integer objectiveNumber, int objectivesNumber) {
-		List<String> goalMessage = new ArrayList<String>();
-		if (configSec.isString("goal-message")) {
-			goalMessage.add(configSec.getString("goal-message"));
-		} else {
-			goalMessage = configSec.getStringList("goal-message");
-		}
+		String goalMessage = configSec.getString("goal-message");
 		if (configSec.getString("requirement.type").equalsIgnoreCase("slay")) {
 			if (configSec.contains("requirement.requires")) {
 				return new QuestObjectiveSlay(

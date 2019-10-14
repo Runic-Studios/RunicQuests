@@ -117,9 +117,7 @@ public class NpcClickEvent implements Listener {
 										@Override
 										public void run() {
 											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&l&6New objective for: &r&l&e") + quest.getQuestName());
-											for (String message : QuestObjective.getObjective(quest.getObjectives(), 1).getGoalMessage()) {
-												player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + message));
-											}
+											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + QuestObjective.getObjective(quest.getObjectives(), 1).getGoalMessage()));
 										}
 									});
 									npcs.put(quest.getFirstNPC().getId(), queue);
@@ -138,9 +136,7 @@ public class NpcClickEvent implements Listener {
 											@Override
 											public void run() {
 												player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&l&6New objective for: &r&l&e") + quest.getQuestName());
-												for (String message : QuestObjective.getObjective(quest.getObjectives(), 1).getGoalMessage()) {
-													player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + message));
-												}
+												player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + QuestObjective.getObjective(quest.getObjectives(), 1).getGoalMessage()));
 											}
 										});
 										queue.startTasks();
@@ -292,12 +288,10 @@ public class NpcClickEvent implements Listener {
 									queue.addTasks(new Runnable() {
 										@Override
 										public void run() {
-											String goalMessage = QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() + 1).getGoalMessage().get(0);
+											String goalMessage = QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() + 1).getGoalMessage();
 											player.sendTitle(ChatColor.GOLD + "New Objective", ChatColor.YELLOW + goalMessage, 10, 40, 10);
 											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&l&6New objective for: &r&l&e") + quest.getQuestName());
-											for (String message : QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() + 1).getGoalMessage()) {
-												player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + message));
-											}
+											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + goalMessage));
 										}
 									});
 								} else {

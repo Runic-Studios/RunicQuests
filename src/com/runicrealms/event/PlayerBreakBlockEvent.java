@@ -98,7 +98,7 @@ public class PlayerBreakBlockEvent implements Listener {
 								objective.executeCommand(player.getName());
 							}
 							if (objective.getObjectiveNumber() != QuestObjective.getLastObjective(quest.getObjectives()).getObjectiveNumber()) {
-								String goalMessage = QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() + 1).getGoalMessage().get(0);
+								String goalMessage = QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() + 1).getGoalMessage();
 								player.sendTitle(ChatColor.GOLD + "New Objective", ChatColor.YELLOW + goalMessage, 10, 40, 10);
 								if (objective.hasCompletedMessage()) {
 									List<Runnable> runnables = new ArrayList<Runnable>();
@@ -114,9 +114,7 @@ public class PlayerBreakBlockEvent implements Listener {
 										@Override
 										public void run() {
 											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&l&6New objective for: &r&l&e") + quest.getQuestName());
-											for (String message : QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() + 1).getGoalMessage()) {
-												player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + message));
-											}
+											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + goalMessage));
 										}
 									});
 									TaskQueue queue = new TaskQueue(runnables);
