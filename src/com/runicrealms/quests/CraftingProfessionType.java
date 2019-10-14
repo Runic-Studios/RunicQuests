@@ -2,7 +2,7 @@ package com.runicrealms.quests;
 
 public enum CraftingProfessionType {
 
-	JEWELING("jeweling"), ALCHEMY("alchemy"), BLACKSMITHING("blacksmithing"), TAILORING("tailoring"), LEATHERWORKING("leatherworking"), ANY("crafting");
+	ENCHANTER("enchanter"), HUNTER("hunter"), BLACKSMITH("blacksmith"), ANY("crafting");
 	
 	private String name;
 	
