@@ -39,14 +39,6 @@ public class ConfigLoader {
 	
 	public static void loadMainConfig() {
 		mainConfig = getYamlConfigFile("config.yml", Plugin.getInstance().getDataFolder());
-		if (!mainConfig.contains("world-name")) {
-			mainConfig.set("world-name", "Alterra");
-			try {
-				mainConfig.save(new File(Plugin.getInstance().getDataFolder(), "config.yml"));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
 		if (!mainConfig.contains("npc-message-delay")) {
 			mainConfig.set("npc-message-delay", 3);
 			try {

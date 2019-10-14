@@ -7,6 +7,7 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 
@@ -207,14 +208,11 @@ public class QuestLoader {
 						(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
 			}
 		} else if (configSec.getString("requirement.type").equalsIgnoreCase("break")) {
-			Double x = configSec.contains("requirement.location") ? Double.parseDouble(configSec.getString("requirement.location").split(",")[0].replaceAll(",", "")) : null;
-			Double y = configSec.contains("requirement.location") ? Double.parseDouble(configSec.getString("requirement.location").split(",")[1].replaceAll(",", "")) : null;
-			Double z = configSec.contains("requirement.location") ? Double.parseDouble(configSec.getString("requirement.location").split(",")[2].replaceAll(",", "")) : null;
 			if (configSec.contains("requirement.requires")) {
 				return new QuestObjectiveBreak(
 						Material.getMaterial(configSec.getString("requirement.block-type").toUpperCase()),
 						(configSec.contains("requirement.amount") ? configSec.getInt("requirement.amount") : null),
-						(configSec.contains("requirement.location") ? new Location(Bukkit.getWorld(Plugin.WORLD_NAME), x, y, z) : null),
+						(configSec.contains("requirement.location") ? parseLocation(configSec.getString("requirement.location")) : null),
 						getQuestItems(configSec.getConfigurationSection("requirement.requires")),
 						goalMessage,
 						(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
@@ -224,7 +222,7 @@ public class QuestLoader {
 				return new QuestObjectiveBreak(
 						Material.getMaterial(configSec.getString("requirement.block-type").toUpperCase()),
 						(configSec.contains("requirement.amount") ? configSec.getInt("requirement.amount") : null),
-						(configSec.contains("requirement.location") ? new Location(Bukkit.getWorld(Plugin.WORLD_NAME), x, y, z) : null),
+						(configSec.contains("requirement.location") ? parseLocation(configSec.getString("requirement.location")) : null),
 						goalMessage,
 						(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
 						objectiveNumber,
@@ -277,10 +275,11 @@ public class QuestLoader {
 	}
 	
 	private static Location parseLocation(String str) {
-		double x = Double.parseDouble(str.split(",")[0].replaceAll(",", ""));
-		double y = Double.parseDouble(str.split(",")[1].replaceAll(",", ""));
-		double z = Double.parseDouble(str.split(",")[2].replaceAll(",", ""));
-		return new Location(Bukkit.getWorld(Plugin.WORLD_NAME), x, y, z);
+		World world = Bukkit.getWorld(str.split(",")[0].replaceAll(",", ""));
+		double x = Double.parseDouble(str.split(",")[1].replaceAll(",", ""));
+		double y = Double.parseDouble(str.split(",")[2].replaceAll(",", ""));
+		double z = Double.parseDouble(str.split(",")[3].replaceAll(",", ""));
+		return new Location(world, x, y, z);
 	}
 
 }

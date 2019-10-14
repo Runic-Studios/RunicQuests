@@ -55,7 +55,7 @@ public class PlayerBreakBlockEvent implements Listener {
 								if (event.getBlock().getLocation().getBlockX() != breakObjective.getBlockLocation().getBlockX() ||
 										event.getBlock().getLocation().getBlockY() != breakObjective.getBlockLocation().getBlockY() ||
 										event.getBlock().getLocation().getBlockZ() != breakObjective.getBlockLocation().getBlockZ() ||
-										event.getBlock().getWorld().toString().equalsIgnoreCase(Plugin.WORLD_NAME) == false) {
+										event.getBlock().getWorld().getName().equalsIgnoreCase(breakObjective.getBlockLocation().getWorld().getName()) == false) {
 									continue;
 								}
 							}

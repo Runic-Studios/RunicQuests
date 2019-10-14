@@ -34,7 +34,6 @@ public class Plugin extends JavaPlugin {
 	private static Map<String, List<Integer>> cooldowns = new HashMap<String, List<Integer>>();
 	private static Integer nextId = 0;
 
-	public static String WORLD_NAME;
 	public static double NPC_MESSAGE_DELAY;
 	public static boolean CACHE_PLAYER_DATA;
 
@@ -43,7 +42,6 @@ public class Plugin extends JavaPlugin {
 		plugin = this;
 		ConfigLoader.initDirs();
 		ConfigLoader.loadMainConfig();
-		WORLD_NAME = ConfigLoader.getMainConfig().getString("world-name");
 		NPC_MESSAGE_DELAY = ConfigLoader.getMainConfig().getDouble("npc-message-delay");
 		CACHE_PLAYER_DATA = ConfigLoader.getMainConfig().getBoolean("cache-player-data");
 		this.getServer().getPluginManager().registerEvents(new MythicMobsKillEvent(), this);
