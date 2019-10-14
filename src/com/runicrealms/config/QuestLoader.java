@@ -12,6 +12,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 
 import com.runicrealms.Plugin;
 import com.runicrealms.quests.CraftingProfessionType;
+import com.runicrealms.quests.ObjectiveTripwire;
 import com.runicrealms.quests.PlayerClassType;
 import com.runicrealms.quests.Quest;
 import com.runicrealms.quests.QuestFirstNpc;
@@ -183,31 +184,23 @@ public class QuestLoader {
 						(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
 			}
 		} else if (configSec.getString("requirement.type").equalsIgnoreCase("tripwire")) {
+			List<ObjectiveTripwire> tripwires = new ArrayList<ObjectiveTripwire>();
+			for (String key : configSec.getConfigurationSection("requirement.tripwires").getKeys(false)) {
+				tripwires.add(new ObjectiveTripwire(
+						parseLocation(configSec.getString("requirement.tripwires." + key + ".corner-one")),
+						parseLocation(configSec.getString("requirement.tripwires." + key + ".corner-two"))));
+			}
 			if (configSec.contains("requirement.requires")) {
-				double x1 = Double.parseDouble(configSec.getString("requirement.tripwire-one").split(",")[0].replaceAll(",", ""));
-				double y1 = Double.parseDouble(configSec.getString("requirement.tripwire-one").split(",")[1].replaceAll(",", ""));
-				double z1 = Double.parseDouble(configSec.getString("requirement.tripwire-one").split(",")[2].replaceAll(",", ""));
-				double x2 = Double.parseDouble(configSec.getString("requirement.tripwire-two").split(",")[0].replaceAll(",", ""));
-				double y2 = Double.parseDouble(configSec.getString("requirement.tripwire-two").split(",")[1].replaceAll(",", ""));
-				double z2 = Double.parseDouble(configSec.getString("requirement.tripwire-two").split(",")[2].replaceAll(",", ""));
 				return new QuestObjectiveTripwire(
-						new Location(Bukkit.getWorld(Plugin.WORLD_NAME), x1, y1, z1),
-						new Location(Bukkit.getWorld(Plugin.WORLD_NAME), x2, y2, z2),
+						tripwires,
 						getQuestItems(configSec.getConfigurationSection("requirement.requires")),
 						goalMessage,
 						(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
 						objectiveNumber,
 						(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
 			} else {
-				double x1 = Double.parseDouble(configSec.getString("requirement.tripwire-one").split(",")[0].replaceAll(",", ""));
-				double y1 = Double.parseDouble(configSec.getString("requirement.tripwire-one").split(",")[1].replaceAll(",", ""));
-				double z1 = Double.parseDouble(configSec.getString("requirement.tripwire-one").split(",")[2].replaceAll(",", ""));
-				double x2 = Double.parseDouble(configSec.getString("requirement.tripwire-two").split(",")[0].replaceAll(",", ""));
-				double y2 = Double.parseDouble(configSec.getString("requirement.tripwire-two").split(",")[1].replaceAll(",", ""));
-				double z2 = Double.parseDouble(configSec.getString("requirement.tripwire-two").split(",")[2].replaceAll(",", ""));
 				return new QuestObjectiveTripwire(
-						new Location(Bukkit.getWorld(Plugin.WORLD_NAME), x1, y1, z1),
-						new Location(Bukkit.getWorld(Plugin.WORLD_NAME), x2, y2, z2),
+						tripwires,
 						goalMessage,
 						(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
 						objectiveNumber,
@@ -281,6 +274,13 @@ public class QuestLoader {
 			list = configSec.getStringList(path);
 		}
 		return list;
+	}
+	
+	private static Location parseLocation(String str) {
+		double x = Double.parseDouble(str.split(",")[0].replaceAll(",", ""));
+		double y = Double.parseDouble(str.split(",")[1].replaceAll(",", ""));
+		double z = Double.parseDouble(str.split(",")[2].replaceAll(",", ""));
+		return new Location(Bukkit.getWorld(Plugin.WORLD_NAME), x, y, z);
 	}
 
 }
