@@ -121,7 +121,7 @@ public class QuestLoader {
 						objectives.add(null);
 					}
 					for (String objectiveNumber : configSec.getConfigurationSection(key + ".condition.objectives").getKeys(false)) {
-						objectives.add(Integer.parseInt(objectiveNumber), configSec.getConfigurationSection(key + ".condition.objectives").getBoolean(objectiveNumber));
+						objectives.set(Integer.parseInt(objectiveNumber), configSec.getConfigurationSection(key + ".condition.objectives").getBoolean(objectiveNumber));
 					}
 				}
 				QuestIdleMessageConditions conditions = new QuestIdleMessageConditions(

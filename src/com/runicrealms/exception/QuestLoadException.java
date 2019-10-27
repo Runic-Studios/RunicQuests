@@ -1,5 +1,6 @@
 package com.runicrealms.exception;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -10,7 +11,7 @@ import org.bukkit.entity.Player;
 @SuppressWarnings("serial")
 public class QuestLoadException extends Exception {
 
-	private List<String> messages;
+	private List<String> messages = new ArrayList<String>();
 
 	public QuestLoadException(String... messages) {
 		for (String message : messages) {
