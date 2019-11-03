@@ -8,6 +8,11 @@ import com.runicrealms.quests.Quest;
 
 public class QuestProfile {
 	
+	/*
+	 * This class is meant to bind a DataConfiguration file (which binds File+FileConfiguration), 
+	 * a player UUID, and a List<Quest> (which already exists in the DataConfigurationFile)
+	 */
+	
 	private List<Quest> quests;
 	private String playerUUID;
 	private DataFileConfiguration savedData;

@@ -10,6 +10,10 @@ import com.runicrealms.quests.QuestObjectiveType;
 
 public class QuestObjectiveBreak extends QuestObjective {
 	
+	/*
+	 * Objective of type break
+	 */
+	
 	private Material blockMaterial;
 	private Integer blockAmount;
 	private Location blockLocation;

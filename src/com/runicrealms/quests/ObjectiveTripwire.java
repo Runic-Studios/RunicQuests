@@ -4,6 +4,10 @@ import org.bukkit.Location;
 
 public class ObjectiveTripwire {
 	
+	/*
+	 * Represents a tripwire with it's two corner locations
+	 */
+	
 	private Location corner1;
 	private Location corner2;
 	

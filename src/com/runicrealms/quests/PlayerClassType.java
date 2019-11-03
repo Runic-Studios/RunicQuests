@@ -2,6 +2,10 @@ package com.runicrealms.quests;
 
 public enum PlayerClassType {
 
+	/*
+	 * Represents the class types
+	 */
+	
 	WARRIOR("warrior"), CLERIC("cleric"), MAGE("mage"), ROGUE("rogue"), ARCHER("archer");
 	
 	private String name;

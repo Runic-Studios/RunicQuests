@@ -11,7 +11,6 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.inventory.ItemStack;
 
 import com.runicrealms.Plugin;
 import com.runicrealms.api.QuestCompleteEvent;
@@ -57,25 +56,7 @@ public class MythicMobsKillEvent implements Listener {
 									slayObjective.setMobsKilled(slayObjective.getMobsKilled() + 1);
 									if (slayObjective.getMobsKilled() == slayObjective.getMobAmount()) {
 										if (objective.requiresQuestItem()) {
-											int aquiredQuestItems = 0;
-											for (QuestItem questItem : objective.getQuestItems()) {
-												int amount = 0;
-												for (ItemStack item : player.getInventory().getContents()) {
-													if (item != null) {
-														if (item.getType().name().equalsIgnoreCase(questItem.getItemType()) &&
-																ChatColor.stripColor(item.getItemMeta().getDisplayName()).equalsIgnoreCase(questItem.getItemName())) {
-															amount += item.getAmount();
-															if (amount >= questItem.getAmount()) {
-																aquiredQuestItems++;
-																break;
-															}
-														}
-													}
-												}
-											}
-											if (aquiredQuestItems != objective.getQuestItems().size()) { 
-												continue;
-											} else {
+											if (Plugin.hasQuestItems(objective, player)) {
 												for (QuestItem questItem : objective.getQuestItems()) {
 													Plugin.removeItem(player.getInventory(), questItem.getItemName(), questItem.getItemType(), questItem.getAmount());
 												}

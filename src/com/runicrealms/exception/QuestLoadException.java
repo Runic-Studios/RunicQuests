@@ -11,6 +11,10 @@ import org.bukkit.entity.Player;
 @SuppressWarnings("serial")
 public class QuestLoadException extends Exception {
 
+	/*
+	 * This exception is just meant to hold info on why quest loading doesn't work
+	 */
+	
 	private List<String> messages = new ArrayList<String>();
 
 	public QuestLoadException(String... messages) {

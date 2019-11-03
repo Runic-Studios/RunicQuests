@@ -9,6 +9,10 @@ import net.citizensnpcs.api.npc.NPC;
 
 public class QuestNpc {
 	
+	/*
+	 * Represents an objective's quest NPC
+	 */
+	
 	private NPC npc;
 	private List<String> speech;
 	private List<QuestIdleMessage> idleSpeech;

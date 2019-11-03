@@ -6,6 +6,10 @@ import org.bukkit.Bukkit;
 
 public class QuestRewards {
 
+	/*
+	 * Represents quest rewards
+	 */
+	
 	private Integer exp;
 	private Integer questPoints;
 	private Integer money;

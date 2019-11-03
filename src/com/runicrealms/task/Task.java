@@ -4,6 +4,11 @@ import org.bukkit.scheduler.BukkitTask;
 
 public class Task {
 
+	/*
+	 * This class is meant to bind a bukkit task an a runnable.
+	 * The hasRun is to fix a minor bug where the task may run twice
+	 */
+	
 	private BukkitTask task;
 	private Runnable runnable;
 	private boolean hasRun;

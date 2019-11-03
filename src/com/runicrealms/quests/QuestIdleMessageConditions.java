@@ -4,6 +4,11 @@ import java.util.List;
 
 public class QuestIdleMessageConditions {
 	
+	/*
+	 * Represents a quest NPC's idle message's conditions.
+	 * None of these are required. If they don't exist, they will be ignored
+	 */
+	
 	private Boolean questStarted;
 	private Boolean questCompleted;
 	private List<Boolean> objectiveStates;

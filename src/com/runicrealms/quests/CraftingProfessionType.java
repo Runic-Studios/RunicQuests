@@ -2,6 +2,10 @@ package com.runicrealms.quests;
 
 public enum CraftingProfessionType {
 
+	/*
+	 * Represents the crafting professions
+	 */
+	
 	ENCHANTER("enchanter"), HUNTER("hunter"), BLACKSMITH("blacksmith"), ANY("crafting");
 	
 	private String name;

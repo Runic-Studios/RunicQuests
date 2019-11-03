@@ -8,6 +8,10 @@ import com.runicrealms.quests.QuestObjectiveType;
 
 public class QuestObjectiveTalk extends QuestObjective{
 	
+	/*
+	 * Talk quest objective
+	 */
+	
 	private QuestNpc questNpc;
 	
 	public QuestObjectiveTalk(QuestNpc questNpc, String goalMessage, List<String> execute, Integer objectiveNumber, List<String> completedMessage) {

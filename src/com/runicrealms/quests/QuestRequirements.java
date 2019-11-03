@@ -4,6 +4,10 @@ import java.util.List;
 
 public class QuestRequirements {
 	
+	/*
+	 * Contains a quest's requirements. Only level and level-not-met are required here
+	 */
+	
 	private Integer levelReq;
 	private Integer craftingReq;
 	private CraftingProfessionType craftingType;

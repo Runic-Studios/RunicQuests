@@ -7,6 +7,10 @@ import com.runicrealms.quests.QuestObjectiveType;
 
 public class QuestObjectiveSlay extends QuestObjective {
 	
+	/*
+	 * Slay quest objective
+	 */
+	
 	private List<String> mobNames;
 	private Integer mobAmount;
 	private Integer mobsKilled = 0;

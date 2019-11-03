@@ -2,6 +2,10 @@ package com.runicrealms.player;
 
 public class QuestState {
 	
+	/*
+	 * This class just represents the specific user info that must come with a quest
+	 */
+	
 	private boolean completed;
 	private boolean started;
 	
