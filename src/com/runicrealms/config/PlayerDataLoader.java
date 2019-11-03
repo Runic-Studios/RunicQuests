@@ -11,9 +11,11 @@ import com.runicrealms.quests.Quest;
 import com.runicrealms.quests.objective.QuestObjective;
 
 public class PlayerDataLoader {
-
+	
+	// This allows us to not need to load the player data for each player every time they log in, instead we can cache it
 	private static HashMap<String, DataFileConfiguration> cachedPlayerData = new HashMap<String, DataFileConfiguration>();
 
+	// Parses quest data for a user. This is very confusing code, but should not need to be chaged.
 	public static List<Quest> getQuestDataForUser(String uuid) {
 		List<Quest> quests = QuestLoader.getBlankQuestList();
 		List<Quest> newQuests = new ArrayList<Quest>();
@@ -23,7 +25,6 @@ public class PlayerDataLoader {
 			for (String dataQuestID : data.getKeys(false)) {
 				if (dataQuestID.equalsIgnoreCase(quest.getQuestID() + "")) {
 					Quest newQuest = new Quest(quest);
-					
 					newQuest.getQuestState().setCompleted(data.getConfigurationSection(quest.getQuestID() + "").getBoolean("completed"));
 					newQuest.getQuestState().setStarted(data.getConfigurationSection(quest.getQuestID() + "").getBoolean("started"));
 					newQuest.getFirstNPC().setState(FirstNpcState.fromString(data.getConfigurationSection(quest.getQuestID() + "").getString("first-npc-state")));
@@ -53,6 +54,7 @@ public class PlayerDataLoader {
 		return newQuests;
 	}
 
+	// Loads a config from cache. If it has not been cached, then load it.
 	public static DataFileConfiguration getConfigFromCache(String uuid) {
 		if (!cachedPlayerData.containsKey(uuid)) {
 			cachedPlayerData.put(uuid, DataFileConfiguration.getFile(uuid + ".yml"));

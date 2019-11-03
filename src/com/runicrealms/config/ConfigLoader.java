@@ -10,8 +10,10 @@ import com.runicrealms.Plugin;
 
 public class ConfigLoader {
 	
+	// Main config.yml file
 	private static FileConfiguration mainConfig;
-
+	
+	// Loads a YamlConfiguration from a File
 	public static FileConfiguration getYamlConfigFile(String fileName, File folder) {
 		FileConfiguration config;
 		File file;
@@ -27,7 +29,8 @@ public class ConfigLoader {
 		}
 		return config;
 	}
-
+	
+	// Gets a sub-directory
 	public static File getSubFolder(File folder, String subfolder) {
 		for (File file : folder.listFiles()) {
 			if (file.getName().equalsIgnoreCase(subfolder)) {
@@ -37,6 +40,7 @@ public class ConfigLoader {
 		return null;
 	}
 	
+	// Set default values for config.yml
 	public static void loadMainConfig() {
 		mainConfig = getYamlConfigFile("config.yml", Plugin.getInstance().getDataFolder());
 		if (!mainConfig.contains("npc-message-delay")) {
@@ -57,6 +61,7 @@ public class ConfigLoader {
 		}
 	}
 	
+	// Create users and quests folders if they have not been created
 	public static void initDirs() {
 		if (!Plugin.getInstance().getDataFolder().exists()) {
 			Plugin.getInstance().getDataFolder().mkdir();

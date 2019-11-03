@@ -33,30 +33,30 @@ public class MythicMobsKillEvent implements Listener {
 	public void onKill(MythicMobDeathEvent event) {
 		if (event.getKiller() instanceof Player) {
 			Player player = (Player) event.getKiller();
-			QuestProfile questProfile = Plugin.getQuestProfile(player.getUniqueId().toString());
+			QuestProfile questProfile = Plugin.getQuestProfile(player.getUniqueId().toString()); // Get player questing profile
 			Map<String, List<Integer>> questCooldowns = Plugin.getQuestCooldowns();
-			for (Quest quest : questProfile.getQuests()) {
+			for (Quest quest : questProfile.getQuests()) { // Loop through quest to find a matching objective to the mob killed
 				if ((quest.getQuestState().isCompleted() == false && quest.getQuestState().hasStarted())
-						|| (quest.isRepeatable() && quest.getQuestState().isCompleted() && quest.getQuestState().hasStarted())) {
-					for (QuestObjective objective : quest.getObjectives()) {
-						if (objective.isCompleted()) {
+						|| (quest.isRepeatable() && quest.getQuestState().isCompleted() && quest.getQuestState().hasStarted())) { // Checks if the quest is "active"
+					for (QuestObjective objective : quest.getObjectives()) { // Loops through the objectives to find a match
+						if (objective.isCompleted()) { // Checks to see that the objective is not completed
 							continue;
 						}
-						if (objective.getObjectiveNumber() != 1) {
+						if (objective.getObjectiveNumber() != 1) { // Checks that the previous objective is completed (so this objective is the current one)
 							if (QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() - 1).isCompleted() == false) {
 								continue;
 							}
 						}
-						if (quest.getFirstNPC().getState() != FirstNpcState.ACCEPTED) {
+						if (quest.getFirstNPC().getState() != FirstNpcState.ACCEPTED) { // Check that the player has accepted the quest
 							continue;
 						}
-						if (objective.getObjectiveType() == QuestObjectiveType.SLAY) {
+						if (objective.getObjectiveType() == QuestObjectiveType.SLAY) { // Checks that the objective is of type slay
 							QuestObjectiveSlay slayObjective = (QuestObjectiveSlay) objective;
-							for (String mob : slayObjective.getMobNames()) {
+							for (String mob : slayObjective.getMobNames()) { // Checks that the mob in the objective has the correct name
 								if (event.getMob().getType().getInternalName().equalsIgnoreCase(mob)) {
-									slayObjective.setMobsKilled(slayObjective.getMobsKilled() + 1);
-									if (slayObjective.getMobsKilled() == slayObjective.getMobAmount()) {
-										if (objective.requiresQuestItem()) {
+									slayObjective.setMobsKilled(slayObjective.getMobsKilled() + 1); // Add to the killed mobs
+									if (slayObjective.getMobsKilled() == slayObjective.getMobAmount()) { // Checks to see if player has killed the required mobs
+										if (objective.requiresQuestItem()) { // If the quest requires a quest item, check for the item and remove it
 											int aquiredQuestItems = 0;
 											for (QuestItem questItem : objective.getQuestItems()) {
 												int amount = 0;
@@ -84,14 +84,14 @@ public class MythicMobsKillEvent implements Listener {
 										}
 										objective.setCompleted(true);
 										questProfile.save();
-										if (objective.hasExecute()) {
+										if (objective.hasExecute()) { // Executes the objective commands
 											objective.executeCommand(player.getName());
 										}
-										player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 10, 0);
-										if (objective.getObjectiveNumber() != QuestObjective.getLastObjective(quest.getObjectives()).getObjectiveNumber()) {
-											String goalMessage = QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() + 1).getGoalMessage();
-											player.sendTitle(ChatColor.GOLD + "New Objective", ChatColor.YELLOW + goalMessage, 10, 40, 10);
-											if (objective.hasCompletedMessage()) {
+										player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 10, 0); // Play a sound
+										if (objective.getObjectiveNumber() != QuestObjective.getLastObjective(quest.getObjectives()).getObjectiveNumber()) { // Check to see if we have not finished the quest
+											String goalMessage = QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() + 1).getGoalMessage(); // Get the goal message
+											player.sendTitle(ChatColor.GOLD + "New Objective", ChatColor.YELLOW + goalMessage, 10, 40, 10);  // Display a title on the screen
+											if (objective.hasCompletedMessage()) { // If objective has a completed message, create a task queue and add message + new objective message to it
 												List<Runnable> runnables = new ArrayList<Runnable>();
 												for (String message : objective.getCompletedMessage()) {
 													runnables.add(new Runnable() {
@@ -111,12 +111,12 @@ public class MythicMobsKillEvent implements Listener {
 												TaskQueue queue = new TaskQueue(runnables);
 												queue.startTasks();
 											}
-										} else {
+										} else { // If we have completed the quest
 											quest.getQuestState().setCompleted(true);
 											questProfile.save();
-											if (objective.hasCompletedMessage()) {
+											if (objective.hasCompletedMessage()) { // If we have a completed message, create a task queue and add completed message, and rewards to queue
 												List<Runnable> runnables = new ArrayList<Runnable>();
-												for (String message : objective.getCompletedMessage()) {
+												for (String message : objective.getCompletedMessage()) { 
 													runnables.add(new Runnable() {
 														@Override
 														public void run() {
@@ -135,17 +135,17 @@ public class MythicMobsKillEvent implements Listener {
 													}
 												});
 												queue.startTasks();
-											} else {
+											} else { // If we don't have a completed message, display rewards
 												player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&2&lRewards:"));
 												player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getQuestPointsReward() + " &r&aQuest Point" + (quest.getRewards().getQuestPointsReward() == 1 ? "" : "s")));
 												player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getMoneyReward() + " &r&aCoin" + (quest.getRewards().getMoneyReward() == 1 ? "" : "s")));
 												player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getExperienceReward() + " &r&aExperience Point" + (quest.getRewards().getExperienceReward() == 1 ? "" : "s")));
 											}
-											if (quest.getRewards().hasExecute()) {
+											if (quest.getRewards().hasExecute()) { // Execute quest commands
 												quest.getRewards().executeCommand(player.getName());
 											}
-											RunicCoreHook.giveRewards(player, quest.getRewards());
-											if (quest.isRepeatable() == true) {
+											RunicCoreHook.giveRewards(player, quest.getRewards()); // Give rewards
+											if (quest.isRepeatable() == true) { // If the quest is repeatable, setup cooldown
 												questCooldowns.get(player.getUniqueId().toString()).add(quest.getFirstNPC().getId());
 												Bukkit.getScheduler().runTaskLater(Plugin.getInstance(), new Runnable() {
 													@Override
@@ -158,8 +158,8 @@ public class MythicMobsKillEvent implements Listener {
 													}
 												}, quest.getCooldown() * 20);
 											}
-											Bukkit.getServer().getPluginManager().callEvent(new QuestCompleteEvent(quest, questProfile));
-											if (quest.hasCompletionSpeech()) {
+											Bukkit.getServer().getPluginManager().callEvent(new QuestCompleteEvent(quest, questProfile)); // Call the quest event
+											if (quest.hasCompletionSpeech()) { // Displays completion speed
 												List<Runnable> runnables = new ArrayList<Runnable>();
 												for (String message : quest.getCompletionSpeech()) {
 													runnables.add(new Runnable() {

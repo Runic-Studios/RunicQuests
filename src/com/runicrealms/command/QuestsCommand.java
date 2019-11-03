@@ -20,6 +20,7 @@ public class QuestsCommand implements CommandExecutor {
 			sender.sendMessage(ChatColor.RED + "Only players can use this!");
 			return true;
 		}
+		// Loops through player's quests, checks for last objective state + quest status
 		Player player = (Player) sender;
 		HashMap<String, String> goalMessages = new HashMap<String, String>();
 		for (Quest quest : Plugin.getQuestProfile(player.getUniqueId().toString()).getQuests()) {

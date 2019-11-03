@@ -12,6 +12,10 @@ import com.runicrealms.quests.objective.QuestObjective;
 
 public class DataFileConfiguration {
 	
+	/*
+	 * This class is meant to bound a File and a FileConfiguration
+	 */
+	
 	private FileConfiguration config;
 	private File file;
 	
@@ -20,6 +24,7 @@ public class DataFileConfiguration {
 		this.file = file;
 	}
 	
+	// Just saves the FileConfiguration to the File
 	public void saveToFile() {
 		try {
 			this.config.save(file);
@@ -28,6 +33,7 @@ public class DataFileConfiguration {
 		}
 	}
 	
+	// Writes a List<Quest> to the FileConfiguration, then writes the FileConfiguration to File
 	public void saveToConfig(List<Quest> quests) {
 		for (Quest quest : quests) {
 			config.set(quest.getQuestID() + ".started", quest.getQuestState().hasStarted());
@@ -40,6 +46,7 @@ public class DataFileConfiguration {
 		this.saveToFile();
 	}
 	
+	// Static method to get a File from file system
 	public static DataFileConfiguration getFile(String fileName) {
 		File folder = ConfigLoader.getSubFolder(Plugin.getInstance().getDataFolder(), "users");
 		for (File file : folder.listFiles()) {

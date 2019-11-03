@@ -34,6 +34,7 @@ public class QuestLoader {
 
 	private static List<Quest> cachedQuests = null;
 
+	// Gets a List<Quest> from the quests folder, but the quests will contain no user info (like completed, or started)
 	public static List<Quest> getBlankQuestList() {
 		if (cachedQuests != null) {
 			return cachedQuests;
@@ -57,7 +58,8 @@ public class QuestLoader {
 		cachedQuests = quests;
 		return quests;
 	}
-
+	
+	// Uses all methods from this class in order to load a quest from file. Will not have any player info.
 	public static Quest loadQuest(FileConfiguration config) throws QuestLoadException {
 		try {
 			ArrayList<QuestObjective> objectives = new ArrayList<QuestObjective>();
@@ -110,6 +112,7 @@ public class QuestLoader {
 		}
 	}
 
+	// Loads idle messages.
 	public static List<QuestIdleMessage> loadIdleMessages(ConfigurationSection configSec, int objectivesNumber) throws QuestLoadException {
 		try {
 			List<QuestIdleMessage> idleMessages = new ArrayList<QuestIdleMessage>();
@@ -137,6 +140,7 @@ public class QuestLoader {
 		}
 	}
 
+	// Loads quest requirements.
 	public static QuestRequirements loadRequirements(ConfigurationSection configSec) throws QuestLoadException {
 		try {
 			Integer levelReq = checkValueNull(configSec.getInt("level"), "level");
@@ -179,6 +183,7 @@ public class QuestLoader {
 		}
 	}
 
+	// Loads quest rewards
 	public static QuestRewards loadRewards(ConfigurationSection configSec) throws QuestLoadException {
 		try {
 			List<String> execute = null;
@@ -200,6 +205,7 @@ public class QuestLoader {
 		}
 	}
 
+	// Loads a quest objective
 	public static QuestObjective loadObjective(ConfigurationSection configSec, Integer objectiveNumber, int objectivesNumber) throws QuestLoadException {
 		try {
 			String goalMessage = checkValueNull(configSec.getString("goal-message"), "goal-message");
@@ -303,7 +309,8 @@ public class QuestLoader {
 		}
 		throw new QuestLoadException("invalid objective type");
 	}
-
+	
+	// Loads a quest first NPC
 	public static QuestFirstNpc loadFirstNpc(ConfigurationSection configSec, int objectivesNumber) throws QuestLoadException {
 		try {
 			return new QuestFirstNpc(
@@ -321,6 +328,7 @@ public class QuestLoader {
 		}
 	}
 
+	// Loads a quest objective NPC
 	public static QuestNpc loadNpc(ConfigurationSection configSec, int objectivesNumber) throws QuestLoadException {
 		try {
 			return new QuestNpc(
@@ -333,6 +341,7 @@ public class QuestLoader {
 		}
 	}
 
+	// Loads required quest items
 	public static List<QuestItem> loadQuestItems(ConfigurationSection configSec) throws QuestLoadException {
 		try {
 			List<QuestItem> questItems = new ArrayList<QuestItem>();
@@ -348,6 +357,7 @@ public class QuestLoader {
 		}
 	}
 
+	// Throws an exception if the given value is null
 	private static <T> T checkValueNull(T obj, String... message) throws QuestLoadException {
 		if (obj == null) {
 			throw new QuestLoadException(message);
@@ -355,6 +365,7 @@ public class QuestLoader {
 		return obj;
 	}
 
+	// Gets a string/string list from config file
 	private static List<String> getStringList(ConfigurationSection configSec, String path) {
 		List<String> list = new ArrayList<String>();
 		if (configSec.isString(path)) {
@@ -365,6 +376,7 @@ public class QuestLoader {
 		return list;
 	}
 
+	// Parses a location from a string
 	private static Location parseLocation(String str) {
 		World world;
 		double x, y, z;
