@@ -9,6 +9,10 @@ import com.runicrealms.quests.QuestObjectiveType;
 
 public abstract class QuestObjective {
 	
+	/*
+	 * Abstract class that contains methods that must exist for a quest objective
+	 */
+	
 	private Integer objectiveNumber;
 	private QuestObjectiveType objectiveType;
 	private List<String> completedMessage;

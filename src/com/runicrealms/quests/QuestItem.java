@@ -2,6 +2,10 @@ package com.runicrealms.quests;
 
 public class QuestItem {
 	
+	/*
+	 * Represents a required quest item for an objective
+	 */
+	
 	private String itemName;
 	private String itemType;
 	private int amount;

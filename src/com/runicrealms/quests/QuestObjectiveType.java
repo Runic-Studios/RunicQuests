@@ -2,6 +2,10 @@ package com.runicrealms.quests;
 
 public enum QuestObjectiveType {
 
+	/*
+	 * Contains the different types of quest objectives
+	 */
+	
 	SLAY("slay"), TALK("talk"), TRIPWIRE("tripwire"), BREAK("break");
 	
 	private String name;

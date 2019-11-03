@@ -12,6 +12,10 @@ import net.citizensnpcs.api.npc.NPC;
 
 public class QuestFirstNpc {
 	
+	/*
+	 * Represents a quest first NPC
+	 */
+	
 	private NPC npc;
 	private List<String> speech;
 	private List<QuestIdleMessage> idleSpeech = null;

@@ -2,6 +2,14 @@ package com.runicrealms.quests;
 
 public enum FirstNpcState {
 
+	/*
+	 * Represents the first NPC status:
+	 * Pending - quest is deniable, player has talked to NPC but has not accepted/denied quest yet
+	 * Denied - the player has denied the quest
+	 * neutral - the player has not yet talked to the NPC
+	 * accepted - the player has accepted the quest and started it
+	 */
+	
 	PENDING("pending"), DENIED("denied"), NEUTRAL("neutral"), ACCEPTED("accepted");
 	
 	private String name;

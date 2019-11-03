@@ -12,6 +12,10 @@ import com.runicrealms.quests.QuestRewards;
 
 public class RunicCoreHook {
 
+	/*
+	 * This is meant to contain static methods that check with other RR plugins for player requirements
+	 */
+	
 	public static boolean isRequiredLevel(Player player, int level) {
 		return true; // TODO
 	}

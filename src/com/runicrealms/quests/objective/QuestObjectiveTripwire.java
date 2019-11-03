@@ -8,6 +8,10 @@ import com.runicrealms.quests.QuestObjectiveType;
 
 public class QuestObjectiveTripwire extends QuestObjective {
 	
+	/*
+	 * Tripwire quest objective
+	 */
+	
 	private List<ObjectiveTripwire> tripwires;
 	
 	public QuestObjectiveTripwire(List<ObjectiveTripwire> tripwires, String goalMessage, List<String> execute, Integer objectiveNumber, List<String> completedMessage) {

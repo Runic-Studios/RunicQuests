@@ -8,6 +8,11 @@ import com.runicrealms.quests.objective.QuestObjective;
 
 public class Quest {
 	
+	/*
+	 * Contains all the quest values which are needed.
+	 * All values except "QuestState state" can be parsed from config
+	 */
+	
 	private String questName;
 	private QuestFirstNpc firstNPC;
 	private List<QuestObjective> objectives = new ArrayList<QuestObjective>();

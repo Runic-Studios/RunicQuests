@@ -4,6 +4,10 @@ import java.util.List;
 
 public class QuestIdleMessage {
 	
+	/*
+	 * Represents an NPC idle message, with its conditions
+	 */
+	
 	private QuestIdleMessageConditions conditions;
 	private List<String> speech;
 	

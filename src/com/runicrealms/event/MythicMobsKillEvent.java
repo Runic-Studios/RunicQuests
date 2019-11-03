@@ -11,7 +11,6 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.inventory.ItemStack;
 
 import com.runicrealms.Plugin;
 import com.runicrealms.api.QuestCompleteEvent;
@@ -54,28 +53,10 @@ public class MythicMobsKillEvent implements Listener {
 							QuestObjectiveSlay slayObjective = (QuestObjectiveSlay) objective;
 							for (String mob : slayObjective.getMobNames()) { // Checks that the mob in the objective has the correct name
 								if (event.getMob().getType().getInternalName().equalsIgnoreCase(mob)) {
-									slayObjective.setMobsKilled(slayObjective.getMobsKilled() + 1); // Add to the killed mobs
-									if (slayObjective.getMobsKilled() == slayObjective.getMobAmount()) { // Checks to see if player has killed the required mobs
-										if (objective.requiresQuestItem()) { // If the quest requires a quest item, check for the item and remove it
-											int aquiredQuestItems = 0;
-											for (QuestItem questItem : objective.getQuestItems()) {
-												int amount = 0;
-												for (ItemStack item : player.getInventory().getContents()) {
-													if (item != null) {
-														if (item.getType().name().equalsIgnoreCase(questItem.getItemType()) &&
-																ChatColor.stripColor(item.getItemMeta().getDisplayName()).equalsIgnoreCase(questItem.getItemName())) {
-															amount += item.getAmount();
-															if (amount >= questItem.getAmount()) {
-																aquiredQuestItems++;
-																break;
-															}
-														}
-													}
-												}
-											}
-											if (aquiredQuestItems != objective.getQuestItems().size()) { 
-												continue;
-											} else {
+									slayObjective.setMobsKilled(slayObjective.getMobsKilled() + 1); // Add to the slayed mobs
+									if (slayObjective.getMobsKilled() == slayObjective.getMobAmount()) { // Check if player has killed required amount
+										if (objective.requiresQuestItem()) { // Check for quest item
+											if (Plugin.hasQuestItems(objective, player)) {
 												for (QuestItem questItem : objective.getQuestItems()) {
 													Plugin.removeItem(player.getInventory(), questItem.getItemName(), questItem.getItemType(), questItem.getAmount());
 												}
