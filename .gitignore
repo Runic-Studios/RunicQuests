@@ -1,0 +1,12 @@
+# Eclipse
+.project
+.classpath
+.settings/
+test/
+
+# Maven
+log/
+target/
+
+# Project Dependencies
+lib/
