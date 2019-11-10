@@ -100,7 +100,9 @@ public class Plugin extends JavaPlugin {
 					leftToRemove -= item.getAmount();
 					if (leftToRemove <= 0) {
 						if (leftToRemove < 0) {
-							inventory.addItem(item.asQuantity(leftToRemove * -1));
+							ItemStack newItem = item.clone();
+							newItem.setAmount(leftToRemove * -1);
+							inventory.addItem(newItem);
 						}
 						return;
 					}
