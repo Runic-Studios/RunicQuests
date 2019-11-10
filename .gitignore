@@ -8,6 +8,7 @@
 .classpath
 .settings/
 test/
+bin/
 
 # Maven
 log/
