@@ -7,7 +7,6 @@
 .project
 .classpath
 .settings/
-test/
 bin/
 
 # Maven
