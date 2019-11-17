@@ -15,11 +15,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.runicrealms.runicquests.command.QuestsCommand;
 import com.runicrealms.runicquests.config.ConfigLoader;
-import com.runicrealms.runicquests.event.MythicMobsKillEvent;
-import com.runicrealms.runicquests.event.NpcClickEvent;
-import com.runicrealms.runicquests.event.PlayerBreakBlockEvent;
-import com.runicrealms.runicquests.event.PlayerJoinQuitEvent;
-import com.runicrealms.runicquests.event.PlayerTripwireEvent;
+import com.runicrealms.runicquests.event.EventKillMythicMob;
+import com.runicrealms.runicquests.event.EventClickNpc;
+import com.runicrealms.runicquests.event.EventBreakBlock;
+import com.runicrealms.runicquests.event.EventPlayerJoinQuit;
+import com.runicrealms.runicquests.event.EventPlayerInteract;
 import com.runicrealms.runicquests.player.QuestProfile;
 import com.runicrealms.runicquests.quests.Quest;
 import com.runicrealms.runicquests.quests.QuestItem;
@@ -44,13 +44,13 @@ public class Plugin extends JavaPlugin {
 		ConfigLoader.loadMainConfig(); // Intitialze the main config file if it doesn't exist
 		NPC_MESSAGE_DELAY = ConfigLoader.getMainConfig().getDouble("npc-message-delay"); // Get the config value
 		CACHE_PLAYER_DATA = ConfigLoader.getMainConfig().getBoolean("cache-player-data"); // Get the config value
-		this.getServer().getPluginManager().registerEvents(new MythicMobsKillEvent(), this); // Register events
-		this.getServer().getPluginManager().registerEvents(new NpcClickEvent(), this);
-		this.getServer().getPluginManager().registerEvents(new PlayerBreakBlockEvent(), this);
-		this.getServer().getPluginManager().registerEvents(new PlayerJoinQuitEvent(), this);
-		this.getServer().getPluginManager().registerEvents(new PlayerTripwireEvent(), this);
+		this.getServer().getPluginManager().registerEvents(new EventKillMythicMob(), this); // Register events
+		this.getServer().getPluginManager().registerEvents(new EventClickNpc(), this);
+		this.getServer().getPluginManager().registerEvents(new EventBreakBlock(), this);
+		this.getServer().getPluginManager().registerEvents(new EventPlayerJoinQuit(), this);
+		this.getServer().getPluginManager().registerEvents(new EventPlayerInteract(), this);
 		for (Player player : Bukkit.getOnlinePlayers()) { // Loop through online players (fixes bug with /reload)
-			PlayerJoinQuitEvent.runJoinEvent(player); // Read PlayerJoinQuitEvent.runJoinEvent
+			EventPlayerJoinQuit.runJoinEvent(player); // Read PlayerJoinQuitEvent.runJoinEvent
 		}
 		QuestsCommand commandExecutor = new QuestsCommand(); // Register the /quests command
 		String[] commands = new String[] {"quests", "quest", "objectives", "objective"};

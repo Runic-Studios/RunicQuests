@@ -33,7 +33,7 @@ import com.runicrealms.runicquests.util.RunicCoreHook;
 import net.citizensnpcs.api.event.NPCLeftClickEvent;
 import net.citizensnpcs.api.event.NPCRightClickEvent;
 
-public class NpcClickEvent implements Listener {
+public class EventClickNpc implements Listener {
 
 	@EventHandler
 	public void onNpcRightClick(NPCRightClickEvent event) {

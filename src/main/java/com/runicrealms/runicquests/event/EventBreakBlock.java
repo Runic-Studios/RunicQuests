@@ -25,7 +25,7 @@ import com.runicrealms.runicquests.quests.objective.QuestObjectiveBreak;
 import com.runicrealms.runicquests.task.TaskQueue;
 import com.runicrealms.runicquests.util.RunicCoreHook;
 
-public class PlayerBreakBlockEvent implements Listener {
+public class EventBreakBlock implements Listener {
 
 	@EventHandler
 	public void onBreak(BlockBreakEvent event) {

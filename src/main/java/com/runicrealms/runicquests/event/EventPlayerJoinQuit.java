@@ -15,7 +15,7 @@ import com.runicrealms.runicquests.quests.QuestObjectiveType;
 import com.runicrealms.runicquests.quests.objective.QuestObjective;
 import com.runicrealms.runicquests.quests.objective.QuestObjectiveTalk;
 
-public class PlayerJoinQuitEvent implements Listener {
+public class EventPlayerJoinQuit implements Listener {
 
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {
