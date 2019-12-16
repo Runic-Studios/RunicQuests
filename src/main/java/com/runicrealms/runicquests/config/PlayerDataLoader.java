@@ -7,7 +7,6 @@ import java.util.UUID;
 
 import org.bukkit.configuration.ConfigurationSection;
 
-import com.runicrealms.runiccharacters.api.RunicCharactersApi;
 import com.runicrealms.runicquests.quests.FirstNpcState;
 import com.runicrealms.runicquests.quests.Quest;
 import com.runicrealms.runicquests.quests.objective.QuestObjective;
@@ -18,11 +17,11 @@ public class PlayerDataLoader {
 	private static HashMap<UUID, DataFileConfiguration> cachedPlayerData = new HashMap<UUID, DataFileConfiguration>();
 
 	// Parses quest data for a user. This is very confusing code, but should not need to be changed.
-	public static List<Quest> getQuestDataForUser(UUID uuid) {
+	public static List<Quest> getQuestDataForUser(UUID uuid, String characterSlot) {
 		List<Quest> quests = QuestLoader.getBlankQuestList();
 		List<Quest> newQuests = new ArrayList<Quest>();
 		DataFileConfiguration runicFileConfig = getConfigFromCache(uuid);
-		ConfigurationSection data = runicFileConfig.getConfig().get(RunicCharactersApi.getCurrentCharacterSlot(uuid) + "");
+		ConfigurationSection data = runicFileConfig.getConfig().get(characterSlot);
 		if (data != null) {
 			for (Quest quest : quests) {
 				for (String dataQuestID : data.getKeys(false)) {

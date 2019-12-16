@@ -20,7 +20,7 @@ public class EventPlayerJoinQuit implements Listener {
 
 	@EventHandler
 	public void onPlayerJoin(CharacterEnterEvent event) {
-		runJoinEvent(event.getPlayer());
+		runJoinEvent(event.getPlayer(), event.getCharacter().getSlot() + "");
 	}
 
 	@EventHandler
@@ -48,7 +48,7 @@ public class EventPlayerJoinQuit implements Listener {
 		}
 	}
 	
-	public static void runJoinEvent(Player player) {
+	public static void runJoinEvent(Player player, String characterSlot) {
 		Plugin.getQuestCooldowns().put(player.getUniqueId().toString(), new ArrayList<Integer>()); // Add a cooldown to the list of cooldowns
 		if (Plugin.CACHE_PLAYER_DATA) { // Whether or not to cache player data
 			for (QuestProfile profile : Plugin.getQuestProfiles()) { // Loop through quest profiles
@@ -56,9 +56,9 @@ public class EventPlayerJoinQuit implements Listener {
 					return;
 				}
 			}
-			Plugin.getQuestProfiles().add(new QuestProfile(player.getUniqueId())); // If there isn't a cached profile, add one
+			Plugin.getQuestProfiles().add(new QuestProfile(player.getUniqueId(), characterSlot)); // If there isn't a cached profile, add one
 		} else {
-			Plugin.getQuestProfiles().add(new QuestProfile(player.getUniqueId())); // Because we aren't caching profiles, add one
+			Plugin.getQuestProfiles().add(new QuestProfile(player.getUniqueId(), characterSlot)); // Because we aren't caching profiles, add one
 		}
 	}
 

@@ -18,15 +18,17 @@ public class QuestProfile {
 	private List<Quest> quests;
 	private UUID playerUUID;
 	private DataFileConfiguration savedData;
+	private String characterSlot;
 	
-	public QuestProfile(UUID uuid) {
+	public QuestProfile(UUID uuid, String characterSlot) {
 		this.playerUUID = uuid;
-		this.quests = PlayerDataLoader.getQuestDataForUser(uuid);
+		this.quests = PlayerDataLoader.getQuestDataForUser(uuid, characterSlot);
 		this.savedData = PlayerDataLoader.getConfigFromCache(uuid);
+		this.characterSlot = characterSlot;
 	}
 	
 	public void save() {
-		this.savedData.saveToConfig(this.quests, RunicCharactersApi.getCurrentCharacterSlot(this.playerUUID));
+		this.savedData.saveToConfig(this.quests, RunicCharactersApi.getCurrentCharacterSlot(this.playerUUID) + "");
 	}
 
 	public List<Quest> getQuests() {
@@ -39,6 +41,10 @@ public class QuestProfile {
 
 	public DataFileConfiguration getSavedData() {
 		return savedData;
+	}
+	
+	public String getCharacterSlot() {
+		return this.characterSlot;
 	}
 	
 }

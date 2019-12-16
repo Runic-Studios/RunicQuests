@@ -3,6 +3,7 @@ package com.runicrealms.runicquests.event;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
@@ -15,6 +16,7 @@ import org.bukkit.event.Listener;
 import com.runicrealms.runiccharacters.api.events.CharacterBlockBreakEvent;
 import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.api.QuestCompleteEvent;
+import com.runicrealms.runicquests.player.QuestCooldowns;
 import com.runicrealms.runicquests.player.QuestProfile;
 import com.runicrealms.runicquests.quests.FirstNpcState;
 import com.runicrealms.runicquests.quests.Quest;
@@ -31,7 +33,7 @@ public class EventBreakBlock implements Listener {
 	public void onBreak(CharacterBlockBreakEvent event) {
 		Player player = event.getPlayer();
 		QuestProfile questProfile = Plugin.getQuestProfile(player.getUniqueId().toString()); // Get player's questing profile
-		Map<String, List<Integer>> questCooldowns = Plugin.getQuestCooldowns(); // Get the repeatable quest cooldowns
+		Map<UUID, QuestCooldowns> questCooldowns = Plugin.getQuestCooldowns(); // Get the repeatable quest cooldowns
 		for (Quest quest : questProfile.getQuests()) { // Loop through the quests to find a matching objective
 			if ((quest.getQuestState().isCompleted() == false && quest.getQuestState().hasStarted()) // Check that the quest is not completed and has been started
 					|| (quest.isRepeatable() && quest.getQuestState().isCompleted() && quest.getQuestState().hasStarted())) { // This is a check for repeatable quests
@@ -136,12 +138,12 @@ public class EventBreakBlock implements Listener {
 								}
 								RunicCoreHook.giveRewards(player, quest.getRewards()); // Give rewards
 								if (quest.isRepeatable() == true) { // If the quest is repeatable, setup cooldowns
-									questCooldowns.get(player.getUniqueId().toString()).add(quest.getFirstNPC().getId());
+									questCooldowns.get(player.getUniqueId()).getCooldowns().add(quest.getFirstNPC().getId());
 									Bukkit.getScheduler().runTaskLater(Plugin.getInstance(), new Runnable() {
 										@Override
 										public void run() {
-											if (questCooldowns.get(player.getUniqueId().toString()).contains(quest.getQuestID())) {
-												questCooldowns.get(player.getUniqueId().toString()).remove(quest.getQuestID());
+											if (questCooldowns.get(player.getUniqueId()).getCooldowns().contains(new Integer(quest.getQuestID()))) {
+												questCooldowns.get(player.getUniqueId()).getCooldowns().remove(new Integer(quest.getQuestID()));
 											} else {
 												Bukkit.getLogger().log(Level.INFO, "[RunicQuests] ERROR - failed to remove quest cooldown from player \"" + questProfile.getPlayerUUID() + "\"!");
 											}
