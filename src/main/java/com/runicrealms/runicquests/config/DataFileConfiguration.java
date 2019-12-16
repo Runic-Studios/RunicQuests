@@ -2,74 +2,59 @@ package com.runicrealms.runicquests.config;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.quests.Quest;
 import com.runicrealms.runicquests.quests.objective.QuestObjective;
+import org.bukkit.entity.Player;
+import runicrealms.runiccharacters.RunicCharacters;
+import runicrealms.runiccharacters.api.RunicCharactersApi;
 
 public class DataFileConfiguration {
 	
 	/*
-	 * This class is meant to bound a File and a FileConfiguration
+	 * This class is meant to bound a File and a ConfigurationSection
 	 */
 	
-	private FileConfiguration config;
-	private File file;
+	private HashMap<String, ConfigurationSection> config = new HashMap<String, ConfigurationSection>();
+	private UUID uuid;
 	
-	public DataFileConfiguration(FileConfiguration config, File file) {
-		this.config = config;
-		this.file = file;
-	}
-	
-	// Just saves the FileConfiguration to the File
-	public void saveToFile() {
-		try {
-			this.config.save(file);
-		} catch (IOException e) {
-			e.printStackTrace();
+	public DataFileConfiguration(UUID uuid) {
+		for (String characterSlot : RunicCharactersApi.getAllCharacters(uuid)) {
+			if (!RunicCharactersApi.hasDataForKey(uuid, Integer.parseInt(characterSlot), "quests")) {
+				RunicCharactersApi.set(uuid, Integer.parseInt(characterSlot), "quests", "temp", 0);
+			}
+			this.config.put(characterSlot, RunicCharactersApi.getData(uuid, Integer.parseInt(characterSlot), "quests"));
 		}
+		this.uuid = uuid;
 	}
 	
-	// Writes a List<Quest> to the FileConfiguration, then writes the FileConfiguration to File
-	public void saveToConfig(List<Quest> quests) {
+	// Writes a List<Quest> to the ConfigurationSection, then writes the ConfigurationSection to user data
+	public void saveToConfig(List<Quest> quests, int characterSlot) {
 		for (Quest quest : quests) {
-			config.set(quest.getQuestID() + ".started", quest.getQuestState().hasStarted());
-			config.set(quest.getQuestID() + ".completed", quest.getQuestState().isCompleted());
-			config.set(quest.getQuestID() + ".first-npc-state", quest.getFirstNPC().getState().getName());
+			config.get(characterSlot).set(quest.getQuestID() + ".started", quest.getQuestState().hasStarted());
+			config.get(characterSlot).set(quest.getQuestID() + ".completed", quest.getQuestState().isCompleted());
+			config.get(characterSlot).set(quest.getQuestID() + ".first-npc-state", quest.getFirstNPC().getState().getName());
 			for (QuestObjective objective : quest.getObjectives()) {
-				config.set(quest.getQuestID() + ".objectives." + objective.getObjectiveNumber() + "", objective.isCompleted());
+				config.get(characterSlot).set(quest.getQuestID() + ".objectives." + objective.getObjectiveNumber() + "", objective.isCompleted());
 			}
 		}
-		this.saveToFile();
+		RunicCharactersApi.set(uuid, characterSlot, "quests", config.get(characterSlot));
 	}
-	
-	// Static method to get a File from file system
-	public static DataFileConfiguration getFile(String fileName) {
-		File folder = ConfigLoader.getSubFolder(Plugin.getInstance().getDataFolder(), "users");
-		for (File file : folder.listFiles()) {
-			if (file.getName().equalsIgnoreCase(fileName)) {
-				return new DataFileConfiguration(ConfigLoader.getYamlConfigFile(file.getName(), folder), file);
-			}
-		}
-		File file = new File(folder, fileName);
-		try {
-			file.createNewFile();
-			return new DataFileConfiguration(ConfigLoader.getYamlConfigFile(file.getName(), folder), file);
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}	
-	}
-	
-	public FileConfiguration getConfig() {
+
+	// Returns the configurationSection
+	public HashMap<String, ConfigurationSection> getConfig() {
 		return this.config;
 	}
 	
-	public File getFile() {
-		return this.file;
+	public UUID getUUID() {
+		return this.uuid;
 	}
 	
 }

@@ -32,11 +32,13 @@ import com.runicrealms.runicquests.util.RunicCoreHook;
 
 import net.citizensnpcs.api.event.NPCLeftClickEvent;
 import net.citizensnpcs.api.event.NPCRightClickEvent;
+import runicrealms.runiccharacters.api.events.CharacterNPCLeftClickEvent;
+import runicrealms.runiccharacters.api.events.CharacterNPCRightClickEvent;
 
 public class EventClickNpc implements Listener {
 
 	@EventHandler
-	public void onNpcRightClick(NPCRightClickEvent event) {
+	public void onNpcRightClick(CharacterNPCRightClickEvent event) {
 		Player player = event.getClicker();
 		QuestProfile questProfile = Plugin.getQuestProfile(player.getUniqueId().toString());
 		HashMap<Integer, TaskQueue> npcs = Plugin.getNpcTaskQueues();
@@ -385,7 +387,7 @@ public class EventClickNpc implements Listener {
 	}
 
 	@EventHandler
-	public void onNpcLeftClick(NPCLeftClickEvent event) {
+	public void onNpcLeftClick(CharacterNPCLeftClickEvent event) {
 		Player player = event.getClicker();
 		QuestProfile questProfile = Plugin.getQuestProfile(event.getClicker().getUniqueId().toString()); // Get the player's questing profile
 		for (Quest quest : questProfile.getQuests()) { // Loop through the quests

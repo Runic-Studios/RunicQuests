@@ -25,11 +25,12 @@ import com.runicrealms.runicquests.task.TaskQueue;
 import com.runicrealms.runicquests.util.RunicCoreHook;
 
 import io.lumine.xikage.mythicmobs.api.bukkit.events.MythicMobDeathEvent;
+import runicrealms.runiccharacters.api.events.CharacterMythicMobDeathEvent;
 
 public class EventKillMythicMob implements Listener {
 
 	@EventHandler
-	public void onKill(MythicMobDeathEvent event) {
+	public void onKill(CharacterMythicMobDeathEvent event) {
 		if (event.getKiller() instanceof Player) {
 			Player player = (Player) event.getKiller();
 			QuestProfile questProfile = Plugin.getQuestProfile(player.getUniqueId().toString()); // Get player questing profile

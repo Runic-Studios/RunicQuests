@@ -103,5 +103,13 @@
 			<type>jar</type>
 			<scope>provided</scope>
 		</dependency>
+		<!-- MythicMobs -->
+		<dependency>
+			<groupId>com.runicrealms</groupId>
+			<artifactId>RunicCharacters</artifactId>
+			<version>1.0</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/RunicCharacters.jar</systemPath>
+		</dependency>
 	</dependencies>
 </project>

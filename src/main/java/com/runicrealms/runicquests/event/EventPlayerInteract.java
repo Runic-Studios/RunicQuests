@@ -28,11 +28,12 @@ import com.runicrealms.runicquests.quests.objective.QuestObjective;
 import com.runicrealms.runicquests.quests.objective.QuestObjectiveTripwire;
 import com.runicrealms.runicquests.task.TaskQueue;
 import com.runicrealms.runicquests.util.RunicCoreHook;
+import runicrealms.runiccharacters.api.events.CharacterPlayerInteractEvent;
 
 public class EventPlayerInteract implements Listener {
 
 	@EventHandler
-	public void onPlayerInteract(PlayerInteractEvent event) {
+	public void onPlayerInteract(CharacterPlayerInteractEvent event) {
 		Player player = event.getPlayer();
 		QuestProfile questProfile = Plugin.getQuestProfile(player.getUniqueId().toString()); // Get the questing profile
 		Map<String, List<Integer>> questCooldowns = Plugin.getQuestCooldowns();

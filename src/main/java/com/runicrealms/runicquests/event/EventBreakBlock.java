@@ -24,11 +24,12 @@ import com.runicrealms.runicquests.quests.objective.QuestObjective;
 import com.runicrealms.runicquests.quests.objective.QuestObjectiveBreak;
 import com.runicrealms.runicquests.task.TaskQueue;
 import com.runicrealms.runicquests.util.RunicCoreHook;
+import runicrealms.runiccharacters.api.events.CharacterBlockBreakEvent;
 
 public class EventBreakBlock implements Listener {
 
 	@EventHandler
-	public void onBreak(BlockBreakEvent event) {
+	public void onBreak(CharacterBlockBreakEvent event) {
 		Player player = event.getPlayer();
 		QuestProfile questProfile = Plugin.getQuestProfile(player.getUniqueId().toString()); // Get player's questing profile
 		Map<String, List<Integer>> questCooldowns = Plugin.getQuestCooldowns(); // Get the repeatable quest cooldowns

@@ -1,10 +1,12 @@
 package com.runicrealms.runicquests.player;
 
 import java.util.List;
+import java.util.UUID;
 
 import com.runicrealms.runicquests.config.DataFileConfiguration;
 import com.runicrealms.runicquests.config.PlayerDataLoader;
 import com.runicrealms.runicquests.quests.Quest;
+import runicrealms.runiccharacters.api.RunicCharactersApi;
 
 public class QuestProfile {
 	
@@ -14,24 +16,24 @@ public class QuestProfile {
 	 */
 	
 	private List<Quest> quests;
-	private String playerUUID;
+	private UUID playerUUID;
 	private DataFileConfiguration savedData;
 	
-	public QuestProfile(String uuid) {
+	public QuestProfile(UUID uuid) {
 		this.playerUUID = uuid;
 		this.quests = PlayerDataLoader.getQuestDataForUser(uuid);
 		this.savedData = PlayerDataLoader.getConfigFromCache(uuid);
 	}
 	
 	public void save() {
-		this.savedData.saveToConfig(this.quests);
+		this.savedData.saveToConfig(this.quests, RunicCharactersApi.getCurrentCharacterSlot(this.playerUUID));
 	}
 
 	public List<Quest> getQuests() {
 		return quests;
 	}
 
-	public String getPlayerUUID() {
+	public UUID getPlayerUUID() {
 		return playerUUID;
 	}
 

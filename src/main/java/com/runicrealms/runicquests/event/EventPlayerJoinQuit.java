@@ -14,16 +14,18 @@ import com.runicrealms.runicquests.quests.Quest;
 import com.runicrealms.runicquests.quests.QuestObjectiveType;
 import com.runicrealms.runicquests.quests.objective.QuestObjective;
 import com.runicrealms.runicquests.quests.objective.QuestObjectiveTalk;
+import runicrealms.runiccharacters.api.events.CharacterEnterEvent;
+import runicrealms.runiccharacters.api.events.CharacterQuitEvent;
 
 public class EventPlayerJoinQuit implements Listener {
 
 	@EventHandler
-	public void onPlayerJoin(PlayerJoinEvent event) {
+	public void onPlayerJoin(CharacterEnterEvent event) {
 		runJoinEvent(event.getPlayer());
 	}
 
 	@EventHandler
-	public void onPlayerQuit(PlayerQuitEvent event) {
+	public void onPlayerQuit(CharacterQuitEvent event) {
 		Plugin.getQuestCooldowns().remove(event.getPlayer().getUniqueId().toString()); // Remove the cooldown object
 		QuestProfile questProfile = Plugin.getQuestProfile(event.getPlayer().getUniqueId().toString()); // Get the quest profile
 		for (Quest quest : questProfile.getQuests()) { // Loop through the quests
