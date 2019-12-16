@@ -13,6 +13,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
+import com.runicrealms.runiccharacters.api.events.CharacterNPCLeftClickEvent;
+import com.runicrealms.runiccharacters.api.events.CharacterNPCRightClickEvent;
 import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.api.QuestAcceptEvent;
 import com.runicrealms.runicquests.api.QuestCompleteEvent;
@@ -29,11 +31,6 @@ import com.runicrealms.runicquests.quests.objective.QuestObjectiveSlay;
 import com.runicrealms.runicquests.quests.objective.QuestObjectiveTalk;
 import com.runicrealms.runicquests.task.TaskQueue;
 import com.runicrealms.runicquests.util.RunicCoreHook;
-
-import net.citizensnpcs.api.event.NPCLeftClickEvent;
-import net.citizensnpcs.api.event.NPCRightClickEvent;
-import runicrealms.runiccharacters.api.events.CharacterNPCLeftClickEvent;
-import runicrealms.runiccharacters.api.events.CharacterNPCRightClickEvent;
 
 public class EventClickNpc implements Listener {
 

@@ -3,10 +3,10 @@ package com.runicrealms.runicquests.player;
 import java.util.List;
 import java.util.UUID;
 
+import com.runicrealms.runiccharacters.api.RunicCharactersApi;
 import com.runicrealms.runicquests.config.DataFileConfiguration;
 import com.runicrealms.runicquests.config.PlayerDataLoader;
 import com.runicrealms.runicquests.quests.Quest;
-import runicrealms.runiccharacters.api.RunicCharactersApi;
 
 public class QuestProfile {
 	

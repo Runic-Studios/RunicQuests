@@ -14,8 +14,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.player.PlayerInteractEvent;
 
+import com.runicrealms.runiccharacters.api.events.CharacterPlayerInteractEvent;
 import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.api.QuestCompleteEvent;
 import com.runicrealms.runicquests.player.QuestProfile;
@@ -28,7 +28,6 @@ import com.runicrealms.runicquests.quests.objective.QuestObjective;
 import com.runicrealms.runicquests.quests.objective.QuestObjectiveTripwire;
 import com.runicrealms.runicquests.task.TaskQueue;
 import com.runicrealms.runicquests.util.RunicCoreHook;
-import runicrealms.runiccharacters.api.events.CharacterPlayerInteractEvent;
 
 public class EventPlayerInteract implements Listener {
 

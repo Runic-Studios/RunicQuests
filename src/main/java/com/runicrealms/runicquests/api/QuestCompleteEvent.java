@@ -1,7 +1,5 @@
 package com.runicrealms.runicquests.api;
 
-import java.util.UUID;
-
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -41,7 +39,7 @@ public class QuestCompleteEvent extends Event {
 	
 	public Player getPlayer() {
 		try {
-			return Bukkit.getPlayer(UUID.fromString(this.profile.getPlayerUUID()));
+			return Bukkit.getPlayer(this.profile.getPlayerUUID());
 		} catch (Exception exception) {
 			return null;
 		}

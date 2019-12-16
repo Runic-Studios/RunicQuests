@@ -1,20 +1,14 @@
 package com.runicrealms.runicquests.config;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.FileConfiguration;
 
-import com.runicrealms.runicquests.Plugin;
+import com.runicrealms.runiccharacters.api.RunicCharactersApi;
 import com.runicrealms.runicquests.quests.Quest;
 import com.runicrealms.runicquests.quests.objective.QuestObjective;
-import org.bukkit.entity.Player;
-import runicrealms.runiccharacters.RunicCharacters;
-import runicrealms.runiccharacters.api.RunicCharactersApi;
 
 public class DataFileConfiguration {
 	
@@ -36,7 +30,7 @@ public class DataFileConfiguration {
 	}
 	
 	// Writes a List<Quest> to the ConfigurationSection, then writes the ConfigurationSection to user data
-	public void saveToConfig(List<Quest> quests, int characterSlot) {
+	public void saveToConfig(List<Quest> quests, String characterSlot) {
 		for (Quest quest : quests) {
 			config.get(characterSlot).set(quest.getQuestID() + ".started", quest.getQuestState().hasStarted());
 			config.get(characterSlot).set(quest.getQuestID() + ".completed", quest.getQuestState().isCompleted());
@@ -45,7 +39,7 @@ public class DataFileConfiguration {
 				config.get(characterSlot).set(quest.getQuestID() + ".objectives." + objective.getObjectiveNumber() + "", objective.isCompleted());
 			}
 		}
-		RunicCharactersApi.set(uuid, characterSlot, "quests", config.get(characterSlot));
+		RunicCharactersApi.set(uuid, Integer.parseInt(characterSlot), "quests", config.get(characterSlot));
 	}
 
 	// Returns the configurationSection

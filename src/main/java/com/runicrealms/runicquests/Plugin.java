@@ -15,11 +15,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.runicrealms.runicquests.command.QuestsCommand;
 import com.runicrealms.runicquests.config.ConfigLoader;
-import com.runicrealms.runicquests.event.EventKillMythicMob;
-import com.runicrealms.runicquests.event.EventClickNpc;
 import com.runicrealms.runicquests.event.EventBreakBlock;
-import com.runicrealms.runicquests.event.EventPlayerJoinQuit;
+import com.runicrealms.runicquests.event.EventClickNpc;
+import com.runicrealms.runicquests.event.EventKillMythicMob;
 import com.runicrealms.runicquests.event.EventPlayerInteract;
+import com.runicrealms.runicquests.event.EventPlayerJoinQuit;
 import com.runicrealms.runicquests.player.QuestProfile;
 import com.runicrealms.runicquests.quests.Quest;
 import com.runicrealms.runicquests.quests.QuestItem;

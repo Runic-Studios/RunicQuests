@@ -6,13 +6,11 @@ import java.util.List;
 import java.util.UUID;
 
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.FileConfiguration;
 
+import com.runicrealms.runiccharacters.api.RunicCharactersApi;
 import com.runicrealms.runicquests.quests.FirstNpcState;
 import com.runicrealms.runicquests.quests.Quest;
 import com.runicrealms.runicquests.quests.objective.QuestObjective;
-import org.bukkit.entity.Player;
-import runicrealms.runiccharacters.api.RunicCharactersApi;
 
 public class PlayerDataLoader {
 	
@@ -66,6 +64,10 @@ public class PlayerDataLoader {
 			cachedPlayerData.put(uuid, new DataFileConfiguration(uuid));
 		}
 		return cachedPlayerData.get(uuid);
+	}
+	
+	public static HashMap<UUID, DataFileConfiguration> getCachedPlayerData() {
+		return cachedPlayerData;
 	}
 
 }

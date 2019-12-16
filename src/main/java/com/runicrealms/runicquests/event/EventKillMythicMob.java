@@ -12,6 +12,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
+import com.runicrealms.runiccharacters.api.events.CharacterMythicMobDeathEvent;
 import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.api.QuestCompleteEvent;
 import com.runicrealms.runicquests.player.QuestProfile;
@@ -23,9 +24,6 @@ import com.runicrealms.runicquests.quests.objective.QuestObjective;
 import com.runicrealms.runicquests.quests.objective.QuestObjectiveSlay;
 import com.runicrealms.runicquests.task.TaskQueue;
 import com.runicrealms.runicquests.util.RunicCoreHook;
-
-import io.lumine.xikage.mythicmobs.api.bukkit.events.MythicMobDeathEvent;
-import runicrealms.runiccharacters.api.events.CharacterMythicMobDeathEvent;
 
 public class EventKillMythicMob implements Listener {
 
