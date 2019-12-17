@@ -14,7 +14,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.exception.QuestLoadException;
 import com.runicrealms.runicquests.quests.CraftingProfessionType;
-import com.runicrealms.runicquests.quests.ObjectiveTripwire;
 import com.runicrealms.runicquests.quests.PlayerClassType;
 import com.runicrealms.runicquests.quests.Quest;
 import com.runicrealms.runicquests.quests.QuestFirstNpc;
@@ -24,11 +23,13 @@ import com.runicrealms.runicquests.quests.QuestItem;
 import com.runicrealms.runicquests.quests.QuestNpc;
 import com.runicrealms.runicquests.quests.QuestRequirements;
 import com.runicrealms.runicquests.quests.QuestRewards;
+import com.runicrealms.runicquests.quests.location.BoxLocation;
+import com.runicrealms.runicquests.quests.location.RadiusLocation;
 import com.runicrealms.runicquests.quests.objective.QuestObjective;
 import com.runicrealms.runicquests.quests.objective.QuestObjectiveBreak;
+import com.runicrealms.runicquests.quests.objective.QuestObjectiveLocation;
 import com.runicrealms.runicquests.quests.objective.QuestObjectiveSlay;
 import com.runicrealms.runicquests.quests.objective.QuestObjectiveTalk;
-import com.runicrealms.runicquests.quests.objective.QuestObjectiveTripwire;
 
 public class QuestLoader {
 
@@ -257,28 +258,41 @@ public class QuestLoader {
 							objectiveNumber,
 							(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
 				}
-			} else if (configSec.getString("requirement.type").equalsIgnoreCase("tripwire")) {
-				List<ObjectiveTripwire> tripwires = new ArrayList<ObjectiveTripwire>();
-				for (String key : configSec.getConfigurationSection("requirement.tripwires").getKeys(false)) {
-					tripwires.add(new ObjectiveTripwire(
-							checkValueNull(parseLocation(configSec.getString("requirement.tripwires." + key + ".corner-one")), "corner-one"),
-							checkValueNull(parseLocation(configSec.getString("requirement.tripwires." + key + ".corner-two")), "corner-two")));
-				}
-				if (configSec.contains("requirement.requires")) {
-					return new QuestObjectiveTripwire(
-							tripwires,
-							loadQuestItems(configSec.getConfigurationSection("requirement.requires")),
-							goalMessage,
-							(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
-							objectiveNumber,
-							(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
+			} else if (configSec.getString("requirement.type").equalsIgnoreCase("location")) {
+				if (checkValueNull(configSec.getString("requirement.location-type")).equalsIgnoreCase("radius")) {
+					if (configSec.contains("requirement.requries")) {
+						return new QuestObjectiveLocation(
+								new RadiusLocation(checkValueNull(parseLocation(configSec.getString("requirement.location"))), checkValueNull(configSec.getInt("requirement.radius"))),
+								loadQuestItems(configSec.getConfigurationSection("requirement.requires")),
+								goalMessage,
+								(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
+								objectiveNumber,
+								(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
+					} else {
+						return new QuestObjectiveLocation(
+								new RadiusLocation(checkValueNull(parseLocation(configSec.getString("requirement.location"))), checkValueNull(configSec.getInt("requirement.radius"))),
+								goalMessage,
+								(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
+								objectiveNumber,
+								(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
+					}
 				} else {
-					return new QuestObjectiveTripwire(
-							tripwires,
-							goalMessage,
-							(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
-							objectiveNumber,
-							(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
+					if (configSec.contains("requirement.requires")) {
+						return new QuestObjectiveLocation(
+								new BoxLocation(checkValueNull(parseLocation(configSec.getString("requirement.corner-one"))), checkValueNull(parseLocation(configSec.getString("requirement.corner-two")))),
+								loadQuestItems(configSec.getConfigurationSection("requirement.requires")),
+								goalMessage,
+								(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
+								objectiveNumber,
+								(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
+					} else {
+						return new QuestObjectiveLocation(
+								new BoxLocation(checkValueNull(parseLocation(configSec.getString("requirement.corner-one"))), checkValueNull(parseLocation(configSec.getString("requirement.corner-two")))),
+								goalMessage,
+								(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
+								objectiveNumber,
+								(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
+					}
 				}
 			} else if (configSec.getString("requirement.type").equalsIgnoreCase("break")) {
 				if (configSec.contains("requirement.requires")) {

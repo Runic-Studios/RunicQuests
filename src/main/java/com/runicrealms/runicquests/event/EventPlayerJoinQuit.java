@@ -50,6 +50,9 @@ public class EventPlayerJoinQuit implements Listener {
 		if (PlayerDataLoader.getCachedPlayerData().containsKey(event.getPlayer().getUniqueId())) {
 			PlayerDataLoader.getCachedPlayerData().remove(event.getPlayer().getUniqueId());
 		}
+		if (Plugin.getCachedLocations().containsKey(event.getPlayer())) {
+			Plugin.getCachedLocations().remove(event.getPlayer());
+		}
 	}
 	
 	public static void runJoinEvent(Player player, String characterSlot) {

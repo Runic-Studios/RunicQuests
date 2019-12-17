@@ -71,6 +71,8 @@ public class EventBreakBlock implements Listener {
 										Plugin.removeItem(player.getInventory(), questItem.getItemName(), questItem.getItemType(), questItem.getAmount());
 									}
 									player.updateInventory();
+								} else {
+									continue;
 								}
 							}
 							objective.setCompleted(true);

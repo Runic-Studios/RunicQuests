@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -20,12 +21,15 @@ import com.runicrealms.runicquests.config.ConfigLoader;
 import com.runicrealms.runicquests.event.EventBreakBlock;
 import com.runicrealms.runicquests.event.EventClickNpc;
 import com.runicrealms.runicquests.event.EventKillMythicMob;
-import com.runicrealms.runicquests.event.EventPlayerInteract;
 import com.runicrealms.runicquests.event.EventPlayerJoinQuit;
+import com.runicrealms.runicquests.event.EventPlayerLocation;
 import com.runicrealms.runicquests.player.QuestProfile;
 import com.runicrealms.runicquests.quests.Quest;
 import com.runicrealms.runicquests.quests.QuestItem;
+import com.runicrealms.runicquests.quests.QuestObjectiveType;
+import com.runicrealms.runicquests.quests.location.LocationToReach;
 import com.runicrealms.runicquests.quests.objective.QuestObjective;
+import com.runicrealms.runicquests.quests.objective.QuestObjectiveLocation;
 import com.runicrealms.runicquests.task.TaskQueue;
 
 public class Plugin extends JavaPlugin {
@@ -35,6 +39,11 @@ public class Plugin extends JavaPlugin {
 	private static volatile HashMap<Long, TaskQueue> npcTaskQueues = new HashMap<Long, TaskQueue>(); // List of NPC task queues
 	private static Map<UUID, Map<Integer, List<Integer>>> cooldowns = new HashMap<UUID, Map<Integer, List<Integer>>>(); // List of quest cooldowns
 	private static Long nextId = Long.MIN_VALUE; // This is used to give each NPC a new unique ID.
+	/*
+	 * This Map is meant to help with performance issues with checking the players location. It will just indicate
+	 * when a player has a location objective on one of their quests
+	 */
+	private static volatile Map<Player, Map<Integer, LocationToReach>> cachedLocations = new HashMap<Player, Map<Integer, LocationToReach>>();
 
 	public static double NPC_MESSAGE_DELAY; // Config value
 	public static boolean CACHE_PLAYER_DATA; // Config value
@@ -43,14 +52,14 @@ public class Plugin extends JavaPlugin {
 	public void onEnable() {
 		plugin = this; // Used for getInstance()
 		ConfigLoader.initDirs(); // Initialize directories that might not exist
-		ConfigLoader.loadMainConfig(); // Intitialze the main config file if it doesn't exist
+		ConfigLoader.loadMainConfig(); // Initialize the main config file if it doesn't exist
 		NPC_MESSAGE_DELAY = ConfigLoader.getMainConfig().getDouble("npc-message-delay"); // Get the config value
 		CACHE_PLAYER_DATA = ConfigLoader.getMainConfig().getBoolean("cache-player-data"); // Get the config value
 		this.getServer().getPluginManager().registerEvents(new EventKillMythicMob(), this); // Register events
 		this.getServer().getPluginManager().registerEvents(new EventClickNpc(), this);
 		this.getServer().getPluginManager().registerEvents(new EventBreakBlock(), this);
 		this.getServer().getPluginManager().registerEvents(new EventPlayerJoinQuit(), this);
-		this.getServer().getPluginManager().registerEvents(new EventPlayerInteract(), this);
+		this.getServer().getPluginManager().registerEvents(new EventPlayerLocation(), this);
 		for (Player player : Bukkit.getOnlinePlayers()) { // Loop through online players (fixes bug with /reload)
 			EventPlayerJoinQuit.runJoinEvent(player, RunicCharactersApi.getCurrentCharacterSlot(player.getUniqueId()) + ""); // Read PlayerJoinQuitEvent.runJoinEvent
 		}
@@ -60,10 +69,58 @@ public class Plugin extends JavaPlugin {
 			PluginCommand pluginCommand = this.getCommand(commands[i]);
 			pluginCommand.setExecutor(commandExecutor);
 		}
+		for (Player player : Bukkit.getOnlinePlayers()) {
+			updatePlayerCachedLocations(player);
+		}
+		registerMoveTask();
 	}
 
 	public static Plugin getInstance() { // Get the plugin instance
 		return plugin;
+	}
+	
+	private static void registerMoveTask() { // Schedule a task that will run for the cached location objectives
+		Bukkit.getScheduler().scheduleSyncRepeatingTask(getInstance(), new Runnable() {
+			@Override
+			public void run() {
+				for (Entry<Player, Map<Integer, LocationToReach>> entry : cachedLocations.entrySet()) {
+					for (Entry<Integer, LocationToReach> questLocationToReach : entry.getValue().entrySet()) {
+						if (questLocationToReach.getValue().hasReachedLocation(entry.getKey())) {
+							EventPlayerLocation.playerCompleteLocationObjective(entry.getKey(), questLocationToReach.getKey());
+							updatePlayerCachedLocations(entry.getKey());
+							break;
+						}
+					}
+				}
+			}
+		}, 10L, 10L);
+	}
+	
+	public static void updatePlayerCachedLocations(Player player) { // Updates the cached location objectives for a player
+		cachedLocations.put(player, new HashMap<Integer, LocationToReach>());
+		for (Quest quest : getQuestProfile(player.getUniqueId().toString()).getQuests()) {
+			for (QuestObjective objective : quest.getObjectives()) {
+				if (objective.getObjectiveType() != QuestObjectiveType.LOCATION) {
+					continue;
+				}
+				if (objective.getObjectiveNumber() != 1) {
+					if (QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() - 1).isCompleted() == false) {
+						continue;
+					}
+				}
+				if (objective.isCompleted()) {
+					continue;
+				}
+				cachedLocations.get(player).put(quest.getQuestID(), ((QuestObjectiveLocation) objective).getLocation());
+			}
+		}
+		if (cachedLocations.get(player).size() == 0) {
+			cachedLocations.remove(player);
+		}
+	}
+	
+	public static Map<Player, Map<Integer, LocationToReach>> getCachedLocations() {
+		return cachedLocations;
 	}
 
 	public static HashMap<Long, TaskQueue> getNpcTaskQueues() { // Get the NPC task queues
