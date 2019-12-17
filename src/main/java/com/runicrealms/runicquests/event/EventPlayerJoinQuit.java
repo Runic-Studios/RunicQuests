@@ -1,11 +1,15 @@
 package com.runicrealms.runicquests.event;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
+import com.runicrealms.runiccharacters.api.RunicCharactersApi;
 import com.runicrealms.runiccharacters.api.events.CharacterEnterEvent;
 import com.runicrealms.runiccharacters.api.events.CharacterQuitEvent;
 import com.runicrealms.runicquests.Plugin;
@@ -25,7 +29,7 @@ public class EventPlayerJoinQuit implements Listener {
 
 	@EventHandler
 	public void onPlayerQuit(CharacterQuitEvent event) {
-		Plugin.getQuestCooldowns().remove(event.getPlayer().getUniqueId().toString()); // Remove the cooldown object
+		Plugin.getQuestCooldowns().remove(event.getPlayer().getUniqueId()); // Remove the cooldown object
 		QuestProfile questProfile = Plugin.getQuestProfile(event.getPlayer().getUniqueId().toString()); // Get the quest profile
 		for (Quest quest : questProfile.getQuests()) { // Loop through the quests
 			for (QuestObjective objective : quest.getObjectives()) { // Loop through objectives
@@ -49,7 +53,11 @@ public class EventPlayerJoinQuit implements Listener {
 	}
 	
 	public static void runJoinEvent(Player player, String characterSlot) {
-		Plugin.getQuestCooldowns().put(player.getUniqueId().toString(), new ArrayList<Integer>()); // Add a cooldown to the list of cooldowns
+		Map<Integer, List<Integer>> cooldowns = new HashMap<Integer, List<Integer>>();
+		for (String slot : RunicCharactersApi.getAllCharacters(player.getUniqueId())) {
+			cooldowns.put(Integer.parseInt(slot), new ArrayList<Integer>());
+		}
+		Plugin.getQuestCooldowns().put(player.getUniqueId(), cooldowns); // Add a cooldown to the list of cooldowns
 		if (Plugin.CACHE_PLAYER_DATA) { // Whether or not to cache player data
 			for (QuestProfile profile : Plugin.getQuestProfiles()) { // Loop through quest profiles
 				if (profile.getPlayerUUID().toString().equalsIgnoreCase(player.getUniqueId().toString())) { // If there is a cached profile, we can exit

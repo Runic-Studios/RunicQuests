@@ -22,7 +22,6 @@ import com.runicrealms.runicquests.event.EventClickNpc;
 import com.runicrealms.runicquests.event.EventKillMythicMob;
 import com.runicrealms.runicquests.event.EventPlayerInteract;
 import com.runicrealms.runicquests.event.EventPlayerJoinQuit;
-import com.runicrealms.runicquests.player.QuestCooldowns;
 import com.runicrealms.runicquests.player.QuestProfile;
 import com.runicrealms.runicquests.quests.Quest;
 import com.runicrealms.runicquests.quests.QuestItem;
@@ -33,9 +32,9 @@ public class Plugin extends JavaPlugin {
 
 	private static Plugin plugin; // Used for getInstance()
 	private static List<QuestProfile> questProfiles = new ArrayList<QuestProfile>(); // List of player quest profiles
-	private static volatile HashMap<Integer, TaskQueue> npcTaskQueues = new HashMap<Integer, TaskQueue>(); // List of NPC task queues
-	private static Map<UUID, QuestCooldowns> cooldowns = new HashMap<UUID, QuestCooldowns>(); // List of quest cooldowns
-	private static Integer nextId = 0; // This is used to give each NPC a new unique ID.
+	private static volatile HashMap<Long, TaskQueue> npcTaskQueues = new HashMap<Long, TaskQueue>(); // List of NPC task queues
+	private static Map<UUID, Map<Integer, List<Integer>>> cooldowns = new HashMap<UUID, Map<Integer, List<Integer>>>(); // List of quest cooldowns
+	private static Long nextId = Long.MIN_VALUE; // This is used to give each NPC a new unique ID.
 
 	public static double NPC_MESSAGE_DELAY; // Config value
 	public static boolean CACHE_PLAYER_DATA; // Config value
@@ -67,11 +66,11 @@ public class Plugin extends JavaPlugin {
 		return plugin;
 	}
 
-	public static HashMap<Integer, TaskQueue> getNpcTaskQueues() { // Get the NPC task queues
+	public static HashMap<Long, TaskQueue> getNpcTaskQueues() { // Get the NPC task queues
 		return npcTaskQueues;
 	}
 
-	public static Map<UUID, QuestCooldowns> getQuestCooldowns() { // Get the quest cooldowns
+	public static Map<UUID, Map<Integer, List<Integer>>> getQuestCooldowns() { // Get the quest cooldowns
 		return cooldowns;
 	}
 
@@ -88,7 +87,7 @@ public class Plugin extends JavaPlugin {
 		return null;
 	}
 
-	public static Integer getNextId() { // Get a new unique ID that can be used for NPCs
+	public static Long getNextId() { // Get a new unique ID that can be used for NPCs
 		nextId++;
 		return nextId - 1;
 	}

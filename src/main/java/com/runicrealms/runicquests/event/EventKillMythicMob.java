@@ -3,6 +3,7 @@ package com.runicrealms.runicquests.event;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
@@ -32,7 +33,7 @@ public class EventKillMythicMob implements Listener {
 		if (event.getKiller() instanceof Player) {
 			Player player = (Player) event.getKiller();
 			QuestProfile questProfile = Plugin.getQuestProfile(player.getUniqueId().toString()); // Get player questing profile
-			Map<String, List<Integer>> questCooldowns = Plugin.getQuestCooldowns();
+			Map<UUID, Map<Integer, List<Integer>>> questCooldowns = Plugin.getQuestCooldowns();
 			for (Quest quest : questProfile.getQuests()) { // Loop through quest to find a matching objective to the mob killed
 				if ((quest.getQuestState().isCompleted() == false && quest.getQuestState().hasStarted())
 						|| (quest.isRepeatable() && quest.getQuestState().isCompleted() && quest.getQuestState().hasStarted())) { // Checks if the quest is "active"
@@ -126,12 +127,12 @@ public class EventKillMythicMob implements Listener {
 											}
 											RunicCoreHook.giveRewards(player, quest.getRewards()); // Give rewards
 											if (quest.isRepeatable() == true) { // If the quest is repeatable, setup cooldown
-												questCooldowns.get(player.getUniqueId().toString()).add(quest.getFirstNPC().getId());
+												questCooldowns.get(player.getUniqueId()).get(event.getCharacter().getSlot()).add(quest.getQuestID());
 												Bukkit.getScheduler().runTaskLater(Plugin.getInstance(), new Runnable() {
 													@Override
 													public void run() {
-														if (questCooldowns.get(player.getUniqueId().toString()).contains(quest.getQuestID())) {
-															questCooldowns.get(player.getUniqueId().toString()).remove(quest.getQuestID());
+														if (questCooldowns.get(player.getUniqueId()).get(event.getCharacter().getSlot()).contains(quest.getQuestID())) {
+															questCooldowns.get(player.getUniqueId()).get(event.getCharacter().getSlot()).remove(quest.getQuestID());
 														} else {
 															Bukkit.getLogger().log(Level.INFO, "[RunicQuests] ERROR - failed to remove quest cooldown from player \"" + questProfile.getPlayerUUID() + "\"!");
 														}
@@ -139,19 +140,6 @@ public class EventKillMythicMob implements Listener {
 												}, quest.getCooldown() * 20);
 											}
 											Bukkit.getServer().getPluginManager().callEvent(new QuestCompleteEvent(quest, questProfile)); // Call the quest event
-											if (quest.hasCompletionSpeech()) { // Displays completion speed
-												List<Runnable> runnables = new ArrayList<Runnable>();
-												for (String message : quest.getCompletionSpeech()) {
-													runnables.add(new Runnable() {
-														@Override
-														public void run() {
-															player.sendMessage(ChatColor.translateAlternateColorCodes('&', Plugin.parseMessage(message, player.getName())));
-														}
-													});
-												}
-												TaskQueue secondQueue = new TaskQueue(runnables);
-												secondQueue.startTasks();
-											}
 										}
 									}
 									break;

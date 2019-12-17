@@ -104,8 +104,6 @@ public class QuestLoader {
 					requirements,
 					checkValueNull(config.getBoolean("side-quest"), "side-quest"),
 					checkValueNull(config.getBoolean("repeatable"), "repeatable"),
-					(config.contains("completion-message") ? checkValueNull(getStringList(config, "completion-message"), "completion-message") : null),
-					(config.contains("use-last-npc-name-for-completion-message") ? checkValueNull(config.getBoolean("use-last-npc-name-for-completion-message"), "use-last-npc-name-for-completion-message") : null),
 					(config.getBoolean("repeatable") ? checkValueNull(config.getInt("quest-cooldown"), "quest-cooldown") : null));
 		} catch (Exception exception) {
 			throw new QuestLoadException("unknown syntax error");

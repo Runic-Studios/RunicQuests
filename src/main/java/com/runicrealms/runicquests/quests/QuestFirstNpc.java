@@ -26,7 +26,7 @@ public class QuestFirstNpc {
 	private List<String> deniedMessage;
 	private List<String> acceptedMessage;
 	private FirstNpcState state = FirstNpcState.NEUTRAL;
-	private Integer id;
+	private Long id;
 	
 	public QuestFirstNpc(Integer npcId, List<String> speech, List<QuestIdleMessage> idleSpeech, List<String> questCompletedSpeech, String npcName, List<String> execute, boolean deniable, List<String> deniedMessage, List<String> acceptedMessage) {
 		this.npc = CitizensAPI.getNPCRegistry().getById(npcId);
@@ -53,7 +53,7 @@ public class QuestFirstNpc {
 		return speech;
 	}
 	
-	public Integer getId() {
+	public Long getId() {
 		return this.id;
 	}
 

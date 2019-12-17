@@ -17,7 +17,7 @@ public class QuestNpc {
 	private List<String> speech;
 	private List<QuestIdleMessage> idleSpeech;
 	private String npcName;
-	private Integer id;
+	private Long id;
 	
 	public QuestNpc(Integer npcId, List<String> speech, List<QuestIdleMessage> idleSpeech, String npcName) {
 		this.npc = CitizensAPI.getNPCRegistry().getById(npcId);
@@ -35,7 +35,7 @@ public class QuestNpc {
 		return speech;
 	}
 	
-	public Integer getId() {
+	public Long getId() {
 		return this.id;
 	}
 
