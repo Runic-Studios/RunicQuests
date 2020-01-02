@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
 
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
@@ -97,8 +99,10 @@ public class EventClickNpc implements Listener {
 									queue.addTasks(new Runnable() {
 										@Override
 										public void run() {
+											String goalMessage = QuestObjective.getObjective(quest.getObjectives(), 1).getGoalMessage();
 											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&l&6New objective for: &r&l&e") + quest.getQuestName());
-											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + QuestObjective.getObjective(quest.getObjectives(), 1).getGoalMessage()));
+											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + goalMessage));
+											player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.YELLOW + goalMessage));
 										}
 									});
 									npcs.put(quest.getFirstNPC().getId(), queue);
@@ -116,8 +120,10 @@ public class EventClickNpc implements Listener {
 										queue.addTasks(new Runnable() {
 											@Override
 											public void run() {
+												String goalMessage = QuestObjective.getObjective(quest.getObjectives(), 1).getGoalMessage();
 												player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&l&6New objective for: &r&l&e") + quest.getQuestName());
-												player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + QuestObjective.getObjective(quest.getObjectives(), 1).getGoalMessage()));
+												player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + goalMessage));
+												player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.YELLOW + goalMessage));
 											}
 										});
 										queue.startTasks();
@@ -275,6 +281,7 @@ public class EventClickNpc implements Listener {
 											player.sendTitle(ChatColor.GOLD + "New Objective", ChatColor.YELLOW + goalMessage, 10, 40, 10);
 											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&l&6New objective for: &r&l&e") + quest.getQuestName());
 											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + goalMessage));
+											player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.YELLOW + goalMessage));
 										}
 									});
 								} else { // If this is the last objective then...

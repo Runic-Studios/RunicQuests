@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
 
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
@@ -99,6 +101,7 @@ public class EventBreakBlock implements Listener {
 										public void run() {
 											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&l&6New objective for: &r&l&e") + quest.getQuestName());
 											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + goalMessage));
+											player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.GOLD + goalMessage));
 										}
 									});
 									TaskQueue queue = new TaskQueue(runnables);
