@@ -82,6 +82,7 @@ public class EventClickNpc implements Listener {
 									questProfile.save();
 								}
 								if (!quest.getFirstNPC().isDeniable()) { // Check if you can left click the NPC to deny
+									player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 10, 0); // Play sound
 									quest.getQuestState().setStarted(true);
 									questProfile.save();
 									if (quest.getFirstNPC().hasExecute()) { // Execute the first NPC commands
@@ -103,12 +104,14 @@ public class EventClickNpc implements Listener {
 											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&l&6New objective for: &r&l&e") + quest.getQuestName());
 											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + goalMessage));
 											player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.YELLOW + goalMessage));
+											player.sendTitle(ChatColor.GOLD + "New Objective", ChatColor.YELLOW + goalMessage, 10, 80, 10); // Send a goal message title
 										}
 									});
 									npcs.put(quest.getFirstNPC().getId(), queue);
 									queue.startTasks();
 								} else { // If the quest is not deniable then...
 									if (quest.getFirstNPC().getState() == FirstNpcState.PENDING || quest.getFirstNPC().getState() == FirstNpcState.DENIED) { // Check that the NPC is waiting for a response
+										player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 10, 0); // Play sound
 										quest.getQuestState().setStarted(true);
 										questProfile.save();
 										if (quest.getFirstNPC().hasExecute()) { // Execute the first NPC commands
@@ -124,6 +127,7 @@ public class EventClickNpc implements Listener {
 												player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&l&6New objective for: &r&l&e") + quest.getQuestName());
 												player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + goalMessage));
 												player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.YELLOW + goalMessage));
+												player.sendTitle(ChatColor.GOLD + "New Objective", ChatColor.YELLOW + goalMessage, 10, 80, 10); // Send a goal message title
 											}
 										});
 										queue.startTasks();
@@ -278,10 +282,10 @@ public class EventClickNpc implements Listener {
 										@Override
 										public void run() {
 											String goalMessage = QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() + 1).getGoalMessage();
-											player.sendTitle(ChatColor.GOLD + "New Objective", ChatColor.YELLOW + goalMessage, 10, 40, 10);
 											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&l&6New objective for: &r&l&e") + quest.getQuestName());
 											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + goalMessage));
 											player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.YELLOW + goalMessage));
+											player.sendTitle(ChatColor.GOLD + "New Objective", ChatColor.YELLOW + goalMessage, 10, 80, 10); // Send a goal message title
 										}
 									});
 								} else { // If this is the last objective then...
@@ -290,6 +294,7 @@ public class EventClickNpc implements Listener {
 										public void run() {
 											quest.getQuestState().setCompleted(true);
 											questProfile.save();
+											player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 10, 1); // Play sound
 											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&2&lRewards:"));
 											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getQuestPointsReward() + " &r&aQuest Point" + (quest.getRewards().getQuestPointsReward() == 1 ? "" : "s")));
 											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getMoneyReward() + " &r&aCoin" + (quest.getRewards().getMoneyReward() == 1 ? "" : "s")));

@@ -57,8 +57,8 @@ public class EventPlayerJoinQuit implements Listener {
 	
 	public static void runJoinEvent(Player player, String characterSlot) {
 		Map<Integer, List<Integer>> cooldowns = new HashMap<Integer, List<Integer>>();
-		for (String slot : RunicCharactersApi.getAllCharacters(player.getUniqueId())) {
-			cooldowns.put(Integer.parseInt(slot), new ArrayList<Integer>());
+		for (int i = 1; i <= RunicCharactersApi.getAllCharacters(player.getUniqueId()).size(); i++) {
+			cooldowns.put(i, new ArrayList<Integer>());
 		}
 		Plugin.getQuestCooldowns().put(player.getUniqueId(), cooldowns); // Add a cooldown to the list of cooldowns
 		if (Plugin.CACHE_PLAYER_DATA) { // Whether or not to cache player data

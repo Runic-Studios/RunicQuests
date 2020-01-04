@@ -107,7 +107,7 @@ public class QuestLoader {
 					checkValueNull(config.getBoolean("repeatable"), "repeatable"),
 					(config.getBoolean("repeatable") ? checkValueNull(config.getInt("quest-cooldown"), "quest-cooldown") : null));
 		} catch (Exception exception) {
-			throw new QuestLoadException("unknown syntax error");
+			throw new QuestLoadException("unknown syntax error").setErrorMessage(exception.getMessage());
 		}
 	}
 
@@ -178,7 +178,7 @@ public class QuestLoader {
 			List<String> classTypeNotMet = configSec.contains("class") ? checkValueNull(getStringList(configSec, "class-not-met"), "class") : null;
 			return new QuestRequirements(levelReq, craftingReq, professionType, requiredQuests, levelNotMet, craftingNotMet, requiredQuestsNotMet, classType, classTypeNotMet);
 		} catch (Exception exception) {
-			throw new QuestLoadException("unknown syntax error");
+			throw new QuestLoadException("unknown syntax error").setErrorMessage(exception.getMessage());
 		}
 	}
 
@@ -200,7 +200,7 @@ public class QuestLoader {
 					checkValueNull(configSec.getInt("money"), "money"),
 					execute);
 		} catch (Exception exception) {
-			throw new QuestLoadException("unknown syntax error");
+			throw new QuestLoadException("unknown syntax error").setErrorMessage(exception.getMessage());
 		}
 	}
 
@@ -317,7 +317,7 @@ public class QuestLoader {
 				}
 			}
 		} catch (Exception exception) {
-			throw new QuestLoadException("unknown syntax error");
+			throw new QuestLoadException("unknown syntax error").setErrorMessage(exception.getMessage());
 		}
 		throw new QuestLoadException("invalid objective type");
 	}
@@ -336,7 +336,7 @@ public class QuestLoader {
 					(configSec.getBoolean("deniable") ? checkValueNull(getStringList(configSec, "denied-message"), "denied-message") : null),
 					(configSec.getBoolean("deniable") ? checkValueNull(getStringList(configSec, "accepted-message"), "accepted-message") : null));
 		} catch (Exception exception) {
-			throw new QuestLoadException("unknown syntax error");
+			throw new QuestLoadException("unknown syntax error").setErrorMessage(exception.getMessage());
 		}
 	}
 
@@ -349,7 +349,7 @@ public class QuestLoader {
 					(configSec.contains("idle-messages") ? loadIdleMessages(configSec.getConfigurationSection("idle-messages"), objectivesNumber) : null),
 					checkValueNull(configSec.getString("npc-name"), "npc-name"));
 		} catch (Exception exception) {
-			throw new QuestLoadException("unknown syntax error");
+			throw new QuestLoadException("unknown syntax error").setErrorMessage(exception.getMessage());
 		}
 	}
 
@@ -365,7 +365,7 @@ public class QuestLoader {
 			}
 			return questItems;
 		} catch (Exception exception) {
-			throw new QuestLoadException("unknown syntax error");
+			throw new QuestLoadException("unknown syntax error").setErrorMessage(exception.getMessage());
 		}
 	}
 

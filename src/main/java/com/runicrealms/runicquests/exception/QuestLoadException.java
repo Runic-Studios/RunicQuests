@@ -16,11 +16,17 @@ public class QuestLoadException extends Exception {
 	 */
 	
 	private List<String> messages = new ArrayList<String>();
+	private String error = null;
 
 	public QuestLoadException(String... messages) {
 		for (String message : messages) {
 			this.messages.add(message);
 		}
+	}
+
+	public QuestLoadException setErrorMessage(String message) {
+		error = message;
+		return this;
 	}
 
 	public void addMessage(String... messages) {
@@ -36,7 +42,10 @@ public class QuestLoadException extends Exception {
 	}
 
 	public void displayToConsole() {
-		Bukkit.getLogger().log(Level.INFO, this.getMessage());
+		Bukkit.getLogger().log(Level.SEVERE, this.getMessage());
+		if (this.error != null) {
+			Bukkit.getLogger().log(Level.WARNING, this.error);
+		}
 	}
 
 	public String getMessage() {

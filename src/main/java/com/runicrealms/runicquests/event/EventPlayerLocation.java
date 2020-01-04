@@ -67,7 +67,6 @@ public class EventPlayerLocation implements Listener {
 			}
 			if (objective.getObjectiveNumber() != QuestObjective.getLastObjective(quest.getObjectives()).getObjectiveNumber()) { // Check that we haven't completed the quest
 				String goalMessage = QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() + 1).getGoalMessage(); // Get the goal message
-				player.sendTitle(ChatColor.GOLD + "New Objective", ChatColor.YELLOW + goalMessage, 10, 40, 10); // Send a goal message title
 				if (objective.hasCompletedMessage()) { // Check for a completed message
 					List<Runnable> runnables = new ArrayList<Runnable>();
 					for (String message : objective.getCompletedMessage()) { // Create a task queue with the completed message
@@ -84,6 +83,7 @@ public class EventPlayerLocation implements Listener {
 							player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&l&6New objective for: &r&l&e") + quest.getQuestName());
 							player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + goalMessage));
 							player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.YELLOW + goalMessage));
+							player.sendTitle(ChatColor.GOLD + "New Objective", ChatColor.YELLOW + goalMessage, 10, 80, 10); // Send a goal message title
 						}
 					});
 					TaskQueue queue = new TaskQueue(runnables);
@@ -92,6 +92,7 @@ public class EventPlayerLocation implements Listener {
 					player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&l&6New objective for: &r&l&e") + quest.getQuestName());
 					player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + goalMessage));
 					player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.YELLOW + goalMessage));
+					player.sendTitle(ChatColor.GOLD + "New Objective", ChatColor.YELLOW + goalMessage, 10, 80, 10); // Send a goal message title
 				}
 			} else { // If we have finished the quest
 				quest.getQuestState().setCompleted(true);
@@ -110,6 +111,7 @@ public class EventPlayerLocation implements Listener {
 					queue.addTasks(new Runnable() { // Add the quest rewards to the task queue
 						@Override
 						public void run() {
+							player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 10, 1); // Play sound
 							player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&2&lRewards:"));
 							player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getQuestPointsReward() + " &r&aQuest Point" + (quest.getRewards().getQuestPointsReward() == 1 ? "" : "s")));
 							player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getMoneyReward() + " &r&aCoin" + (quest.getRewards().getMoneyReward() == 1 ? "" : "s")));
@@ -118,6 +120,7 @@ public class EventPlayerLocation implements Listener {
 					});
 					queue.startTasks();
 				} else { // If we don't have a completed message, display the rewards
+					player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 10, 1); // Play sound
 					player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&2&lRewards:"));
 					player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getQuestPointsReward() + " &r&aQuest Point" + (quest.getRewards().getQuestPointsReward() == 1 ? "" : "s")));
 					player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getMoneyReward() + " &r&aCoin" + (quest.getRewards().getMoneyReward() == 1 ? "" : "s")));

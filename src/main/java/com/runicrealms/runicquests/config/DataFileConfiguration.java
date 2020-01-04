@@ -16,21 +16,21 @@ public class DataFileConfiguration {
 	 * This class is meant to bound a File and a ConfigurationSection
 	 */
 	
-	private HashMap<String, ConfigurationSection> config = new HashMap<String, ConfigurationSection>();
+	private HashMap<Integer, ConfigurationSection> config = new HashMap<Integer, ConfigurationSection>();
 	private UUID uuid;
 	
 	public DataFileConfiguration(UUID uuid) {
-		for (String characterSlot : RunicCharactersApi.getAllCharacters(uuid)) {
-			if (!RunicCharactersApi.hasDataForKey(uuid, Integer.parseInt(characterSlot), "quests")) {
-				RunicCharactersApi.set(uuid, Integer.parseInt(characterSlot), "quests", "temp", 0);
+		for (int i = 1; i <= RunicCharactersApi.getAllCharacters(uuid).size(); i++) {
+			if (!RunicCharactersApi.hasDataForKey(uuid, i, "quests")) {
+				RunicCharactersApi.set(uuid, i, "quests", "temp", 0);
 			}
-			this.config.put(characterSlot, RunicCharactersApi.getData(uuid, Integer.parseInt(characterSlot), "quests"));
+			this.config.put(i, RunicCharactersApi.getData(uuid, i, "quests"));
 		}
 		this.uuid = uuid;
 	}
 	
 	// Writes a List<Quest> to the ConfigurationSection, then writes the ConfigurationSection to user data
-	public void saveToConfig(List<Quest> quests, String characterSlot) {
+	public void saveToConfig(List<Quest> quests, Integer characterSlot) {
 		for (Quest quest : quests) {
 			config.get(characterSlot).set(quest.getQuestID() + ".started", quest.getQuestState().hasStarted());
 			config.get(characterSlot).set(quest.getQuestID() + ".completed", quest.getQuestState().isCompleted());
@@ -39,11 +39,11 @@ public class DataFileConfiguration {
 				config.get(characterSlot).set(quest.getQuestID() + ".objectives." + objective.getObjectiveNumber() + "", objective.isCompleted());
 			}
 		}
-		RunicCharactersApi.set(uuid, Integer.parseInt(characterSlot), "quests", config.get(characterSlot));
+		RunicCharactersApi.set(uuid, characterSlot, "quests", config.get(characterSlot));
 	}
 
 	// Returns the configurationSection
-	public HashMap<String, ConfigurationSection> getConfig() {
+	public HashMap<Integer, ConfigurationSection> getConfig() {
 		return this.config;
 	}
 	

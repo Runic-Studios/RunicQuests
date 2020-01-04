@@ -28,7 +28,7 @@ public class QuestProfile {
 	}
 	
 	public void save() {
-		this.savedData.saveToConfig(this.quests, RunicCharactersApi.getCurrentCharacterSlot(this.playerUUID) + "");
+		this.savedData.saveToConfig(this.quests, RunicCharactersApi.getCurrentCharacterSlot(this.playerUUID));
 	}
 
 	public List<Quest> getQuests() {
