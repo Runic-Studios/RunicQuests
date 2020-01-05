@@ -14,11 +14,6 @@ public class QuestObjectiveLocation extends QuestObjective {
 	
 	private LocationToReach location;
 	
-	public QuestObjectiveLocation(LocationToReach location, String goalMessage, List<String> execute, Integer objectiveNumber, List<String> completedMessage) {
-		super(objectiveNumber, QuestObjectiveType.LOCATION, completedMessage, goalMessage, execute);
-		this.location = location;
-	}
-	
 	public QuestObjectiveLocation(LocationToReach location, List<QuestItem> questItems, String goalMessage, List<String> execute, Integer objectiveNumber, List<String> completedMessage) {
 		super(objectiveNumber, QuestObjectiveType.LOCATION, completedMessage, questItems, goalMessage, execute);
 		this.location = location;
