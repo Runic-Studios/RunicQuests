@@ -109,6 +109,7 @@ public class EventClickNpc implements Listener {
 									});
 									npcs.put(quest.getFirstNPC().getId(), queue);
 									queue.startTasks();
+									return;
 								} else { // If the quest is not deniable then...
 									if (quest.getFirstNPC().getState() == FirstNpcState.PENDING || quest.getFirstNPC().getState() == FirstNpcState.DENIED) { // Check that the NPC is waiting for a response
 										player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 10, 0); // Play sound
@@ -132,6 +133,7 @@ public class EventClickNpc implements Listener {
 										});
 										queue.startTasks();
 										Bukkit.getServer().getPluginManager().callEvent(new QuestAcceptEvent(quest, questProfile)); // Fire the quest accept event
+										return;
 									} else if (quest.getFirstNPC().getState() == FirstNpcState.NEUTRAL) { // If the NPC is not waiting for a response
 										boolean meetsRequirements = true;
 										if (!RunicCoreHook.isRequiredLevel(player, quest.getRequirements().getLevelRequirement())) { // Check that the player is the required level
@@ -206,11 +208,13 @@ public class EventClickNpc implements Listener {
 											npcs.put(quest.getFirstNPC().getId(), queue);
 											queue.startTasks();
 										}
+										return;
 									}
 								}
 							}
 						} else { // If the player IS talking to this NPC currently, then...
 							npcs.get(quest.getFirstNPC().getId()).nextTask(); // Move to next speech line
+							return;
 						}
 					}
 				}
@@ -238,7 +242,7 @@ public class EventClickNpc implements Listener {
 							}
 							if (npcs.containsKey(talkObjective.getQuestNpc().getId())) { // If you are talking to the NPC...
 								npcs.get(talkObjective.getQuestNpc().getId()).nextTask(); // Move to next speech line
-								break;
+								return;
 							}
 							if (objective.isCompleted() == false) { // Check that the objective isn't completed
 								if (objective.getObjectiveNumber() != 1) { // Check that the previous objective has been completed
@@ -322,7 +326,7 @@ public class EventClickNpc implements Listener {
 								}
 								npcs.put(talkObjective.getQuestNpc().getId(), queue); // Add the queue to the NPCs that are being talked to
 								queue.startTasks();
-								break;
+								return;
 							}
 						}
 					}
