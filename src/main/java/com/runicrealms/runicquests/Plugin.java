@@ -61,7 +61,7 @@ public class Plugin extends JavaPlugin {
 		this.getServer().getPluginManager().registerEvents(new EventPlayerJoinQuit(), this);
 		this.getServer().getPluginManager().registerEvents(new EventPlayerLocation(), this);
 		for (Player player : Bukkit.getOnlinePlayers()) { // Loop through online players (fixes bug with /reload)
-			EventPlayerJoinQuit.runJoinEvent(player, RunicCharactersApi.getCurrentCharacterSlot(player.getUniqueId()) + ""); // Read PlayerJoinQuitEvent.runJoinEvent
+			EventPlayerJoinQuit.runJoinEvent(player, RunicCharactersApi.getCurrentCharacterSlot(player.getUniqueId())); // Read PlayerJoinQuitEvent.runJoinEvent
 		}
 		QuestsCommand commandExecutor = new QuestsCommand(); // Register the /quests command
 		String[] commands = new String[] {"quests", "quest", "objectives", "objective"};

@@ -24,7 +24,7 @@ public class EventPlayerJoinQuit implements Listener {
 
 	@EventHandler
 	public void onPlayerJoin(CharacterEnterEvent event) {
-		runJoinEvent(event.getPlayer(), event.getCharacter().getSlot() + "");
+		runJoinEvent(event.getPlayer(), event.getCharacter().getSlot());
 	}
 
 	@EventHandler
@@ -55,7 +55,7 @@ public class EventPlayerJoinQuit implements Listener {
 		}
 	}
 	
-	public static void runJoinEvent(Player player, String characterSlot) {
+	public static void runJoinEvent(Player player, Integer characterSlot) {
 		Map<Integer, List<Integer>> cooldowns = new HashMap<Integer, List<Integer>>();
 		for (int i = 1; i <= RunicCharactersApi.getAllCharacters(player.getUniqueId()).size(); i++) {
 			cooldowns.put(i, new ArrayList<Integer>());

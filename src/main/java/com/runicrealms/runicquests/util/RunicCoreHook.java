@@ -24,8 +24,8 @@ public class RunicCoreHook {
 	public static boolean hasCompletedRequiredQuests(Player player, List<Integer> quests) {
 		QuestProfile profile = Plugin.getQuestProfile(player.getUniqueId().toString());
 		for (Integer questID : quests) {
-			if (profile.getSavedData().getConfig().get(RunicCharactersApi.getCurrentCharacterSlot(player.getUniqueId()) + "").contains(questID + "")) {
-				if (!profile.getSavedData().getConfig().get(RunicCharactersApi.getCurrentCharacterSlot(player.getUniqueId()) + "").getBoolean(questID + ".completed")) {
+			if (profile.getSavedData().getConfig().get(RunicCharactersApi.getCurrentCharacterSlot(player.getUniqueId())).contains(questID + "")) {
+				if (!profile.getSavedData().getConfig().get(RunicCharactersApi.getCurrentCharacterSlot(player.getUniqueId())).getBoolean(questID + ".completed")) {
 					return false;
 				}
 			} else {

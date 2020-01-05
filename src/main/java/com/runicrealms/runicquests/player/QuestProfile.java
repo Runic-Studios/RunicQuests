@@ -18,9 +18,9 @@ public class QuestProfile {
 	private List<Quest> quests;
 	private UUID playerUUID;
 	private DataFileConfiguration savedData;
-	private String characterSlot;
+	private Integer characterSlot;
 	
-	public QuestProfile(UUID uuid, String characterSlot) {
+	public QuestProfile(UUID uuid, Integer characterSlot) {
 		this.playerUUID = uuid;
 		this.quests = PlayerDataLoader.getQuestDataForUser(uuid, characterSlot);
 		this.savedData = PlayerDataLoader.getConfigFromCache(uuid);
@@ -43,7 +43,7 @@ public class QuestProfile {
 		return savedData;
 	}
 	
-	public String getCharacterSlot() {
+	public Integer getCharacterSlot() {
 		return this.characterSlot;
 	}
 	

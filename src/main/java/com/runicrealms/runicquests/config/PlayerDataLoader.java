@@ -17,7 +17,7 @@ public class PlayerDataLoader {
 	private static HashMap<UUID, DataFileConfiguration> cachedPlayerData = new HashMap<UUID, DataFileConfiguration>();
 
 	// Parses quest data for a user. This is very confusing code, but should not need to be changed.
-	public static List<Quest> getQuestDataForUser(UUID uuid, String characterSlot) {
+	public static List<Quest> getQuestDataForUser(UUID uuid, Integer characterSlot) {
 		List<Quest> quests = QuestLoader.getBlankQuestList();
 		List<Quest> newQuests = new ArrayList<Quest>();
 		DataFileConfiguration runicFileConfig = getConfigFromCache(uuid);
