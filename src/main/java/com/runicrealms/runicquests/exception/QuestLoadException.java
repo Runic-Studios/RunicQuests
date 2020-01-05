@@ -38,6 +38,9 @@ public class QuestLoadException extends Exception {
 	public void displayToOnlinePlayers() {
 		for (Player player : Bukkit.getOnlinePlayers()) {
 			player.sendMessage(ChatColor.RED + this.getMessage());
+			if (this.getMessage().contains("unknown")) {
+				player.sendMessage(ChatColor.RED + "To get more info about this error, check the console for the QuestLoadException error trace.");
+			}
 		}
 	}
 
