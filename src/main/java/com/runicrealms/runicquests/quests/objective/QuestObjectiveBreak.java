@@ -19,13 +19,6 @@ public class QuestObjectiveBreak extends QuestObjective {
 	private Location blockLocation;
 	private Integer blocksBroken;
 	
-	public QuestObjectiveBreak(Material blockMaterial, Integer blockAmount, Location blockLocation, String goalMessage, List<String> execute, Integer objectiveNumber, List<String> completedMessage) {
-		super(objectiveNumber, QuestObjectiveType.BREAK, completedMessage, goalMessage, execute);
-		this.blockMaterial = blockMaterial;
-		this.blockAmount = blockAmount;
-		this.blockLocation = blockLocation;
-	}
-	
 	public QuestObjectiveBreak(Material blockMaterial, Integer blockAmount, Location blockLocation, List<QuestItem> questItems, String goalMessage, List<String> execute, Integer objectiveNumber, List<String> completedMessage) {
 		super(objectiveNumber, QuestObjectiveType.BREAK, completedMessage, questItems, goalMessage, execute);
 		this.blockMaterial = blockMaterial;

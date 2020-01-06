@@ -31,14 +31,6 @@ public abstract class QuestObjective {
 		this.execute = execute;
 	}
 	
-	public QuestObjective(Integer objectiveNumber, QuestObjectiveType objectiveType, List<String> completedMessage, String goalMessage, List<String> execute) {
-		this.objectiveNumber = objectiveNumber;
-		this.objectiveType = objectiveType;
-		this.completedMessage = completedMessage;
-		this.goalMessage = goalMessage;
-		this.execute = execute;
-	}
-	
 	public List<QuestItem> getQuestItems() {
 		return this.questItems;
 	}

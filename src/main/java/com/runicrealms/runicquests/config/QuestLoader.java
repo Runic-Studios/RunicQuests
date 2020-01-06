@@ -59,7 +59,7 @@ public class QuestLoader {
 		cachedQuests = quests;
 		return quests;
 	}
-	
+
 	// Uses all methods from this class in order to load a quest from file. Will not have any player info.
 	public static Quest loadQuest(FileConfiguration config) throws QuestLoadException {
 		try {
@@ -106,6 +106,8 @@ public class QuestLoader {
 					checkValueNull(config.getBoolean("side-quest"), "side-quest"),
 					checkValueNull(config.getBoolean("repeatable"), "repeatable"),
 					(config.getBoolean("repeatable") ? checkValueNull(config.getInt("quest-cooldown"), "quest-cooldown") : null));
+		} catch (QuestLoadException exception) {
+			throw exception;
 		} catch (Exception exception) {
 			throw new QuestLoadException("unknown syntax error").setErrorMessage(exception.getMessage());
 		}
@@ -177,6 +179,8 @@ public class QuestLoader {
 			PlayerClassType classType = configSec.contains("class") ? checkValueNull(PlayerClassType.getFromString(configSec.getString("class")), "class") : null;
 			List<String> classTypeNotMet = configSec.contains("class") ? checkValueNull(getStringList(configSec, "class-not-met"), "class") : null;
 			return new QuestRequirements(levelReq, craftingReq, professionType, requiredQuests, levelNotMet, craftingNotMet, requiredQuestsNotMet, classType, classTypeNotMet);
+		} catch (QuestLoadException exception) {
+			throw exception;
 		} catch (Exception exception) {
 			throw new QuestLoadException("unknown syntax error").setErrorMessage(exception.getMessage());
 		}
@@ -199,6 +203,8 @@ public class QuestLoader {
 					checkValueNull(configSec.getInt("quest-points"), "quest-points"),
 					checkValueNull(configSec.getInt("money"), "money"),
 					execute);
+		} catch (QuestLoadException exception) {
+			throw exception;
 		} catch (Exception exception) {
 			throw new QuestLoadException("unknown syntax error").setErrorMessage(exception.getMessage());
 		}
@@ -209,119 +215,67 @@ public class QuestLoader {
 		try {
 			String goalMessage = checkValueNull(configSec.getString("goal-message"), "goal-message");
 			if (configSec.getString("requirement.type").equalsIgnoreCase("slay")) {
-				if (configSec.contains("requirement.requires")) {
-					return new QuestObjectiveSlay(
-							checkValueNull(getStringList(configSec, "requirement.mob-names"), "mob-names"), 
-							checkValueNull(configSec.getInt("requirement.amount"), "amount"), 
-							loadQuestItems(configSec.getConfigurationSection("requirement.requires")),
-							goalMessage,
-							(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
-							objectiveNumber,
-							(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
-				} else {
-					return new QuestObjectiveSlay(
-							checkValueNull(getStringList(configSec, "requirement.mob-names"), "mob-names"), 
-							checkValueNull(configSec.getInt("requirement.amount"), "amount"), 
-							goalMessage,
-							(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
-							objectiveNumber,
-							(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
-				}
+				return new QuestObjectiveSlay(
+						checkValueNull(getStringList(configSec, "requirement.mob-names"), "mob-names"),
+						checkValueNull(configSec.getInt("requirement.amount"), "amount"),
+						configSec.contains("requirement.requires") ? loadQuestItems(configSec.getConfigurationSection("requirement.requires")) : null,
+						goalMessage,
+						(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
+						objectiveNumber,
+						(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
 			} else if (configSec.getString("requirement.type").equalsIgnoreCase("talk")) {
-				if (configSec.contains("requirement.requires")) {
-					QuestNpc npc;
-					try {
-						npc = loadNpc(configSec.getConfigurationSection("requirement.npc"), objectivesNumber);
-					} catch (QuestLoadException exception) {
-						exception.addMessage("npc");
-						throw exception;
-					}
-					return new QuestObjectiveTalk(
-							npc,
-							loadQuestItems(configSec.getConfigurationSection("requirement.requires")),
-							goalMessage,
-							(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
-							objectiveNumber,
-							(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
-				} else {
-					QuestNpc npc;
-					try {
-						npc = loadNpc(configSec.getConfigurationSection("requirement.npc"), objectivesNumber);
-					} catch (QuestLoadException exception) {
-						exception.addMessage("npc");
-						throw exception;
-					}
-					return new QuestObjectiveTalk(
-							npc,
-							goalMessage,
-							(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
-							objectiveNumber,
-							(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
+				QuestNpc npc;
+				try {
+					npc = loadNpc(configSec.getConfigurationSection("requirement.npc"), objectivesNumber);
+				} catch (QuestLoadException exception) {
+					exception.addMessage("npc");
+					throw exception;
 				}
+				return new QuestObjectiveTalk(
+						npc,
+						configSec.contains("requirement.requires") ? loadQuestItems(configSec.getConfigurationSection("requirement.requires")) : null,
+						goalMessage,
+						(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
+						objectiveNumber,
+						(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
 			} else if (configSec.getString("requirement.type").equalsIgnoreCase("location")) {
 				if (checkValueNull(configSec.getString("requirement.location-type")).equalsIgnoreCase("radius")) {
-					if (configSec.contains("requirement.requries")) {
-						return new QuestObjectiveLocation(
-								new RadiusLocation(checkValueNull(parseLocation(configSec.getString("requirement.location"))), checkValueNull(configSec.getInt("requirement.radius"))),
-								loadQuestItems(configSec.getConfigurationSection("requirement.requires")),
-								goalMessage,
-								(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
-								objectiveNumber,
-								(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
-					} else {
-						return new QuestObjectiveLocation(
-								new RadiusLocation(checkValueNull(parseLocation(configSec.getString("requirement.location"))), checkValueNull(configSec.getInt("requirement.radius"))),
-								goalMessage,
-								(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
-								objectiveNumber,
-								(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
-					}
+					return new QuestObjectiveLocation(
+							new RadiusLocation(checkValueNull(parseLocation(configSec.getString("requirement.location"))), checkValueNull(configSec.getInt("requirement.radius"))),
+							configSec.contains("requirement.requires") ? loadQuestItems(configSec.getConfigurationSection("requirement.requires")) : null,
+							goalMessage,
+							(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
+							objectiveNumber,
+							(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
 				} else {
-					if (configSec.contains("requirement.requires")) {
-						return new QuestObjectiveLocation(
-								new BoxLocation(checkValueNull(parseLocation(configSec.getString("requirement.corner-one"))), checkValueNull(parseLocation(configSec.getString("requirement.corner-two")))),
-								loadQuestItems(configSec.getConfigurationSection("requirement.requires")),
-								goalMessage,
-								(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
-								objectiveNumber,
-								(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
-					} else {
-						return new QuestObjectiveLocation(
-								new BoxLocation(checkValueNull(parseLocation(configSec.getString("requirement.corner-one"))), checkValueNull(parseLocation(configSec.getString("requirement.corner-two")))),
-								goalMessage,
-								(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
-								objectiveNumber,
-								(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
-					}
+					return new QuestObjectiveLocation(
+							new BoxLocation(checkValueNull(parseLocation(configSec.getString("requirement.corner-one"))), checkValueNull(parseLocation(configSec.getString("requirement.corner-two")))),
+							configSec.contains("requirement.requires") ? loadQuestItems(configSec.getConfigurationSection("requirement.requires")) : null,
+							goalMessage,
+							(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
+							objectiveNumber,
+							(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
+
 				}
 			} else if (configSec.getString("requirement.type").equalsIgnoreCase("break")) {
-				if (configSec.contains("requirement.requires")) {
-					return new QuestObjectiveBreak(
-							checkValueNull(Material.getMaterial(checkValueNull(configSec.getString("requirement.block-type"), "block-type").toUpperCase()), "block-type -> invalid block type"),
-							(configSec.contains("requirement.amount") ? configSec.getInt("requirement.amount") : null),
-							(configSec.contains("requirement.location") ? parseLocation(configSec.getString("requirement.location")) : null),
-							loadQuestItems(configSec.getConfigurationSection("requirement.requires")),
-							goalMessage,
-							(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
-							objectiveNumber,
-							(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
-				} else {
-					return new QuestObjectiveBreak(
-							checkValueNull(Material.getMaterial(checkValueNull(configSec.getString("requirement.block-type"), "block-type").toUpperCase()), "block-type -> invalid block type"),
-							(configSec.contains("requirement.amount") ? configSec.getInt("requirement.amount") : null),
-							(configSec.contains("requirement.location") ? parseLocation(configSec.getString("requirement.location")) : null),
-							goalMessage,
-							(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
-							objectiveNumber,
-							(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
-				}
+				return new QuestObjectiveBreak(
+						checkValueNull(Material.getMaterial(checkValueNull(configSec.getString("requirement.block-type"), "block-type").toUpperCase()), "block-type -> invalid block type"),
+						(configSec.contains("requirement.amount") ? configSec.getInt("requirement.amount") : null),
+						(configSec.contains("requirement.location") ? parseLocation(configSec.getString("requirement.location")) : null),
+						configSec.contains("requirement.requires") ? loadQuestItems(configSec.getConfigurationSection("requirement.requires")) : null,
+						goalMessage,
+						(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
+						objectiveNumber,
+						(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
 			}
+		} catch (QuestLoadException exception) {
+			throw exception;
 		} catch (Exception exception) {
 			throw new QuestLoadException("unknown syntax error").setErrorMessage(exception.getMessage());
 		}
 		throw new QuestLoadException("invalid objective type");
 	}
-	
+
 	// Loads a quest first NPC
 	public static QuestFirstNpc loadFirstNpc(ConfigurationSection configSec, int objectivesNumber) throws QuestLoadException {
 		try {
@@ -335,6 +289,8 @@ public class QuestLoader {
 					checkValueNull(configSec.getBoolean("deniable"), "deniable"),
 					(configSec.getBoolean("deniable") ? checkValueNull(getStringList(configSec, "denied-message"), "denied-message") : null),
 					(configSec.getBoolean("deniable") ? checkValueNull(getStringList(configSec, "accepted-message"), "accepted-message") : null));
+		} catch (QuestLoadException exception) {
+			throw exception;
 		} catch (Exception exception) {
 			throw new QuestLoadException("unknown syntax error").setErrorMessage(exception.getMessage());
 		}
@@ -348,6 +304,8 @@ public class QuestLoader {
 					checkValueNull(getStringList(configSec, "speech"), "npc-speech"),
 					(configSec.contains("idle-messages") ? loadIdleMessages(configSec.getConfigurationSection("idle-messages"), objectivesNumber) : null),
 					checkValueNull(configSec.getString("npc-name"), "npc-name"));
+		} catch (QuestLoadException exception) {
+			throw exception;
 		} catch (Exception exception) {
 			throw new QuestLoadException("unknown syntax error").setErrorMessage(exception.getMessage());
 		}
@@ -364,6 +322,8 @@ public class QuestLoader {
 						checkValueNull(configSec.getInt(key + ".item-count"), "item-count", key, "requires")));
 			}
 			return questItems;
+		} catch (QuestLoadException exception) {
+			throw exception;
 		} catch (Exception exception) {
 			throw new QuestLoadException("unknown syntax error").setErrorMessage(exception.getMessage());
 		}
