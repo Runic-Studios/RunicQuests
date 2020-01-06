@@ -105,6 +105,7 @@ public class EventClickNpc implements Listener {
 											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + goalMessage));
 											player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.YELLOW + goalMessage));
 											player.sendTitle(ChatColor.GOLD + "New Objective", ChatColor.YELLOW + goalMessage, 10, 80, 10); // Send a goal message title
+											Plugin.updatePlayerCachedLocations(player);
 										}
 									});
 									npcs.put(quest.getFirstNPC().getId(), queue);
@@ -129,6 +130,7 @@ public class EventClickNpc implements Listener {
 												player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + goalMessage));
 												player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.YELLOW + goalMessage));
 												player.sendTitle(ChatColor.GOLD + "New Objective", ChatColor.YELLOW + goalMessage, 10, 80, 10); // Send a goal message title
+												Plugin.updatePlayerCachedLocations(player);
 											}
 										});
 										queue.startTasks();
@@ -290,6 +292,7 @@ public class EventClickNpc implements Listener {
 											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + goalMessage));
 											player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.YELLOW + goalMessage));
 											player.sendTitle(ChatColor.GOLD + "New Objective", ChatColor.YELLOW + goalMessage, 10, 80, 10); // Send a goal message title
+											Plugin.updatePlayerCachedLocations(player);
 										}
 									});
 								} else { // If this is the last objective then...

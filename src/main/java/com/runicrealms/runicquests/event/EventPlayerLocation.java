@@ -84,6 +84,7 @@ public class EventPlayerLocation implements Listener {
 							player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + goalMessage));
 							player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.YELLOW + goalMessage));
 							player.sendTitle(ChatColor.GOLD + "New Objective", ChatColor.YELLOW + goalMessage, 10, 80, 10); // Send a goal message title
+							Plugin.updatePlayerCachedLocations(player);
 						}
 					});
 					TaskQueue queue = new TaskQueue(runnables);
@@ -93,6 +94,7 @@ public class EventPlayerLocation implements Listener {
 					player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + goalMessage));
 					player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.YELLOW + goalMessage));
 					player.sendTitle(ChatColor.GOLD + "New Objective", ChatColor.YELLOW + goalMessage, 10, 80, 10); // Send a goal message title
+					Plugin.updatePlayerCachedLocations(player);
 				}
 			} else { // If we have finished the quest
 				quest.getQuestState().setCompleted(true);

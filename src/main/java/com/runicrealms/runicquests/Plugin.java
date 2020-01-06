@@ -33,7 +33,7 @@ import com.runicrealms.runicquests.quests.objective.QuestObjectiveLocation;
 import com.runicrealms.runicquests.task.TaskQueue;
 
 public class Plugin extends JavaPlugin {
-
+	
 	private static Plugin plugin; // Used for getInstance()
 	private static List<QuestProfile> questProfiles = new ArrayList<QuestProfile>(); // List of player quest profiles
 	private static volatile HashMap<Long, TaskQueue> npcTaskQueues = new HashMap<Long, TaskQueue>(); // List of NPC task queues
