@@ -3,11 +3,10 @@ package com.runicrealms.runicquests.event;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
@@ -28,13 +27,16 @@ import com.runicrealms.runicquests.quests.objective.QuestObjectiveBreak;
 import com.runicrealms.runicquests.task.TaskQueue;
 import com.runicrealms.runicquests.util.RunicCoreHook;
 
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
+
 public class EventBreakBlock implements Listener {
 
 	@EventHandler
 	public void onBreak(CharacterBlockBreakEvent event) {
 		Player player = event.getPlayer();
 		QuestProfile questProfile = Plugin.getQuestProfile(player.getUniqueId().toString()); // Get player's questing profile
-		Map<UUID, Map<Integer, List<Integer>>> questCooldowns = Plugin.getQuestCooldowns(); // Get the repeatable quest cooldowns
+		Map<UUID, Map<Integer, Set<Integer>>> questCooldowns = Plugin.getQuestCooldowns(); // Get the repeatable quest cooldowns
 		for (Quest quest : questProfile.getQuests()) { // Loop through the quests to find a matching objective
 			if ((quest.getQuestState().isCompleted() == false && quest.getQuestState().hasStarted()) // Check that the quest is not completed and has been started
 					|| (quest.isRepeatable() && quest.getQuestState().isCompleted() && quest.getQuestState().hasStarted())) { // This is a check for repeatable quests

@@ -3,11 +3,10 @@ package com.runicrealms.runicquests.event;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
@@ -28,6 +27,9 @@ import com.runicrealms.runicquests.quests.objective.QuestObjectiveSlay;
 import com.runicrealms.runicquests.task.TaskQueue;
 import com.runicrealms.runicquests.util.RunicCoreHook;
 
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
+
 public class EventKillMythicMob implements Listener {
 
 	@EventHandler
@@ -35,7 +37,7 @@ public class EventKillMythicMob implements Listener {
 		if (event.getKiller() instanceof Player) {
 			Player player = (Player) event.getKiller();
 			QuestProfile questProfile = Plugin.getQuestProfile(player.getUniqueId().toString()); // Get player questing profile
-			Map<UUID, Map<Integer, List<Integer>>> questCooldowns = Plugin.getQuestCooldowns();
+			Map<UUID, Map<Integer, Set<Integer>>> questCooldowns = Plugin.getQuestCooldowns();
 			for (Quest quest : questProfile.getQuests()) { // Loop through quest to find a matching objective to the mob killed
 				if ((quest.getQuestState().isCompleted() == false && quest.getQuestState().hasStarted())
 						|| (quest.isRepeatable() && quest.getQuestState().isCompleted() && quest.getQuestState().hasStarted())) { // Checks if the quest is "active"

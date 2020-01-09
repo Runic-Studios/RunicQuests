@@ -3,11 +3,10 @@ package com.runicrealms.runicquests.event;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
@@ -25,11 +24,14 @@ import com.runicrealms.runicquests.quests.objective.QuestObjective;
 import com.runicrealms.runicquests.task.TaskQueue;
 import com.runicrealms.runicquests.util.RunicCoreHook;
 
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
+
 public class EventPlayerLocation implements Listener {
 	
 	public static void playerCompleteLocationObjective(Player player, Integer questID) {
 		QuestProfile questProfile = Plugin.getQuestProfile(player.getUniqueId().toString());
-		Map<UUID, Map<Integer, List<Integer>>> questCooldowns = Plugin.getQuestCooldowns();
+		Map<UUID, Map<Integer, Set<Integer>>> questCooldowns = Plugin.getQuestCooldowns();
 		Quest questFound = null;
 		for (Quest otherQuest : questProfile.getQuests()) {
 			if (otherQuest.getQuestID() == questID) {

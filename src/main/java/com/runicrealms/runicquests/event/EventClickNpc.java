@@ -4,11 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
@@ -35,6 +34,9 @@ import com.runicrealms.runicquests.quests.objective.QuestObjectiveTalk;
 import com.runicrealms.runicquests.task.TaskQueue;
 import com.runicrealms.runicquests.util.RunicCoreHook;
 
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
+
 public class EventClickNpc implements Listener {
 
 	@EventHandler
@@ -42,7 +44,7 @@ public class EventClickNpc implements Listener {
 		Player player = event.getClicker();
 		QuestProfile questProfile = Plugin.getQuestProfile(player.getUniqueId().toString());
 		HashMap<Long, TaskQueue> npcs = Plugin.getNpcTaskQueues();
-		Map<UUID, Map<Integer, List<Integer>>> questCooldowns = Plugin.getQuestCooldowns();
+		Map<UUID, Map<Integer, Set<Integer>>> questCooldowns = Plugin.getQuestCooldowns();
 		for (Quest quest : questProfile.getQuests()) { // Loop through quests to find a match for the NPC
 			if (quest.getQuestState().isCompleted() && quest.isRepeatable() == false) { // Check for if the quest is completed
 				if (quest.getFirstNPC().getCitizensNpc().getId() == event.getNPC().getId()) { // Check for first NPC quest completed speech 
@@ -311,7 +313,7 @@ public class EventClickNpc implements Listener {
 											}
 											RunicCoreHook.giveRewards(player, quest.getRewards()); // Give the rewards
 											if (quest.isRepeatable() == true) { // The the quest is repeatable, then handle the cooldowns
-												questCooldowns.get(player.getUniqueId()).get(event.getCharacter().getSlot()).get(quest.getQuestID());
+												questCooldowns.get(player.getUniqueId()).get(event.getCharacter().getSlot()).add(quest.getQuestID());
 												Bukkit.getScheduler().runTaskLater(Plugin.getInstance(), new Runnable() {
 													@Override
 													public void run() {

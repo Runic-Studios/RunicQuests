@@ -1,10 +1,10 @@
 package com.runicrealms.runicquests;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -35,9 +35,9 @@ import com.runicrealms.runicquests.task.TaskQueue;
 public class Plugin extends JavaPlugin {
 	
 	private static Plugin plugin; // Used for getInstance()
-	private static List<QuestProfile> questProfiles = new ArrayList<QuestProfile>(); // List of player quest profiles
+	private static Set<QuestProfile> questProfiles = new HashSet<QuestProfile>(); // List of player quest profiles
 	private static volatile HashMap<Long, TaskQueue> npcTaskQueues = new HashMap<Long, TaskQueue>(); // List of NPC task queues
-	private static Map<UUID, Map<Integer, List<Integer>>> cooldowns = new HashMap<UUID, Map<Integer, List<Integer>>>(); // List of quest cooldowns
+	private static Map<UUID, Map<Integer, Set<Integer>>> cooldowns = new HashMap<UUID, Map<Integer, Set<Integer>>>(); // List of quest cooldowns
 	private static Long nextId = Long.MIN_VALUE; // This is used to give each NPC a new unique ID.
 	/*
 	 * This Map is meant to help with performance issues with checking the players location. It will just indicate
@@ -127,11 +127,11 @@ public class Plugin extends JavaPlugin {
 		return npcTaskQueues;
 	}
 
-	public static Map<UUID, Map<Integer, List<Integer>>> getQuestCooldowns() { // Get the quest cooldowns
+	public static Map<UUID, Map<Integer, Set<Integer>>> getQuestCooldowns() { // Get the quest cooldowns
 		return cooldowns;
 	}
 
-	public static List<QuestProfile> getQuestProfiles() { // Get the player quest profiles
+	public static Set<QuestProfile> getQuestProfiles() { // Get the player quest profiles
 		return questProfiles;
 	}
 

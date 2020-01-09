@@ -1,9 +1,9 @@
 package com.runicrealms.runicquests.event;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -45,7 +45,7 @@ public class EventPlayerJoinQuit implements Listener {
 			}
 		}
 		if (!Plugin.CACHE_PLAYER_DATA) { // If we aren't caching profiles, remove it
-			Plugin.getQuestProfiles().remove(Plugin.getQuestProfiles().indexOf(questProfile));
+			Plugin.getQuestProfiles().remove(questProfile);
 		}
 		if (PlayerDataLoader.getCachedPlayerData().containsKey(event.getPlayer().getUniqueId())) {
 			PlayerDataLoader.getCachedPlayerData().remove(event.getPlayer().getUniqueId());
@@ -56,9 +56,9 @@ public class EventPlayerJoinQuit implements Listener {
 	}
 	
 	public static void runJoinEvent(Player player, Integer characterSlot) {
-		Map<Integer, List<Integer>> cooldowns = new HashMap<Integer, List<Integer>>();
+		Map<Integer, Set<Integer>> cooldowns = new HashMap<Integer, Set<Integer>>();
 		for (int i = 1; i <= RunicCharactersApi.getAllCharacters(player.getUniqueId()).size(); i++) {
-			cooldowns.put(i, new ArrayList<Integer>());
+			cooldowns.put(i, new HashSet<Integer>());
 		}
 		Plugin.getQuestCooldowns().put(player.getUniqueId(), cooldowns); // Add a cooldown to the list of cooldowns
 		if (Plugin.CACHE_PLAYER_DATA) { // Whether or not to cache player data
