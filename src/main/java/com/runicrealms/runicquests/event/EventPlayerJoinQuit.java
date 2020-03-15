@@ -5,12 +5,12 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.runicrealms.runiccharacters.api.events.CharacterLoadEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
 import com.runicrealms.runiccharacters.api.RunicCharactersApi;
-import com.runicrealms.runiccharacters.api.events.CharacterEnterEvent;
 import com.runicrealms.runiccharacters.api.events.CharacterQuitEvent;
 import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.config.PlayerDataLoader;
@@ -23,7 +23,7 @@ import com.runicrealms.runicquests.quests.objective.QuestObjectiveTalk;
 public class EventPlayerJoinQuit implements Listener {
 
 	@EventHandler
-	public void onPlayerJoin(CharacterEnterEvent event) {
+	public void onPlayerJoin(CharacterLoadEvent event) {
 		runJoinEvent(event.getPlayer(), event.getCharacter().getSlot());
 	}
 

@@ -14,7 +14,7 @@ public class TaskQueue {
 	 * Use can use nextTask() to skip to the next task instantly.
 	 * This is used mainly for NPC text.
 	 * 
-	 * This code is EXTREMLY confusing, but should work as expected.
+	 * This code is very confusing, but should work as expected.
 	 */
 
 	private List<Runnable> tasks = new ArrayList<Runnable>(); // List of tasks
