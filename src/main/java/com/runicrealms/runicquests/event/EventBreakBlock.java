@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 
+import com.runicrealms.runiccharacters.api.RunicCharactersApi;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
@@ -29,13 +30,15 @@ import com.runicrealms.runicquests.util.RunicCoreHook;
 
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.event.block.BlockBreakEvent;
 
 public class EventBreakBlock implements Listener {
 
 	@EventHandler
-	public void onBreak(CharacterBlockBreakEvent event) {
+	public void onBreak(BlockBreakEvent event) {
 		Player player = event.getPlayer();
 		QuestProfile questProfile = Plugin.getQuestProfile(player.getUniqueId().toString()); // Get player's questing profile
+		int characterSlot = RunicCharactersApi.getCurrentCharacterSlot(player.getUniqueId());
 		Map<UUID, Map<Integer, Set<Integer>>> questCooldowns = Plugin.getQuestCooldowns(); // Get the repeatable quest cooldowns
 		for (Quest quest : questProfile.getQuests()) { // Loop through the quests to find a matching objective
 			if ((quest.getQuestState().isCompleted() == false && quest.getQuestState().hasStarted()) // Check that the quest is not completed and has been started
@@ -153,8 +156,8 @@ public class EventBreakBlock implements Listener {
 								}
 								RunicCoreHook.giveRewards(player, quest.getRewards()); // Give rewards
 								if (quest.isRepeatable() == true) { // If the quest is repeatable, setup cooldowns
-									questCooldowns.get(player.getUniqueId()).get(event.getCharacter().getSlot()).add(quest.getQuestID());
-									Integer currentSlot = new Integer(event.getCharacter().getSlot());
+									questCooldowns.get(player.getUniqueId()).get(characterSlot).add(quest.getQuestID());
+									Integer currentSlot = new Integer(characterSlot);
 									Bukkit.getScheduler().runTaskLater(Plugin.getInstance(), new Runnable() {
 										@Override
 										public void run() {

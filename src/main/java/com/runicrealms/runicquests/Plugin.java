@@ -35,7 +35,7 @@ import com.runicrealms.runicquests.task.TaskQueue;
 public class Plugin extends JavaPlugin {
 	
 	private static Plugin plugin; // Used for getInstance()
-	private static Set<QuestProfile> questProfiles = new HashSet<QuestProfile>(); // List of player quest profiles
+	private static Set<QuestProfile> questProfiles = new HashSet<>(); // List of player quest profiles
 	private static volatile HashMap<Long, TaskQueue> npcTaskQueues = new HashMap<Long, TaskQueue>(); // List of NPC task queues
 	private static Map<UUID, Map<Integer, Set<Integer>>> cooldowns = new HashMap<UUID, Map<Integer, Set<Integer>>>(); // List of quest cooldowns
 	private static Long nextId = Long.MIN_VALUE; // This is used to give each NPC a new unique ID.

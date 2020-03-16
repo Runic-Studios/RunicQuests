@@ -8,6 +8,9 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 
+import com.runicrealms.runiccharacters.api.RunicCharactersApi;
+import net.citizensnpcs.api.event.NPCLeftClickEvent;
+import net.citizensnpcs.api.event.NPCRightClickEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
@@ -40,9 +43,10 @@ import net.md_5.bungee.api.chat.TextComponent;
 public class EventClickNpc implements Listener {
 
 	@EventHandler
-	public void onNpcRightClick(CharacterNPCRightClickEvent event) {
+	public void onNpcRightClick(NPCRightClickEvent event) {
 		Player player = event.getClicker();
 		QuestProfile questProfile = Plugin.getQuestProfile(player.getUniqueId().toString());
+		int characterSlot = RunicCharactersApi.getCurrentCharacterSlot(player.getUniqueId());
 		HashMap<Long, TaskQueue> npcs = Plugin.getNpcTaskQueues();
 		Map<UUID, Map<Integer, Set<Integer>>> questCooldowns = Plugin.getQuestCooldowns();
 		for (Quest quest : questProfile.getQuests()) { // Loop through quests to find a match for the NPC
@@ -62,10 +66,10 @@ public class EventClickNpc implements Listener {
 					}
 				}
 			}
-			if ((quest.getQuestState().isCompleted() == false) ||
+			if ((!quest.getQuestState().isCompleted()) ||
 					(quest.isRepeatable() && quest.getQuestState().hasStarted() && quest.getQuestState().isCompleted())) { // Check that the quest is not completed
-				if (quest.getFirstNPC().getCitizensNpc().getId() == event.getNPC().getId() &&
-						questCooldowns.get(player.getUniqueId()).get(event.getCharacter().getSlot()).contains(quest.getQuestID()) == false) { // Check for an NPC id match between the first NPC and the clicked NPC
+				if (quest.getFirstNPC().getCitizensNpc().getId() == event.getNPC().getId()
+						&& !questCooldowns.get(player.getUniqueId()).get(characterSlot).contains(quest.getQuestID())) { // Check for an NPC id match between the first NPC and the clicked NPC
 					if (QuestObjective.getObjective(quest.getObjectives(), 1).isCompleted() == false || quest.isRepeatable()) { // Check that the first objective has not been completed
 						if (!npcs.containsKey(quest.getFirstNPC().getId())) { // Check that the player is not currently talking with the NPC
 							if (quest.getFirstNPC().getState() != FirstNpcState.ACCEPTED || (quest.isRepeatable() && Plugin.allObjectivesComplete(quest))) { // Check that the player has not yet accepted the quest
@@ -222,8 +226,8 @@ public class EventClickNpc implements Listener {
 						}
 					}
 				}
-				if (quest.getFirstNPC().getCitizensNpc().getId() == event.getNPC().getId() &&
-						questCooldowns.get(player.getUniqueId()).get(event.getCharacter().getSlot()).contains(quest.getQuestID())) { // If the player is waiting on a quest cooldown (repeatable quests)
+				if (quest.getFirstNPC().getCitizensNpc().getId() == event.getNPC().getId()
+						&& questCooldowns.get(player.getUniqueId()).get(characterSlot).contains(quest.getQuestID())) { // If the player is waiting on a quest cooldown (repeatable quests)
 					int hours = (quest.getCooldown() - (quest.getCooldown() % 3600)) / 3600; // Some very odd code to create a cooldown message
 					int minutes = (quest.getCooldown() - (quest.getCooldown() % 60)) / 60 - (hours * 60);
 					int seconds = quest.getCooldown() - (hours * 3600) - (minutes * 60);
@@ -313,12 +317,12 @@ public class EventClickNpc implements Listener {
 											}
 											RunicCoreHook.giveRewards(player, quest.getRewards()); // Give the rewards
 											if (quest.isRepeatable() == true) { // The the quest is repeatable, then handle the cooldowns
-												questCooldowns.get(player.getUniqueId()).get(event.getCharacter().getSlot()).add(quest.getQuestID());
+												questCooldowns.get(player.getUniqueId()).get(characterSlot).add(quest.getQuestID());
 												Bukkit.getScheduler().runTaskLater(Plugin.getInstance(), new Runnable() {
 													@Override
 													public void run() {
-														if (questCooldowns.get(player.getUniqueId()).get(event.getCharacter().getSlot()).contains(quest.getQuestID())) {
-															questCooldowns.get(player.getUniqueId()).get(event.getCharacter().getSlot()).remove(quest.getQuestID());
+														if (questCooldowns.get(player.getUniqueId()).get(characterSlot).contains(quest.getQuestID())) {
+															questCooldowns.get(player.getUniqueId()).get(characterSlot).remove(quest.getQuestID());
 														} else {
 															Bukkit.getLogger().log(Level.INFO, "[RunicQuests] ERROR - failed to remove quest cooldown from player \"" + questProfile.getPlayerUUID() + "\"!");
 														}
@@ -390,7 +394,7 @@ public class EventClickNpc implements Listener {
 	}
 
 	@EventHandler
-	public void onNpcLeftClick(CharacterNPCLeftClickEvent event) {
+	public void onNpcLeftClick(NPCLeftClickEvent event) {
 		Player player = event.getClicker();
 		QuestProfile questProfile = Plugin.getQuestProfile(event.getClicker().getUniqueId().toString()); // Get the player's questing profile
 		for (Quest quest : questProfile.getQuests()) { // Loop through the quests

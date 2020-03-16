@@ -7,6 +7,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 
+import com.runicrealms.runiccharacters.api.RunicCharactersApi;
+import io.lumine.xikage.mythicmobs.api.bukkit.events.MythicMobDeathEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
@@ -14,7 +16,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
-import com.runicrealms.runiccharacters.api.events.CharacterMythicMobDeathEvent;
 import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.api.QuestCompleteEvent;
 import com.runicrealms.runicquests.player.QuestProfile;
@@ -33,10 +34,11 @@ import net.md_5.bungee.api.chat.TextComponent;
 public class EventKillMythicMob implements Listener {
 
 	@EventHandler
-	public void onKill(CharacterMythicMobDeathEvent event) {
+	public void onKill(MythicMobDeathEvent event) {
 		if (event.getKiller() instanceof Player) {
 			Player player = (Player) event.getKiller();
 			QuestProfile questProfile = Plugin.getQuestProfile(player.getUniqueId().toString()); // Get player questing profile
+			int characterSlot = RunicCharactersApi.getCurrentCharacterSlot(player.getUniqueId());
 			Map<UUID, Map<Integer, Set<Integer>>> questCooldowns = Plugin.getQuestCooldowns();
 			for (Quest quest : questProfile.getQuests()) { // Loop through quest to find a matching objective to the mob killed
 				if ((quest.getQuestState().isCompleted() == false && quest.getQuestState().hasStarted())
@@ -143,12 +145,12 @@ public class EventKillMythicMob implements Listener {
 											}
 											RunicCoreHook.giveRewards(player, quest.getRewards()); // Give rewards
 											if (quest.isRepeatable() == true) { // If the quest is repeatable, setup cooldown
-												questCooldowns.get(player.getUniqueId()).get(event.getCharacter().getSlot()).add(quest.getQuestID());
+												questCooldowns.get(player.getUniqueId()).get(characterSlot).add(quest.getQuestID());
 												Bukkit.getScheduler().runTaskLater(Plugin.getInstance(), new Runnable() {
 													@Override
 													public void run() {
-														if (questCooldowns.get(player.getUniqueId()).get(event.getCharacter().getSlot()).contains(quest.getQuestID())) {
-															questCooldowns.get(player.getUniqueId()).get(event.getCharacter().getSlot()).remove(quest.getQuestID());
+														if (questCooldowns.get(player.getUniqueId()).get(characterSlot).contains(quest.getQuestID())) {
+															questCooldowns.get(player.getUniqueId()).get(characterSlot).remove(quest.getQuestID());
 														} else {
 															Bukkit.getLogger().log(Level.INFO, "[RunicQuests] ERROR - failed to remove quest cooldown from player \"" + questProfile.getPlayerUUID() + "\"!");
 														}
