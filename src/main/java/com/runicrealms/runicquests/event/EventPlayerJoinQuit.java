@@ -1,11 +1,17 @@
 package com.runicrealms.runicquests.event;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
+import com.runicrealms.plugin.utilities.FloatingItemUtil;
 import com.runicrealms.runiccharacters.api.events.CharacterLoadEvent;
+import com.runicrealms.runicquests.config.QuestLoader;
+import com.runicrealms.runicquests.task.TaskQueue;
+import net.citizensnpcs.api.npc.NPC;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -19,6 +25,9 @@ import com.runicrealms.runicquests.quests.Quest;
 import com.runicrealms.runicquests.quests.QuestObjectiveType;
 import com.runicrealms.runicquests.quests.objective.QuestObjective;
 import com.runicrealms.runicquests.quests.objective.QuestObjectiveTalk;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 
 public class EventPlayerJoinQuit implements Listener {
 
@@ -73,4 +82,28 @@ public class EventPlayerJoinQuit implements Listener {
 		}
 	}
 
+	/**
+	 * Displays question marks above quest giver's heads!
+	 */
+	public static void displayQuestionMarks() {
+		final int DURATION = 10;
+		new BukkitRunnable() {
+			@Override
+			public void run() {
+				for (Player pl : Bukkit.getOnlinePlayers()) {
+					if (Plugin.getQuestProfile(pl.getUniqueId().toString()) == null) continue;
+					//QuestProfile questProfile = Plugin.getQuestProfile(pl.getUniqueId().toString());
+					for (Quest quest : QuestLoader.getBlankQuestList()) { // Loop through quests to find a match for the NPC
+						//if (questProfile.getQuests().contains(quest)) continue;
+						// todo: add quest.isRepeatable()
+						// todo:
+						NPC firstNPC = quest.getFirstNPC().getCitizensNpc();
+						if (!firstNPC.isSpawned()) continue; // prevent glitched NPCs
+						Location loc = firstNPC.getStoredLocation();
+						FloatingItemUtil.createFloatingItem(loc.add(0, 2.5, 0), Material.ORANGE_DYE, DURATION);
+					}
+				}
+			}
+		}.runTaskTimer(Plugin.getInstance(), 100L, DURATION*20L);
+	}
 }

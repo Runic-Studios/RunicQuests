@@ -49,17 +49,14 @@ public class EventClickNpc implements Listener {
 		int characterSlot = RunicCharactersApi.getCurrentCharacterSlot(player.getUniqueId());
 		HashMap<Long, TaskQueue> npcs = Plugin.getNpcTaskQueues();
 		Map<UUID, Map<Integer, Set<Integer>>> questCooldowns = Plugin.getQuestCooldowns();
+		if (questProfile == null) return;
 		for (Quest quest : questProfile.getQuests()) { // Loop through quests to find a match for the NPC
-			if (quest.getQuestState().isCompleted() && quest.isRepeatable() == false) { // Check for if the quest is completed
+			if (quest.getQuestState().isCompleted() && !quest.isRepeatable()) { // Check for if the quest is completed
+				Bukkit.broadcastMessage("ONE");
 				if (quest.getFirstNPC().getCitizensNpc().getId() == event.getNPC().getId()) { // Check for first NPC quest completed speech 
 					if (quest.getFirstNPC().hasQuestCompletedSpeech()) { // Create a task queue for the speech
 						TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getFirstNPC().getQuestCompletedSpeech(), quest.getFirstNPC().getNpcName()));
-						queue.setCompletedTask(new Runnable() {
-							@Override
-							public void run() {
-								npcs.remove(quest.getFirstNPC().getId());
-							}
-						});
+						queue.setCompletedTask(() -> npcs.remove(quest.getFirstNPC().getId()));
 						npcs.put(quest.getFirstNPC().getId(), queue);
 						queue.startTasks();
 						continue;
@@ -68,6 +65,7 @@ public class EventClickNpc implements Listener {
 			}
 			if ((!quest.getQuestState().isCompleted()) ||
 					(quest.isRepeatable() && quest.getQuestState().hasStarted() && quest.getQuestState().isCompleted())) { // Check that the quest is not completed
+				Bukkit.broadcastMessage("TWO");
 				if (quest.getFirstNPC().getCitizensNpc().getId() == event.getNPC().getId()
 						&& !questCooldowns.get(player.getUniqueId()).get(characterSlot).contains(quest.getQuestID())) { // Check for an NPC id match between the first NPC and the clicked NPC
 					if (QuestObjective.getObjective(quest.getObjectives(), 1).isCompleted() == false || quest.isRepeatable()) { // Check that the first objective has not been completed
@@ -228,6 +226,7 @@ public class EventClickNpc implements Listener {
 				}
 				if (quest.getFirstNPC().getCitizensNpc().getId() == event.getNPC().getId()
 						&& questCooldowns.get(player.getUniqueId()).get(characterSlot).contains(quest.getQuestID())) { // If the player is waiting on a quest cooldown (repeatable quests)
+					Bukkit.broadcastMessage("THREE");
 					int hours = (quest.getCooldown() - (quest.getCooldown() % 3600)) / 3600; // Some very odd code to create a cooldown message
 					int minutes = (quest.getCooldown() - (quest.getCooldown() % 60)) / 60 - (hours * 60);
 					int seconds = quest.getCooldown() - (hours * 3600) - (minutes * 60);
@@ -239,6 +238,7 @@ public class EventClickNpc implements Listener {
 				}
 			}
 			if (quest.getQuestState().hasStarted()) { // If the quest has started...
+				Bukkit.broadcastMessage("FOUR");
 				for (QuestObjective objective : quest.getObjectives()) { // Loop through the objectives
 					if (objective.getObjectiveType() == QuestObjectiveType.TALK) { // Check the objective type
 						QuestObjectiveTalk talkObjective = (QuestObjectiveTalk) objective;
