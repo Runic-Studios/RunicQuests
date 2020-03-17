@@ -30,7 +30,7 @@ public class QuestRequirements {
 		this.classTypeNotMet = classTypeNotMet;
 	}
 
-	public Integer getLevelRequirement() {
+	public Integer getClassLvReq() {
 		return levelReq;
 	}
 

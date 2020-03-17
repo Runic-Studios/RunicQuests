@@ -22,7 +22,7 @@ public class RunicCoreHook {
 	 * This is meant to contain static methods that check with other RR plugins for player requirements
 	 */
 
-	public static boolean isRequiredLevel(Player player, int reqLevel) {
+	public static boolean isReqClassLv(Player player, int reqLevel) {
 		int level = RunicCore.getCacheManager().getPlayerCache(player.getUniqueId()).getClassLevel();
 		return level >= reqLevel;
 	}
