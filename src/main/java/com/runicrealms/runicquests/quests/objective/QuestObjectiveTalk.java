@@ -6,7 +6,7 @@ import com.runicrealms.runicquests.quests.QuestItem;
 import com.runicrealms.runicquests.quests.QuestNpc;
 import com.runicrealms.runicquests.quests.QuestObjectiveType;
 
-public class QuestObjectiveTalk extends QuestObjective{
+public class QuestObjectiveTalk extends QuestObjective implements Cloneable {
 	
 	/*
 	 * Talk quest objective
@@ -21,6 +21,11 @@ public class QuestObjectiveTalk extends QuestObjective{
 	
 	public QuestNpc getQuestNpc() {
 		return this.questNpc;
+	}
+
+	@Override
+	public QuestObjectiveTalk clone() {
+		return new QuestObjectiveTalk(this.questNpc.clone(), this.questItems, this.goalMessage, this.execute, this.objectiveNumber, this.completedMessage);
 	}
 	
 }

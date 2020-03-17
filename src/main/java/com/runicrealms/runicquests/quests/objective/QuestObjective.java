@@ -13,12 +13,12 @@ public abstract class QuestObjective {
 	 * Abstract class that contains methods that must exist for a quest objective
 	 */
 	
-	private Integer objectiveNumber;
-	private QuestObjectiveType objectiveType;
-	private List<String> completedMessage;
-	private List<QuestItem> questItems;
-	private String goalMessage;
-	private List<String> execute;
+	protected Integer objectiveNumber;
+	protected QuestObjectiveType objectiveType;
+	protected List<String> completedMessage;
+	protected List<QuestItem> questItems;
+	protected String goalMessage;
+	protected List<String> execute;
 	
 	private boolean completed = false;
 	

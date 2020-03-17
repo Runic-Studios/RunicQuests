@@ -33,7 +33,7 @@
 //            event.setWillDestroy(true);
 //        });
 //
-//        List<Quest> sortedList = QuestLoader.getBlankQuestList();
+//        List<Quest> sortedList = QuestLoader.getUnusedQuestList();
 //        sortedList.sort(Comparator.comparing(o -> o.getRequirements().getClassLvReq()));
 //
 //        int count = 9;

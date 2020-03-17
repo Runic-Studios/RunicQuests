@@ -5,8 +5,9 @@ import java.util.List;
 
 import com.runicrealms.runicquests.player.QuestState;
 import com.runicrealms.runicquests.quests.objective.QuestObjective;
+import com.runicrealms.runicquests.quests.objective.QuestObjectiveTalk;
 
-public class Quest {
+public class Quest implements Cloneable {
 	
 	/*
 	 * Contains all the quest values which are needed.
@@ -92,6 +93,19 @@ public class Quest {
 	
 	public Integer getCooldown() {
 		return this.cooldown;
+	}
+
+	@Override
+	public Quest clone() {
+		ArrayList<QuestObjective> newObjectives = new ArrayList<QuestObjective>() ;
+		for (QuestObjective objective : this.objectives) {
+			if (objective instanceof QuestObjectiveTalk) {
+				newObjectives.add(((QuestObjectiveTalk) objective).clone());
+			} else {
+				newObjectives.add(objective);
+			}
+		}
+		return new Quest(this.questName, this.firstNPC.clone(), newObjectives, this.rewards, this.questID, this.requirements, this.sideQuest, this.repeatable, this.cooldown);
 	}
 
 }

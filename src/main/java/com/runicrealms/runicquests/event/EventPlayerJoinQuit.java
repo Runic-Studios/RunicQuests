@@ -5,13 +5,10 @@ import java.util.*;
 import com.runicrealms.plugin.utilities.FloatingItemUtil;
 import com.runicrealms.runiccharacters.api.events.CharacterLoadEvent;
 import com.runicrealms.runicquests.config.QuestLoader;
-import com.runicrealms.runicquests.task.TaskQueue;
 import net.citizensnpcs.api.npc.NPC;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -25,9 +22,7 @@ import com.runicrealms.runicquests.quests.Quest;
 import com.runicrealms.runicquests.quests.QuestObjectiveType;
 import com.runicrealms.runicquests.quests.objective.QuestObjective;
 import com.runicrealms.runicquests.quests.objective.QuestObjectiveTalk;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.Vector;
 
 public class EventPlayerJoinQuit implements Listener {
 
@@ -77,8 +72,10 @@ public class EventPlayerJoinQuit implements Listener {
 				}
 			}
 			Plugin.getQuestProfiles().add(new QuestProfile(player.getUniqueId(), characterSlot)); // If there isn't a cached profile, add one
+			PlayerDataLoader.preLoadQuestData(player.getUniqueId()); // Bug fix
 		} else {
 			Plugin.getQuestProfiles().add(new QuestProfile(player.getUniqueId(), characterSlot)); // Because we aren't caching profiles, add one
+			PlayerDataLoader.preLoadQuestData(player.getUniqueId()); // Bug fix
 		}
 	}
 

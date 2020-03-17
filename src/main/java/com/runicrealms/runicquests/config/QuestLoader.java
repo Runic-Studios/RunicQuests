@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.runicrealms.runicquests.quests.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -13,16 +14,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 
 import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.exception.QuestLoadException;
-import com.runicrealms.runicquests.quests.CraftingProfessionType;
-import com.runicrealms.runicquests.quests.PlayerClassType;
-import com.runicrealms.runicquests.quests.Quest;
-import com.runicrealms.runicquests.quests.QuestFirstNpc;
-import com.runicrealms.runicquests.quests.QuestIdleMessage;
-import com.runicrealms.runicquests.quests.QuestIdleMessageConditions;
-import com.runicrealms.runicquests.quests.QuestItem;
-import com.runicrealms.runicquests.quests.QuestNpc;
-import com.runicrealms.runicquests.quests.QuestRequirements;
-import com.runicrealms.runicquests.quests.QuestRewards;
 import com.runicrealms.runicquests.quests.location.BoxLocation;
 import com.runicrealms.runicquests.quests.location.RadiusLocation;
 import com.runicrealms.runicquests.quests.objective.QuestObjective;
@@ -35,10 +26,18 @@ public class QuestLoader {
 
 	private static List<Quest> cachedQuests = null;
 
-	// Gets a List<Quest> from the quests folder, but the quests will contain no user info (like completed, or started)
+	// Gets a List<Quest> which is only for use as a reference!
 	public static List<Quest> getBlankQuestList() {
 		if (cachedQuests != null) {
 			return cachedQuests;
+		}
+		return getUnusedQuestList();
+	}
+
+	// Gets a List<Quest> from the quests folder, but the quests will contain no user info (like completed, or started)
+	public static List<Quest> getUnusedQuestList() {
+		if (cachedQuests != null) {
+			return obtainNewNpcIds(cachedQuests);
 		}
 		List<Quest> quests = new ArrayList<Quest>();
 		File folder = ConfigLoader.getSubFolder(Plugin.getInstance().getDataFolder(), "quests");
@@ -58,6 +57,21 @@ public class QuestLoader {
 		}
 		cachedQuests = quests;
 		return quests;
+	}
+
+	public static List<Quest> obtainNewNpcIds(List<Quest> quests) {
+		List<Quest> newQuests = new ArrayList<Quest>();
+		for (Quest quest : quests) {
+			Quest newQuest = quest.clone();
+			newQuest.getFirstNPC().obtainNewId();
+			for (QuestObjective objective : newQuest.getObjectives()) {
+				if (objective.getObjectiveType() == QuestObjectiveType.TALK) {
+					((QuestObjectiveTalk) objective).getQuestNpc().obtainNewId();
+				}
+			}
+			newQuests.add(newQuest);
+		}
+		return newQuests;
 	}
 
 	// Uses all methods from this class in order to load a quest from file. Will not have any player info.

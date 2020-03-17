@@ -44,4 +44,5 @@ public class QuestRewards {
 			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), parsedCommand);
 		}
 	}
+
 }

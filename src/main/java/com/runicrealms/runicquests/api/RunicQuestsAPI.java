@@ -15,7 +15,7 @@ public class RunicQuestsAPI {
 		return Plugin.getQuestProfile(player.getUniqueId().toString());
 	}
 	
-	public static List<Quest> getUnusedQuestList() {
+	public static List<Quest> getBlankQuestList() {
 		return QuestLoader.getBlankQuestList();
 	}
 	

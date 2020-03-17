@@ -14,11 +14,11 @@ import com.runicrealms.runicquests.quests.objective.QuestObjective;
 public class PlayerDataLoader {
 	
 	// This allows us to not need to load the player data for each player every time they log in, instead we can cache it
-	private static HashMap<UUID, DataFileConfiguration> cachedPlayerData = new HashMap<UUID, DataFileConfiguration>();
+	public static HashMap<UUID, DataFileConfiguration> cachedPlayerData = new HashMap<UUID, DataFileConfiguration>();
 
 	// Parses quest data for a user. This is very confusing code, but should not need to be changed.
 	public static List<Quest> getQuestDataForUser(UUID uuid, Integer characterSlot) {
-		List<Quest> quests = QuestLoader.getBlankQuestList();
+		List<Quest> quests = QuestLoader.getUnusedQuestList();
 		List<Quest> newQuests = new ArrayList<Quest>();
 		DataFileConfiguration runicFileConfig = getConfigFromCache(uuid);
 		ConfigurationSection data = runicFileConfig.getConfig().get(characterSlot);
@@ -63,6 +63,10 @@ public class PlayerDataLoader {
 			cachedPlayerData.put(uuid, new DataFileConfiguration(uuid));
 		}
 		return cachedPlayerData.get(uuid);
+	}
+
+	public static void preLoadQuestData(UUID uuid) {
+		getConfigFromCache(uuid);
 	}
 	
 	public static HashMap<UUID, DataFileConfiguration> getCachedPlayerData() {

@@ -10,13 +10,14 @@ import com.runicrealms.runicquests.Plugin;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPC;
 
-public class QuestFirstNpc {
+public class QuestFirstNpc implements Cloneable {
 	
 	/*
 	 * Represents a quest first NPC
 	 */
 	
 	private NPC npc;
+	private Integer npcId;
 	private List<String> speech;
 	private List<QuestIdleMessage> idleSpeech = null;
 	private List<String> questCompletedSpeech;
@@ -30,6 +31,7 @@ public class QuestFirstNpc {
 	
 	public QuestFirstNpc(Integer npcId, List<String> speech, List<QuestIdleMessage> idleSpeech, List<String> questCompletedSpeech, String npcName, List<String> execute, boolean deniable, List<String> deniedMessage, List<String> acceptedMessage) {
 		this.npc = CitizensAPI.getNPCRegistry().getById(npcId);
+		this.npcId = npcId;
 		this.speech = speech;
 		this.idleSpeech = idleSpeech;
 		this.questCompletedSpeech = questCompletedSpeech;
@@ -106,6 +108,15 @@ public class QuestFirstNpc {
 			String parsedCommand = command.startsWith("/") ? command.substring(1).replaceAll("%player%", playerName) : command.replaceAll("%player%", playerName);
 			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), parsedCommand);
 		}
+	}
+
+	public void obtainNewId() {
+		this.id = Plugin.getNextId();
+	}
+
+	@Override
+	public QuestFirstNpc clone() {
+		return new QuestFirstNpc(this.npcId, this.speech, this.idleSpeech, this.questCompletedSpeech, this.npcName, this.execute, this.deniable, this.deniedMessage, this.acceptedMessage);
 	}
 
 }
