@@ -63,7 +63,7 @@ public class EventPlayerJoinQuit implements Listener {
 			Plugin.getCachedLocations().remove(event.getPlayer());
 		}
 	}
-	
+
 	public static void runJoinEvent(Player player, Integer characterSlot) {
 		Map<Integer, Set<Integer>> cooldowns = new HashMap<Integer, Set<Integer>>();
 		for (int i = 1; i <= RunicCharactersApi.getAllCharacters(player.getUniqueId()).size(); i++) {
@@ -100,7 +100,9 @@ public class EventPlayerJoinQuit implements Listener {
 						NPC firstNPC = quest.getFirstNPC().getCitizensNpc();
 						if (!firstNPC.isSpawned()) continue; // prevent glitched NPCs
 						Location loc = firstNPC.getStoredLocation();
-						FloatingItemUtil.createFloatingItem(loc.add(0, 2.5, 0), Material.ORANGE_DYE, DURATION);
+						Material mark = Material.ORANGE_DYE;
+						if (quest.isSideQuest()) mark = Material.DANDELION_YELLOW;
+						FloatingItemUtil.createFloatingItem(loc.add(0, 2.5, 0), mark, DURATION);
 					}
 				}
 			}
