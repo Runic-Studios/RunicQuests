@@ -53,10 +53,6 @@ public class QuestNpc implements Cloneable {
 		return this.idleSpeech != null;
 	}
 
-	public void obtainNewId() {
-		this.id = Plugin.getNextId();
-	}
-
 	@Override
 	public QuestNpc clone() {
 		return new QuestNpc(this.npcId, this.speech, this.idleSpeech, this.npcName);

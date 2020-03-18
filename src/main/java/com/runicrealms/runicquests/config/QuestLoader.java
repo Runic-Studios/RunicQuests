@@ -26,7 +26,7 @@ public class QuestLoader {
 
 	private static List<Quest> cachedQuests = null;
 
-	// Gets a List<Quest> which is only for use as a reference!
+	// Gets a List<Quest> which can only be used as a reference!
 	public static List<Quest> getBlankQuestList() {
 		if (cachedQuests != null) {
 			return cachedQuests;
@@ -59,16 +59,11 @@ public class QuestLoader {
 		return quests;
 	}
 
+	// Method for creating a new List<Quest> with new NPC IDs and reset FirstNpcState
 	public static List<Quest> obtainNewNpcIds(List<Quest> quests) {
 		List<Quest> newQuests = new ArrayList<Quest>();
 		for (Quest quest : quests) {
 			Quest newQuest = quest.clone();
-			newQuest.getFirstNPC().obtainNewId();
-			for (QuestObjective objective : newQuest.getObjectives()) {
-				if (objective.getObjectiveType() == QuestObjectiveType.TALK) {
-					((QuestObjectiveTalk) objective).getQuestNpc().obtainNewId();
-				}
-			}
 			newQuests.add(newQuest);
 		}
 		return newQuests;

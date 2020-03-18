@@ -110,10 +110,6 @@ public class QuestFirstNpc implements Cloneable {
 		}
 	}
 
-	public void obtainNewId() {
-		this.id = Plugin.getNextId();
-	}
-
 	@Override
 	public QuestFirstNpc clone() {
 		return new QuestFirstNpc(this.npcId, this.speech, this.idleSpeech, this.questCompletedSpeech, this.npcName, this.execute, this.deniable, this.deniedMessage, this.acceptedMessage);
