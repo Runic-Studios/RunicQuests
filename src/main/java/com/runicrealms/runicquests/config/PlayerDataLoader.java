@@ -65,10 +65,12 @@ public class PlayerDataLoader {
 		return cachedPlayerData.get(uuid);
 	}
 
+	// Preloads quest data - prevents npc IDs being rewritten every time quest data is requested.
 	public static void preLoadQuestData(UUID uuid) {
 		getConfigFromCache(uuid);
 	}
-	
+
+	// Gets cached player data configuration sections
 	public static HashMap<UUID, DataFileConfiguration> getCachedPlayerData() {
 		return cachedPlayerData;
 	}
