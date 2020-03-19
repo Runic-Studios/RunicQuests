@@ -47,7 +47,6 @@ public class Plugin extends JavaPlugin {
 	private static volatile Map<Player, Map<Integer, LocationToReach>> cachedLocations = new HashMap<Player, Map<Integer, LocationToReach>>();
 
 	public static double NPC_MESSAGE_DELAY; // Config value
-	public static boolean CACHE_PLAYER_DATA; // Config value
 
 	@Override
 	public void onEnable() {
@@ -55,7 +54,6 @@ public class Plugin extends JavaPlugin {
 		ConfigLoader.initDirs(); // Initialize directories that might not exist
 		ConfigLoader.loadMainConfig(); // Initialize the main config file if it doesn't exist
 		NPC_MESSAGE_DELAY = ConfigLoader.getMainConfig().getDouble("npc-message-delay"); // Get the config value
-		CACHE_PLAYER_DATA = ConfigLoader.getMainConfig().getBoolean("cache-player-data"); // Get the config value
 		this.getServer().getPluginManager().registerEvents(new EventKillMythicMob(), this); // Register events
 		this.getServer().getPluginManager().registerEvents(new EventClickNpc(), this);
 		this.getServer().getPluginManager().registerEvents(new EventBreakBlock(), this);

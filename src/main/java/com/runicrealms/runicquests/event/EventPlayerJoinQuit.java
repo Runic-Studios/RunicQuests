@@ -47,7 +47,6 @@ public class EventPlayerJoinQuit implements Listener {
 				}
 			}
 		}
-
 		// -----------------------------------------------
 		Plugin.getQuestProfiles().remove(questProfile);
 		// -----------------------------------------------
@@ -66,18 +65,13 @@ public class EventPlayerJoinQuit implements Listener {
 			cooldowns.put(i, new HashSet<>());
 		}
 		Plugin.getQuestCooldowns().put(player.getUniqueId(), cooldowns); // Add a cooldown to the list of cooldowns
-		if (Plugin.CACHE_PLAYER_DATA) { // Whether or not to cache player data
-			for (QuestProfile profile : Plugin.getQuestProfiles()) { // Loop through quest profiles
-				if (profile.getPlayerUUID().toString().equalsIgnoreCase(player.getUniqueId().toString())) { // If there is a cached profile, we can exit
-					return;
-				}
-			}
-			Plugin.getQuestProfiles().add(new QuestProfile(player.getUniqueId(), characterSlot)); // If there isn't a cached profile, add one
-			PlayerDataLoader.preLoadQuestData(player.getUniqueId()); // Bug fix
-		} else {
-			Plugin.getQuestProfiles().add(new QuestProfile(player.getUniqueId(), characterSlot)); // Because we aren't caching profiles, add one
-			PlayerDataLoader.preLoadQuestData(player.getUniqueId()); // Bug fix
-		}
+//		for (QuestProfile profile : Plugin.getQuestProfiles()) { // Loop through quest profiles
+//			if (profile.getPlayerUUID().toString().equalsIgnoreCase(player.getUniqueId().toString())) { // If there is a cached profile, we can exit
+//				return;
+//			}
+//		}
+		Plugin.getQuestProfiles().add(new QuestProfile(player.getUniqueId(), characterSlot)); // Add a quest profile
+		PlayerDataLoader.preLoadQuestData(player.getUniqueId()); // Bug fix
 	}
 
 	/**

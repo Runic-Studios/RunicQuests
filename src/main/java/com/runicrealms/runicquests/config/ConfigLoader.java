@@ -51,14 +51,6 @@ public class ConfigLoader {
 				e.printStackTrace();
 			}
 		}
-		if (!mainConfig.contains("cache-player-data")) {
-			mainConfig.set("cache-player-data", true);
-			try {
-				mainConfig.save(new File(Plugin.getInstance().getDataFolder(), "config.yml"));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
 	}
 	
 	// Create users and quests folders if they have not been created
