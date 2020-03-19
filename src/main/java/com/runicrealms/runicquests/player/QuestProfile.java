@@ -35,6 +35,13 @@ public class QuestProfile {
 		return quests;
 	}
 
+	/*
+	Returns an object from getQuests to manipulate a player's quest object by name
+	 */
+	public Quest getPlayerQuest(String name) {
+		return quests.stream().filter(q -> q.getQuestName().equals(name)).findFirst().orElse(null);
+	}
+
 	public UUID getPlayerUUID() {
 		return playerUUID;
 	}

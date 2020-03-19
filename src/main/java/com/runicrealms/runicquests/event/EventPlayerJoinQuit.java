@@ -4,7 +4,6 @@ import java.util.*;
 
 import com.runicrealms.plugin.utilities.FloatingItemUtil;
 import com.runicrealms.runiccharacters.api.events.CharacterLoadEvent;
-import com.runicrealms.runicquests.config.QuestLoader;
 import net.citizensnpcs.api.npc.NPC;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -48,9 +47,11 @@ public class EventPlayerJoinQuit implements Listener {
 				}
 			}
 		}
-		if (!Plugin.CACHE_PLAYER_DATA) { // If we aren't caching profiles, remove it
-			Plugin.getQuestProfiles().remove(questProfile);
-		}
+
+		// -----------------------------------------------
+		Plugin.getQuestProfiles().remove(questProfile);
+		// -----------------------------------------------
+
 		if (PlayerDataLoader.getCachedPlayerData().containsKey(event.getPlayer().getUniqueId())) {
 			PlayerDataLoader.getCachedPlayerData().remove(event.getPlayer().getUniqueId());
 		}
@@ -88,21 +89,20 @@ public class EventPlayerJoinQuit implements Listener {
 			@Override
 			public void run() {
 				for (Player pl : Bukkit.getOnlinePlayers()) {
-					if (Plugin.getQuestProfile(pl.getUniqueId().toString()) == null) continue;
-					//QuestProfile questProfile = Plugin.getQuestProfile(pl.getUniqueId().toString());
-					for (Quest quest : QuestLoader.getBlankQuestList()) { // Loop through quests to find a match for the NPC
-						//if (questProfile.getQuests().contains(quest)) continue;
-						// todo: add quest.isRepeatable()
-						// todo:
+					QuestProfile profile = Plugin.getQuestProfile(pl.getUniqueId().toString());
+					if (profile == null) continue;
+					for (Quest quest : profile.getQuests()) { // Loop through quests to find a match for the NPC
 						NPC firstNPC = quest.getFirstNPC().getCitizensNpc();
 						if (!firstNPC.isSpawned()) continue; // prevent glitched NPCs
 						Location loc = firstNPC.getStoredLocation();
 						Material mark = Material.ORANGE_DYE;
 						if (quest.isSideQuest()) mark = Material.DANDELION_YELLOW;
-						FloatingItemUtil.createFloatingItem(loc.add(0, 2.5, 0), mark, DURATION);
+						if (quest.isRepeatable()) mark = Material.LIGHT_BLUE_DYE;
+						if (quest.getQuestState().isCompleted()) mark = Material.CACTUS_GREEN;
+						FloatingItemUtil.spawnFloatingItem(pl, loc.add(0, 2.5, 0), mark, DURATION);
 					}
 				}
 			}
-		}.runTaskTimer(Plugin.getInstance(), 100L, DURATION*20L);
+		}.runTaskTimer(Plugin.getInstance(), 100L, (DURATION-1)*20L);
 	}
 }
