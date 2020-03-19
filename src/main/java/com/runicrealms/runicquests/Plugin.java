@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 
+import com.runicrealms.runicquests.command.ResetQuestsCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.PluginCommand;
@@ -64,11 +65,17 @@ public class Plugin extends JavaPlugin {
 			EventPlayerJoinQuit.runJoinEvent(player, RunicCharactersApi.getCurrentCharacterSlot(player.getUniqueId())); // Read PlayerJoinQuitEvent.runJoinEvent
 		}
 		EventPlayerJoinQuit.displayQuestionMarks();
-		QuestsCommand commandExecutor = new QuestsCommand(); // Register the /quests command
-		String[] commands = new String[] {"quests", "quest", "objectives", "objective"};
-		for (int i = 0; i < commands.length; i++) {
-			PluginCommand pluginCommand = this.getCommand(commands[i]);
-			pluginCommand.setExecutor(commandExecutor);
+		QuestsCommand questsCommandExecutor = new QuestsCommand(); // Register the /quests command
+		String[] questCommands = new String[] {"quests", "quest", "objectives", "objective"};
+		for (int i = 0; i < questCommands.length; i++) {
+			PluginCommand pluginCommand = this.getCommand(questCommands[i]);
+			pluginCommand.setExecutor(questsCommandExecutor);
+		}
+		ResetQuestsCommand resetCommandExecutor = new ResetQuestsCommand();
+		String[] resetCommands = new String[] {"resetquests", "questsreset", "resetquest", "questreset", "rq", "qr"};
+		for (int i = 0; i < resetCommands.length; i++) {
+			PluginCommand pluginCommand = this.getCommand(resetCommands[i]);
+			pluginCommand.setExecutor(resetCommandExecutor);
 		}
 		for (Player player : Bukkit.getOnlinePlayers()) {
 			updatePlayerCachedLocations(player);
