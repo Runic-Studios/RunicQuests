@@ -2,6 +2,9 @@ package com.runicrealms.runicquests.command;
 
 import java.util.HashMap;
 
+import com.runicrealms.plugin.RunicCore;
+import com.runicrealms.runicquests.quests.FirstNpcState;
+import com.runicrealms.runicquests.util.RunicCoreHook;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -24,14 +27,24 @@ public class QuestsCommand implements CommandExecutor {
 		Player player = (Player) sender;
 		HashMap<String, String> goalMessages = new HashMap<String, String>();
 		for (Quest quest : Plugin.getQuestProfile(player.getUniqueId().toString()).getQuests()) {
-			QuestObjective lowestUncompletedObjective = null;
-			for (QuestObjective objective : quest.getObjectives()) {
-				if (objective.isCompleted() == false && (objective.getObjectiveNumber() < lowestUncompletedObjective.getObjectiveNumber() || lowestUncompletedObjective == null)) {
-					lowestUncompletedObjective = objective;
+			if (RunicCoreHook.isReqClassLv(player, quest.getRequirements().getClassLvReq())) {
+				if (quest.getFirstNPC().getState() == FirstNpcState.ACCEPTED) {
+					QuestObjective lowestUncompletedObjective = null;
+					for (QuestObjective objective : quest.getObjectives()) {
+						if (objective.isCompleted() == false) {
+							if (lowestUncompletedObjective == null) {
+								lowestUncompletedObjective = objective;
+							} else if (objective.getObjectiveNumber() < lowestUncompletedObjective.getObjectiveNumber()) {
+								lowestUncompletedObjective = objective;
+							}
+						}
+					}
+					if (lowestUncompletedObjective != null) {
+						goalMessages.put(quest.getQuestName(), lowestUncompletedObjective.getGoalMessage());
+					}
+				} else {
+					goalMessages.put(quest.getQuestName(), "Speak with: " + ChatColor.GOLD + quest.getFirstNPC().getNpcName());
 				}
-			}
-			if (lowestUncompletedObjective != null) {
-				goalMessages.put(quest.getQuestName(), lowestUncompletedObjective.getGoalMessage());
 			}
 		}
 		player.sendMessage(ChatColor.GOLD + "Current Objectives:");

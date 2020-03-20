@@ -1,5 +1,6 @@
 package com.runicrealms.runicquests.command;
 
+import com.runicrealms.runiccharacters.api.RunicCharactersApi;
 import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.config.PlayerDataLoader;
 import com.runicrealms.runicquests.player.QuestProfile;
@@ -29,6 +30,8 @@ public class ResetQuestsCommand implements CommandExecutor {
                 quests.add(quest.clone());
             }
             PlayerDataLoader.getConfigFromCache(player.getUniqueId()).saveToConfig(quests, profile.getCharacterSlot());
+            Plugin.getQuestProfiles().remove(Plugin.getQuestProfile(player.getUniqueId().toString()));
+            Plugin.getQuestProfiles().add(new QuestProfile(player.getUniqueId(), RunicCharactersApi.getCurrentCharacterSlot(player.getUniqueId())));
             player.sendMessage(ChatColor.GREEN + "Reset your quest data!");
         } else {
             player.sendMessage(ChatColor.RED + "Only operators can use this!");
