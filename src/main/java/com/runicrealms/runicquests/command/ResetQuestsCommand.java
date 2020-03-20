@@ -26,17 +26,41 @@ public class ResetQuestsCommand implements CommandExecutor {
         if (player.isOp()) {
             List<Quest> quests = new ArrayList<Quest>();
             QuestProfile profile = Plugin.getQuestProfile(player.getUniqueId().toString());
-            for (Quest quest : profile.getQuests()) {
-                quests.add(quest.clone());
+            if (args.length == 0) {
+                for (Quest quest : profile.getQuests()) {
+                    quests.add(quest.clone());
+                }
+
+                player.sendMessage(ChatColor.GREEN + "Reset your quest data!");
+            } else {
+                for (Quest quest : profile.getQuests()) {
+                    if (quest.getQuestName().equalsIgnoreCase(combineArgs(args, 0))) {
+                        quests.add(quest.clone());
+                    } else {
+                        quests.add(quest);
+                    }
+                }
+                player.sendMessage(ChatColor.GREEN + "Reset your quest data for quest \"" + combineArgs(args, 0) + "\"!");
             }
             PlayerDataLoader.getConfigFromCache(player.getUniqueId()).saveToConfig(quests, profile.getCharacterSlot());
             Plugin.getQuestProfiles().remove(Plugin.getQuestProfile(player.getUniqueId().toString()));
             Plugin.getQuestProfiles().add(new QuestProfile(player.getUniqueId(), RunicCharactersApi.getCurrentCharacterSlot(player.getUniqueId())));
-            player.sendMessage(ChatColor.GREEN + "Reset your quest data!");
         } else {
             player.sendMessage(ChatColor.RED + "Only operators can use this!");
         }
         return true;
     }
+
+    private static String combineArgs(String[] args, int start) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = start; i < args.length; i++) {
+            builder.append(args[i]);
+            if (i != args.length - 1) {
+                builder.append(" ");
+            }
+        }
+        return builder.toString();
+    }
+
 
 }
