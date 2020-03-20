@@ -8,3 +8,6 @@ commands:
   quests:
     description: Shows you your current objectives
     aliases: [quest, objective, objectives]
+  resetquests:
+    description: Resets a player's quest data
+    aliases: [questsreset, resetquest, questreset, rq, qr]
