@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import com.runicrealms.runicquests.command.ResetQuestsCommand;
+import com.runicrealms.runicquests.listeners.JournalListener;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.PluginCommand;
@@ -34,7 +35,7 @@ import com.runicrealms.runicquests.quests.objective.QuestObjectiveLocation;
 import com.runicrealms.runicquests.task.TaskQueue;
 
 public class Plugin extends JavaPlugin {
-	
+
 	private static Plugin plugin; // Used for getInstance()
 	private static Set<QuestProfile> questProfiles = new HashSet<>(); // List of player quest profiles
 	private static volatile HashMap<Long, TaskQueue> npcTaskQueues = new HashMap<Long, TaskQueue>(); // List of NPC task queues
@@ -59,6 +60,7 @@ public class Plugin extends JavaPlugin {
 		this.getServer().getPluginManager().registerEvents(new EventBreakBlock(), this);
 		this.getServer().getPluginManager().registerEvents(new EventPlayerJoinQuit(), this);
 		this.getServer().getPluginManager().registerEvents(new EventPlayerLocation(), this);
+		this.getServer().getPluginManager().registerEvents(new JournalListener(), this);
 		for (Player player : Bukkit.getOnlinePlayers()) { // Loop through online players (fixes bug with /reload)
 			EventPlayerJoinQuit.runJoinEvent(player, RunicCharactersApi.getCurrentCharacterSlot(player.getUniqueId())); // Read PlayerJoinQuitEvent.runJoinEvent
 		}
@@ -84,7 +86,7 @@ public class Plugin extends JavaPlugin {
 	public static Plugin getInstance() { // Get the plugin instance
 		return plugin;
 	}
-	
+
 	private static void registerMoveTask() { // Schedule a task that will run for the cached location objectives
 		Bukkit.getScheduler().scheduleSyncRepeatingTask(getInstance(), new Runnable() {
 			@Override
@@ -101,7 +103,7 @@ public class Plugin extends JavaPlugin {
 			}
 		}, 10L, 10L);
 	}
-	
+
 	public static void updatePlayerCachedLocations(Player player) { // Updates the cached location objectives for a player
 		cachedLocations.put(player, new HashMap<Integer, LocationToReach>());
 		for (Quest quest : getQuestProfile(player.getUniqueId().toString()).getQuests()) {
@@ -124,7 +126,7 @@ public class Plugin extends JavaPlugin {
 			cachedLocations.remove(player);
 		}
 	}
-	
+
 	public static Map<Player, Map<Integer, LocationToReach>> getCachedLocations() {
 		return cachedLocations;
 	}

@@ -7,6 +7,12 @@
 	<version>1.0</version>
 	<name>RunicQuests</name>
 	<description>Runic Realms Quest Plugin</description>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<fileOutput>${user.home}/Desktop/FTR Server Assets/~ Local Server/plugins</fileOutput>
+	</properties>
+
 	<build>
 		<defaultGoal>clean package</defaultGoal>
 		<plugins>
@@ -20,17 +26,24 @@
 				</configuration>
 			</plugin>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-shade-plugin</artifactId>
-				<version>3.1.0</version>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.0.2</version>
 				<executions>
 					<execution>
+						<id>copy-files-on-build</id>
 						<phase>package</phase>
 						<goals>
-							<goal>shade</goal>
+							<goal>copy-resources</goal>
 						</goals>
 						<configuration>
-							<createDependencyReducedPom>false</createDependencyReducedPom>
+							<outputDirectory>${fileOutput}</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${project.build.directory}</directory>
+									<include>${project.artifactId}-${project.version}.jar</include>
+									<filtering>false</filtering>
+								</resource>
+							</resources>
 						</configuration>
 					</execution>
 				</executions>
@@ -43,6 +56,7 @@
 			</resource>
 		</resources>
 	</build>
+
 	<repositories>
 		<!-- Spigot Repo -->
 		<repository>
@@ -105,11 +119,11 @@
 		</dependency>
 		<!-- RunicCharacters -->
 		<dependency>
-			<groupId>com.runicrealms</groupId>
+			<groupId>com.runicrealms.plugin</groupId>
 			<artifactId>RunicCharacters</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/lib/RunicCharacters-1.0.jar</systemPath>
+			<systemPath>${project.basedir}/lib/RunicCharacters-1.0-SNAPSHOT.jar</systemPath>
 		</dependency>
 		<!-- RunicCore -->
 		<dependency>
