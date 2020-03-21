@@ -21,8 +21,30 @@ public class EventInventory implements Listener {
 
     private static Map<UUID, Integer> playersInQuestGui = new HashMap<UUID, Integer>();
 
-    public static void openQuestGui(Player player) {
+    public static void openQuestGui(Player player, Integer page) {
         Map<Integer, ItemStack> items = new HashMap<Integer, ItemStack>();
+        List<Quest> quests = getSortedQuests(player);
+        boolean hasExtraPage = true;
+        for (int i = (page - 1) * 26; i <= page * 26; i++) {
+            if (quests.size() > i) {
+                items.put(i - (page - 1) * 26, quests.get(i).generateQuestIcon(player));
+            } else {
+                hasExtraPage = false;
+            }
+        }
+        if (hasExtraPage) {
+            
+        }
+        Inventory inventory = Bukkit.createInventory(null, 27, ChatColor.translateAlternateColorCodes('&', "Quests"));
+        for (Map.Entry<Integer, ItemStack> item : items.entrySet()) {
+            inventory.setItem(item.getKey(), item.getValue());
+        }
+        player.closeInventory();
+        player.openInventory(inventory);
+        playersInQuestGui.put(player.getUniqueId(), page);
+    }
+
+    private static List<Quest> getSortedQuests(Player player) {
         QuestProfile profile = Plugin.getQuestProfile(player.getUniqueId().toString());
         List<Quest> startedQuests = new ArrayList<Quest>();
         List<Quest> unstartedQuests = new ArrayList<Quest>();
@@ -71,32 +93,17 @@ public class EventInventory implements Listener {
                 }
             }
         });
-        int itemsAdded = 0;
-        for (int i = 0; i < startedQuests.size(); i++) {
-            if (itemsAdded < 28) {
-                items.put(items.size(), startedQuests.get(i).generateQuestIcon(player));
-                itemsAdded++;
-            }
+        List<Quest> sorted = new ArrayList<Quest>();
+        for (Quest quest : startedQuests) {
+            sorted.add(quest);
         }
-        for (int i = 0; i < unstartedQuests.size(); i++) {
-            if (itemsAdded < 28) {
-                items.put(items.size(), unstartedQuests.get(i).generateQuestIcon(player));
-                itemsAdded++;
-            }
+        for (Quest quest : unstartedQuests) {
+            sorted.add(quest);
         }
-        for (int i = 0; i < completedQuests.size(); i++) {
-            if (itemsAdded < 28) {
-                items.put(items.size(), completedQuests.get(i).generateQuestIcon(player));
-                itemsAdded++;
-            }
+        for (Quest quest : completedQuests) {
+            sorted.add(quest);
         }
-        Inventory inventory = Bukkit.createInventory(null, 27, ChatColor.translateAlternateColorCodes('&', "Quests"));
-        for (Map.Entry<Integer, ItemStack> item : items.entrySet()) {
-            inventory.setItem(item.getKey(), item.getValue());
-        }
-        player.closeInventory();
-        player.openInventory(inventory);
-        playersInQuestGui.put(player.getUniqueId(), 1);
+        return sorted;
     }
 
     @EventHandler

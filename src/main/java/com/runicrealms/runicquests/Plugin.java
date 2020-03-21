@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import com.runicrealms.runicquests.command.ResetQuestsCommand;
+import com.runicrealms.runicquests.event.*;
 import com.runicrealms.runicquests.listeners.JournalListener;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -20,11 +21,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.runicrealms.runiccharacters.api.RunicCharactersApi;
 import com.runicrealms.runicquests.command.QuestsCommand;
 import com.runicrealms.runicquests.config.ConfigLoader;
-import com.runicrealms.runicquests.event.EventBreakBlock;
-import com.runicrealms.runicquests.event.EventClickNpc;
-import com.runicrealms.runicquests.event.EventKillMythicMob;
-import com.runicrealms.runicquests.event.EventPlayerJoinQuit;
-import com.runicrealms.runicquests.event.EventPlayerLocation;
 import com.runicrealms.runicquests.player.QuestProfile;
 import com.runicrealms.runicquests.quests.Quest;
 import com.runicrealms.runicquests.quests.QuestItem;
@@ -61,6 +57,7 @@ public class Plugin extends JavaPlugin {
 		this.getServer().getPluginManager().registerEvents(new EventPlayerJoinQuit(), this);
 		this.getServer().getPluginManager().registerEvents(new EventPlayerLocation(), this);
 		this.getServer().getPluginManager().registerEvents(new JournalListener(), this);
+		this.getServer().getPluginManager().registerEvents(new EventInventory(), this);
 		for (Player player : Bukkit.getOnlinePlayers()) { // Loop through online players (fixes bug with /reload)
 			EventPlayerJoinQuit.runJoinEvent(player, RunicCharactersApi.getCurrentCharacterSlot(player.getUniqueId())); // Read PlayerJoinQuitEvent.runJoinEvent
 		}
