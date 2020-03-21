@@ -36,5 +36,10 @@ public class QuestObjectiveSlay extends QuestObjective {
 	public void setMobsKilled(Integer mobsKilled) {
 		this.mobsKilled = mobsKilled;
 	}
+
+	@Override
+	public QuestObjectiveSlay clone() {
+		return new QuestObjectiveSlay(this.mobNames, this.mobAmount, this.questItems, this.goalMessage, this.execute, this.objectiveNumber, this.completedMessage);
+	}
 	
 }

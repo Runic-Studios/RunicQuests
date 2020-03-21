@@ -23,13 +23,10 @@ public class QuestFirstNpc implements Cloneable {
 	private List<String> questCompletedSpeech;
 	private String npcName;
 	private List<String> execute;
-	private boolean deniable;
-	private List<String> deniedMessage;
-	private List<String> acceptedMessage;
 	private FirstNpcState state = FirstNpcState.NEUTRAL;
 	private Long id;
 	
-	public QuestFirstNpc(Integer npcId, List<String> speech, List<QuestIdleMessage> idleSpeech, List<String> questCompletedSpeech, String npcName, List<String> execute, boolean deniable, List<String> deniedMessage, List<String> acceptedMessage) {
+	public QuestFirstNpc(Integer npcId, List<String> speech, List<QuestIdleMessage> idleSpeech, List<String> questCompletedSpeech, String npcName, List<String> execute) {
 		this.npc = CitizensAPI.getNPCRegistry().getById(npcId);
 		this.npcId = npcId;
 		this.speech = speech;
@@ -37,9 +34,6 @@ public class QuestFirstNpc implements Cloneable {
 		this.questCompletedSpeech = questCompletedSpeech;
 		this.execute = execute;
 		this.npcName = npcName;
-		this.deniable = deniable;
-		this.deniedMessage = deniedMessage;
-		this.acceptedMessage = acceptedMessage;
 		this.id = Plugin.getNextId();
 	}
 	
@@ -74,19 +68,7 @@ public class QuestFirstNpc implements Cloneable {
 	public String getNpcName() {
 		return npcName;
 	}
-	
-	public boolean isDeniable() {
-		return deniable;
-	}
-	
-	public List<String> getDeniedMessage() {
-		return deniedMessage;
-	}
-	
-	public List<String> getAcceptedMessage() {
-		return acceptedMessage;
-	}
-	
+
 	public void setState(FirstNpcState state) {
 		this.state = state;
 	}
@@ -112,7 +94,7 @@ public class QuestFirstNpc implements Cloneable {
 
 	@Override
 	public QuestFirstNpc clone() {
-		return new QuestFirstNpc(this.npcId, this.speech, this.idleSpeech, this.questCompletedSpeech, this.npcName, this.execute, this.deniable, this.deniedMessage, this.acceptedMessage);
+		return new QuestFirstNpc(this.npcId, this.speech, this.idleSpeech, this.questCompletedSpeech, this.npcName, this.execute);
 	}
 
 }

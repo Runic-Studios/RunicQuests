@@ -165,7 +165,7 @@ public class EventKillMythicMob implements Listener {
 											Bukkit.getServer().getPluginManager().callEvent(new QuestCompleteEvent(quest, questProfile)); // Call the quest event
 										}
 									}
-									break;
+									return;
 								}
 							}
 						}

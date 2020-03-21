@@ -102,7 +102,7 @@ public class Quest implements Cloneable {
 			if (objective instanceof QuestObjectiveTalk) {
 				newObjectives.add(((QuestObjectiveTalk) objective).clone());
 			} else {
-				newObjectives.add(objective);
+				newObjectives.add(objective.clone());
 			}
 		}
 		return new Quest(this.questName, this.firstNPC.clone(), newObjectives, this.rewards, this.questID, this.requirements, this.sideQuest, this.repeatable, this.cooldown);

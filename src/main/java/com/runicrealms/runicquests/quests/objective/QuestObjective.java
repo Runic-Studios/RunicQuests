@@ -7,7 +7,7 @@ import org.bukkit.Bukkit;
 import com.runicrealms.runicquests.quests.QuestItem;
 import com.runicrealms.runicquests.quests.QuestObjectiveType;
 
-public abstract class QuestObjective {
+public abstract class QuestObjective implements Cloneable {
 	
 	/*
 	 * Abstract class that contains methods that must exist for a quest objective
@@ -95,5 +95,7 @@ public abstract class QuestObjective {
 		}
 		return null;
 	}
+
+	public abstract QuestObjective clone();
 	
 }

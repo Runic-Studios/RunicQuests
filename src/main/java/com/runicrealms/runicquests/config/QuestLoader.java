@@ -294,10 +294,7 @@ public class QuestLoader {
 					(configSec.contains("idle-messages") ? loadIdleMessages(configSec.getConfigurationSection("idle-messages"), objectivesNumber) : null),
 					(configSec.contains("quest-completed-message") ? getStringList(configSec, "quest-completed-message") : null),
 					checkValueNull(configSec.getString("npc-name"), "npc-name"),
-					(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
-					checkValueNull(configSec.getBoolean("deniable"), "deniable"),
-					(configSec.getBoolean("deniable") ? checkValueNull(getStringList(configSec, "denied-message"), "denied-message") : null),
-					(configSec.getBoolean("deniable") ? checkValueNull(getStringList(configSec, "accepted-message"), "accepted-message") : null));
+					(configSec.contains("execute") ? getStringList(configSec, "execute") : null));
 		} catch (QuestLoadException exception) {
 			throw exception;
 		} catch (Exception exception) {

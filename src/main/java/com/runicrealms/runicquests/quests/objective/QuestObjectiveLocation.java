@@ -22,5 +22,10 @@ public class QuestObjectiveLocation extends QuestObjective {
 	public LocationToReach getLocation() {
 		return this.location;
 	}
+
+	@Override
+	public QuestObjectiveLocation clone() {
+		return new QuestObjectiveLocation(this.location, this.questItems, this.goalMessage, this.execute, this.objectiveNumber, this.completedMessage);
+	}
 	
 }

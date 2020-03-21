@@ -6,7 +6,7 @@ import com.runicrealms.runicquests.quests.QuestItem;
 import com.runicrealms.runicquests.quests.QuestNpc;
 import com.runicrealms.runicquests.quests.QuestObjectiveType;
 
-public class QuestObjectiveTalk extends QuestObjective implements Cloneable {
+public class QuestObjectiveTalk extends QuestObjective {
 	
 	/*
 	 * Talk quest objective

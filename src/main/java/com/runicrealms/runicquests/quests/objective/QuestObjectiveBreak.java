@@ -53,5 +53,10 @@ public class QuestObjectiveBreak extends QuestObjective {
 	public Integer getBlocksBroken() {
 		return this.blocksBroken;
 	}
+
+	@Override
+	public QuestObjectiveBreak clone() {
+		return new QuestObjectiveBreak(this.blockMaterial, this.blockAmount, this.blockLocation, this.questItems, this.goalMessage, this.execute, this.objectiveNumber, this.completedMessage);
+	}
 	
 }
