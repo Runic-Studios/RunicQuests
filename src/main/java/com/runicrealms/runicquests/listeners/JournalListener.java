@@ -3,6 +3,7 @@ package com.runicrealms.runicquests.listeners;
 import com.runicrealms.plugin.attributes.AttributeUtil;
 import com.runicrealms.runiccharacters.api.events.CharacterLoadEvent;
 import com.runicrealms.runicquests.Plugin;
+import com.runicrealms.runicquests.event.EventInventory;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -65,7 +66,7 @@ public class JournalListener implements Listener {
         if (e.getClickedInventory() == null) return;
         if (!(e.getClickedInventory().getType().equals(InventoryType.PLAYER))) return;
 
-        pl.performCommand("quest");
+        EventInventory.openQuestGui(pl);
         e.setCancelled(true);
     }
 
