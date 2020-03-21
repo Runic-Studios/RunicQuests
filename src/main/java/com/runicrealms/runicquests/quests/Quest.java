@@ -126,7 +126,7 @@ public class Quest implements Cloneable {
 			meta.setLore(lore);
 			item.setItemMeta(meta);
 			return item;
-		} else if (RunicCoreHook.isReqClassLv(player, this.getRequirements().getClassLvReq())) {
+		} else if (!RunicCoreHook.isReqClassLv(player, this.getRequirements().getClassLvReq())) {
 			ItemStack item = new ItemStack(Material.ROSE_RED);
 			ItemMeta meta = item.getItemMeta();
 			List<String> lore = new ArrayList<String>();

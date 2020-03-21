@@ -86,7 +86,7 @@ public class JournalListener implements Listener {
         if (e.getAction() != Action.RIGHT_CLICK_AIR && e.getAction() != Action.RIGHT_CLICK_BLOCK) return;
 
 
-        pl.performCommand("quest");
+        EventInventory.openQuestGui(pl);
         e.setCancelled(true);
     }
 
