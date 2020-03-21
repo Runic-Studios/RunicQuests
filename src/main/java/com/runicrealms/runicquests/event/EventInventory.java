@@ -9,6 +9,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.Inventory;
@@ -109,6 +110,13 @@ public class EventInventory implements Listener {
     public void onPlayerQuit(PlayerJoinEvent event) {
         if (playersInQuestGui.containsKey(event.getPlayer().getUniqueId())) {
             playersInQuestGui.remove(event.getPlayer().getUniqueId());
+        }
+    }
+
+    @EventHandler
+    public void onInventoryClick(InventoryClickEvent event) {
+        if (playersInQuestGui.containsKey(((Player) event.getWhoClicked()).getUniqueId())) {
+            event.setCancelled(true);
         }
     }
 
