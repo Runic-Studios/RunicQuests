@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 
+import com.runicrealms.runicquests.quests.FirstNpcState;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
@@ -39,6 +40,12 @@ public class EventPlayerLocation implements Listener {
 			}
 		}
 		final Quest quest = new Quest(questFound);
+		if (quest.getFirstNPC().getState() != FirstNpcState.ACCEPTED) {
+			return;
+		}
+		if (quest.getQuestState().isCompleted() == false) {
+			return;
+		}
 		for (QuestObjective objective : quest.getObjectives()) {
 			if (objective.isCompleted()) { // Check that the objective has not been completed
 				continue;
