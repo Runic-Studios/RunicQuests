@@ -178,6 +178,29 @@ public class Plugin extends JavaPlugin {
 		}
 	}
 
+	public static String getFirstUncompletedGoalMessage(Quest quest) {
+		if (quest.getQuestState().hasStarted() == false) {
+			return "Speak with: " + quest.getFirstNPC().getNpcName() + " at " +
+					quest.getFirstNPC().getCitizensNpc().getStoredLocation().getBlockX() + " " +
+					quest.getFirstNPC().getCitizensNpc().getStoredLocation().getBlockY() + " " +
+					quest.getFirstNPC().getCitizensNpc().getStoredLocation().getBlockZ();
+		}
+		QuestObjective lowest = null;
+		for (QuestObjective objective : quest.getObjectives()) {
+			if (lowest == null) {
+				lowest = objective;
+				continue;
+			}
+			if (objective.getObjectiveNumber() < lowest.getObjectiveNumber()) {
+				lowest = objective;
+			}
+		}
+		if (lowest == null) {
+			return null;
+		}
+		return lowest.getGoalMessage();
+	}
+
 	public static String getItemName(ItemStack item) { // Get the name of an ItemStack
 		if (item.getItemMeta().getDisplayName() == "" || item.getItemMeta().getDisplayName() == null) {
 			return ChatColor.stripColor(item.getType().toString());

@@ -3,9 +3,16 @@ package com.runicrealms.runicquests.quests;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.player.QuestState;
 import com.runicrealms.runicquests.quests.objective.QuestObjective;
 import com.runicrealms.runicquests.quests.objective.QuestObjectiveTalk;
+import com.runicrealms.runicquests.util.RunicCoreHook;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 public class Quest implements Cloneable {
 	
@@ -106,6 +113,50 @@ public class Quest implements Cloneable {
 			}
 		}
 		return new Quest(this.questName, this.firstNPC.clone(), newObjectives, this.rewards, this.questID, this.requirements, this.sideQuest, this.repeatable, this.cooldown);
+	}
+
+	public ItemStack generateQuestIcon(Player player) {
+		if (this.getQuestState().isCompleted()) {
+			ItemStack item = new ItemStack(Material.CACTUS_GREEN);
+			ItemMeta meta = item.getItemMeta();
+			List<String> lore = new ArrayList<String>();
+			meta.setDisplayName(ChatColor.GREEN + this.getQuestName());
+			lore.add(ChatColor.DARK_GREEN + "Completed");
+			lore.add(ChatColor.GRAY + "Level " + this.getRequirements().getClassLvReq());
+			meta.setLore(lore);
+			item.setItemMeta(meta);
+			return item;
+		} else if (RunicCoreHook.isReqClassLv(player, this.getRequirements().getClassLvReq())) {
+			ItemStack item = new ItemStack(Material.ROSE_RED);
+			ItemMeta meta = item.getItemMeta();
+			List<String> lore = new ArrayList<String>();
+			meta.setDisplayName(ChatColor.RED + this.getQuestName());
+			lore.add(ChatColor.DARK_RED + "You do not meet the level requirements!");
+			lore.add(ChatColor.GRAY + "Level " + this.getRequirements().getClassLvReq());
+			meta.setLore(lore);
+			item.setItemMeta(meta);
+			return item;
+		} else if (this.isSideQuest()) {
+			ItemStack item = new ItemStack(Material.DANDELION_YELLOW);
+			ItemMeta meta = item.getItemMeta();
+			List<String> lore = new ArrayList<String>();
+			meta.setDisplayName(ChatColor.YELLOW + this.getQuestName());
+			lore.add(ChatColor.GOLD + Plugin.getFirstUncompletedGoalMessage(this));
+			lore.add(ChatColor.GRAY + "Level " + this.getRequirements().getClassLvReq());
+			meta.setLore(lore);
+			item.setItemMeta(meta);
+			return item;
+		} else {
+			ItemStack item = new ItemStack(Material.ORANGE_DYE);
+			ItemMeta meta = item.getItemMeta();
+			List<String> lore = new ArrayList<String>();
+			meta.setDisplayName(ChatColor.GOLD + this.getQuestName());
+			lore.add(ChatColor.YELLOW + Plugin.getFirstUncompletedGoalMessage(this));
+			lore.add(ChatColor.GRAY + "Level " + this.getRequirements().getClassLvReq());
+			meta.setLore(lore);
+			item.setItemMeta(meta);
+			return item;
+		}
 	}
 
 }
