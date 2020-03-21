@@ -37,6 +37,7 @@ public class EventClickNpc implements Listener {
 
 	@EventHandler
 	public void onNpcRightClick(NPCRightClickEvent event) {
+		//Bukkit.broadcastMessage("npc right click event");
 		Player player = event.getClicker();
 		QuestProfile questProfile = Plugin.getQuestProfile(player.getUniqueId().toString());
 		int characterSlot = RunicCharactersApi.getCurrentCharacterSlot(player.getUniqueId());
@@ -44,6 +45,7 @@ public class EventClickNpc implements Listener {
 		Map<UUID, Map<Integer, Set<Integer>>> questCooldowns = Plugin.getQuestCooldowns();
 		if (questProfile == null) return;
 		for (Quest quest : questProfile.getQuests()) { // Loop through quests to find a match for the NPC
+			//Bukkit.broadcastMessage("npc found");
 			if (quest.getQuestState().isCompleted() && !quest.isRepeatable()) { // Check for if the quest is completed
 				if (quest.getFirstNPC().getCitizensNpc().getId() == event.getNPC().getId()) { // Check for first NPC quest completed speech
 					if (quest.getFirstNPC().hasQuestCompletedSpeech()) { // Create a task queue for the speech
@@ -57,6 +59,7 @@ public class EventClickNpc implements Listener {
 			}
 			if ((!quest.getQuestState().isCompleted()) ||
 					(quest.isRepeatable() && quest.getQuestState().hasStarted() && quest.getQuestState().isCompleted())) { // Check that the quest is not completed
+				//Bukkit.broadcastMessage("quest not completed");
 				if (quest.getFirstNPC().getCitizensNpc().getId() == event.getNPC().getId()
 						&& !questCooldowns.get(player.getUniqueId()).get(characterSlot).contains(quest.getQuestID())) { // Check for an NPC id match between the first NPC and the clicked NPC
 					if (QuestObjective.getObjective(quest.getObjectives(), 1).isCompleted() == false || quest.isRepeatable()) { // Check that the first objective has not been completed
@@ -77,35 +80,95 @@ public class EventClickNpc implements Listener {
 									questProfile.save();
 								}
 								if (!quest.getFirstNPC().isDeniable()) { // Check if you can left click the NPC to deny
-									player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 10, 0); // Play sound
-									quest.getQuestState().setStarted(true);
-									questProfile.save();
-									if (quest.getFirstNPC().hasExecute()) { // Execute the first NPC commands
-										quest.getFirstNPC().executeCommand(player.getName());
+									boolean meetsRequirements = true;
+									if (!RunicCoreHook.isReqClassLv(player, quest.getRequirements().getClassLvReq())) { // Check that the player is the required level
+										player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.5f, 1.0f);
+										meetsRequirements = false;
+										TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getLevelNotMetMsg(), quest.getFirstNPC().getNpcName())); // Create a task queue with the level not met message
+										queue.setCompletedTask(new Runnable() {
+											@Override
+											public void run() {
+												npcs.remove(quest.getFirstNPC().getId());
+											}
+										});
+										npcs.put(quest.getFirstNPC().getId(), queue);
+										queue.startTasks();
+									} else if (quest.getRequirements().hasCraftingRequirement()) { // Check if the quest has a crafting requirement
+										if (!RunicCoreHook.isRequiredCraftingLevel(player, quest.getRequirements().getCraftingProfessionType(), quest.getRequirements().getCraftingRequirement())) { // Check that the player is the required crafting level
+											player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.5f, 1.0f);
+											meetsRequirements = false;
+											TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getCraftingLevelNotMetMsg(), quest.getFirstNPC().getNpcName())); // Create a task queue with the crafting not met message
+											queue.setCompletedTask(new Runnable() {
+												@Override
+												public void run() {
+													npcs.remove(quest.getFirstNPC().getId());
+												}
+											});
+											npcs.put(quest.getFirstNPC().getId(), queue);
+											queue.startTasks();
+
+										}
+									} else if (quest.getRequirements().hasCompletedQuestRequirement()) { // Check if the quest has a completed quests requirement
+										if (!RunicCoreHook.hasCompletedRequiredQuests(player, quest.getRequirements().getCompletedQuestsRequirement())) { // Check that player has completed the required quests
+											player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.5f, 1.0f);
+											meetsRequirements = false;
+											TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getCompletedQuestsNotMetMsg(), quest.getFirstNPC().getNpcName())); // Create a task queue with the quests completed not met message
+											queue.setCompletedTask(new Runnable() {
+												@Override
+												public void run() {
+													npcs.remove(quest.getFirstNPC().getId());
+												}
+											});
+											npcs.put(quest.getFirstNPC().getId(), queue);
+											queue.startTasks();
+										}
+									} else if (quest.getRequirements().hasClassTypeRequirement()) { // Check if the quest has a class requirement
+										if (!RunicCoreHook.isRequiredClass(quest.getRequirements().getClassTypeRequirement(), player)) { // Check that the player is the required class
+											player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.5f, 1.0f);
+											meetsRequirements = false;
+											TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getClassTypeNotMetMsg(), quest.getFirstNPC().getNpcName())); // Create a task queue with the class type not met message
+											queue.setCompletedTask(new Runnable() {
+												@Override
+												public void run() {
+													npcs.remove(quest.getFirstNPC().getId());
+												}
+											});
+											npcs.put(quest.getFirstNPC().getId(), queue);
+											queue.startTasks();
+										}
 									}
-									TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getFirstNPC().getSpeech(), quest.getFirstNPC().getNpcName())); // Create a task queue with the first NPC speech
-									queue.setCompletedTask(new Runnable() {
-										@Override
-										public void run() {
-											npcs.remove(quest.getFirstNPC().getId());
-											quest.getFirstNPC().setState(FirstNpcState.ACCEPTED);
-											questProfile.save();
+									if (meetsRequirements) { // Check that the player meets the requirements
+										player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 10, 0); // Play sound
+										quest.getQuestState().setStarted(true);
+										questProfile.save();
+										if (quest.getFirstNPC().hasExecute()) { // Execute the first NPC commands
+											quest.getFirstNPC().executeCommand(player.getName());
 										}
-									});
-									queue.addTasks(new Runnable() {
-										@Override
-										public void run() {
-											String goalMessage = QuestObjective.getObjective(quest.getObjectives(), 1).getGoalMessage();
-											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&l&6New objective for: &r&l&e") + quest.getQuestName());
-											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + goalMessage));
-											player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.YELLOW + goalMessage));
-											player.sendTitle(ChatColor.GOLD + "New Objective", ChatColor.YELLOW + goalMessage, 10, 80, 10); // Send a goal message title
-											Plugin.updatePlayerCachedLocations(player);
-										}
-									});
-									npcs.put(quest.getFirstNPC().getId(), queue);
-									queue.startTasks();
-									return;
+										TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getFirstNPC().getSpeech(), quest.getFirstNPC().getNpcName())); // Create a task queue with the first NPC speech
+										queue.setCompletedTask(new Runnable() {
+											@Override
+											public void run() {
+												npcs.remove(quest.getFirstNPC().getId());
+												quest.getFirstNPC().setState(FirstNpcState.ACCEPTED);
+												questProfile.save();
+											}
+										});
+										queue.addTasks(new Runnable() {
+											@Override
+											public void run() {
+												String goalMessage = QuestObjective.getObjective(quest.getObjectives(), 1).getGoalMessage();
+												player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&l&6New objective for: &r&l&e") + quest.getQuestName());
+												player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + goalMessage));
+												player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.YELLOW + goalMessage));
+												player.sendTitle(ChatColor.GOLD + "New Objective", ChatColor.YELLOW + goalMessage, 10, 80, 10); // Send a goal message title
+												Plugin.updatePlayerCachedLocations(player);
+											}
+										});
+										npcs.put(quest.getFirstNPC().getId(), queue);
+										//Bukkit.broadcastMessage("start task");
+										queue.startTasks();
+										return;
+									}
 								} else { // If the quest is not deniable then...
 									if (quest.getFirstNPC().getState() == FirstNpcState.PENDING || quest.getFirstNPC().getState() == FirstNpcState.DENIED) { // Check that the NPC is waiting for a response
 										player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 10, 0); // Play sound
@@ -146,6 +209,7 @@ public class EventClickNpc implements Listener {
 											queue.startTasks();
 										} else if (quest.getRequirements().hasCraftingRequirement()) { // Check if the quest has a crafting requirement
 											if (!RunicCoreHook.isRequiredCraftingLevel(player, quest.getRequirements().getCraftingProfessionType(), quest.getRequirements().getCraftingRequirement())) { // Check that the player is the required crafting level
+												player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.5f, 1.0f);
 												meetsRequirements = false;
 												TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getCraftingLevelNotMetMsg(), quest.getFirstNPC().getNpcName())); // Create a task queue with the crafting not met message
 												queue.setCompletedTask(new Runnable() {
@@ -160,6 +224,7 @@ public class EventClickNpc implements Listener {
 											}
 										} else if (quest.getRequirements().hasCompletedQuestRequirement()) { // Check if the quest has a completed quests requirement
 											if (!RunicCoreHook.hasCompletedRequiredQuests(player, quest.getRequirements().getCompletedQuestsRequirement())) { // Check that player has completed the required quests
+												player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.5f, 1.0f);
 												meetsRequirements = false;
 												TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getCompletedQuestsNotMetMsg(), quest.getFirstNPC().getNpcName())); // Create a task queue with the quests completed not met message
 												queue.setCompletedTask(new Runnable() {
@@ -173,6 +238,7 @@ public class EventClickNpc implements Listener {
 											}
 										} else if (quest.getRequirements().hasClassTypeRequirement()) { // Check if the quest has a class requirement
 											if (!RunicCoreHook.isRequiredClass(quest.getRequirements().getClassTypeRequirement(), player)) { // Check that the player is the required class
+												player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.5f, 1.0f);
 												meetsRequirements = false;
 												TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getClassTypeNotMetMsg(), quest.getFirstNPC().getNpcName())); // Create a task queue with the class type not met message
 												queue.setCompletedTask(new Runnable() {
@@ -387,6 +453,7 @@ public class EventClickNpc implements Listener {
 	@EventHandler
 	public void onNpcLeftClick(NPCLeftClickEvent event) {
 		Player player = event.getClicker();
+		//Bukkit.broadcastMessage("npc left click event");
 		QuestProfile questProfile = Plugin.getQuestProfile(event.getClicker().getUniqueId().toString()); // Get the player's questing profile
 		for (Quest quest : questProfile.getQuests()) { // Loop through the quests
 			if (quest.getQuestState().hasStarted() == false && quest.getQuestState().isCompleted() == false && quest.getFirstNPC().isDeniable()) { // Check that the quest has not been started, is not completed, and is deniable

@@ -6,6 +6,7 @@ import java.util.List;
 import com.runicrealms.plugin.RunicCore;
 import com.runicrealms.plugin.player.utilities.PlayerLevelUtil;
 import com.runicrealms.plugin.utilities.CurrencyUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import com.runicrealms.runiccharacters.api.RunicCharactersApi;
@@ -24,10 +25,13 @@ public class RunicCoreHook {
 
 	public static boolean isReqClassLv(Player player, int reqLevel) {
 		int level = RunicCore.getCacheManager().getPlayerCache(player.getUniqueId()).getClassLevel();
+		//Bukkit.broadcastMessage("Players level: " + level);
+		//Bukkit.broadcastMessage("Quest req: " + reqLevel);
 		return level >= reqLevel;
 	}
 
 	public static boolean hasCompletedRequiredQuests(Player player, List<Integer> quests) {
+		//Bukkit.broadcastMessage("checking quest req.");
 		QuestProfile profile = Plugin.getQuestProfile(player.getUniqueId().toString());
 		for (Integer questID : quests) {
 			if (profile.getSavedData().getConfig().get(RunicCharactersApi.getCurrentCharacterSlot(player.getUniqueId())).contains(questID + "")) {

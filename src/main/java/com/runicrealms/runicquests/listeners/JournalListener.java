@@ -1,6 +1,5 @@
 package com.runicrealms.runicquests.listeners;
 
-import com.runicrealms.plugin.RunicCore;
 import com.runicrealms.plugin.attributes.AttributeUtil;
 import com.runicrealms.runiccharacters.api.events.CharacterLoadEvent;
 import com.runicrealms.runicquests.Plugin;
@@ -23,7 +22,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.Objects;
-import java.util.UUID;
 
 public class JournalListener implements Listener {
 
@@ -39,7 +37,7 @@ public class JournalListener implements Listener {
             public void run() {
                 if (pl.getInventory().getItem(7) == null
                         || (pl.getInventory().getItem(7) != null
-                        && pl.getInventory().getItem(7).getType() != Material.WRITABLE_BOOK)) {
+                        && pl.getInventory().getItem(7).getType() != Material.BOOK)) {
                     pl.getInventory().setItem(7, getQuestJournal());
                 }
             }
@@ -106,7 +104,7 @@ public class JournalListener implements Listener {
     }
 
     private ItemStack getQuestJournal() {
-        ItemStack rune = new ItemStack(Material.WRITABLE_BOOK);
+        ItemStack rune = new ItemStack(Material.BOOK);
         rune = AttributeUtil.addCustomStat(rune, "soulbound", "true");
         ItemMeta meta = rune.getItemMeta();
         meta.setDisplayName(ChatColor.GOLD + "Quest Journal");
