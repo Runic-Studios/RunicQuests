@@ -73,19 +73,19 @@ public class EventInventory implements Listener {
         });
         int itemsAdded = 0;
         for (int i = 0; i < startedQuests.size(); i++) {
-            if (itemsAdded < 27) {
+            if (itemsAdded < 28) {
                 items.put(items.size(), startedQuests.get(i).generateQuestIcon(player));
                 itemsAdded++;
             }
         }
         for (int i = 0; i < unstartedQuests.size(); i++) {
-            if (itemsAdded < 27) {
+            if (itemsAdded < 28) {
                 items.put(items.size(), unstartedQuests.get(i).generateQuestIcon(player));
                 itemsAdded++;
             }
         }
         for (int i = 0; i < completedQuests.size(); i++) {
-            if (itemsAdded < 27) {
+            if (itemsAdded < 28) {
                 items.put(items.size(), completedQuests.get(i).generateQuestIcon(player));
                 itemsAdded++;
             }
