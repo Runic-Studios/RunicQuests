@@ -66,7 +66,7 @@ public class EventInventory implements Listener {
             }
         }
         Collections.sort(startedQuests, new Comparator<Quest>(){
-            public int compare(Quest a, Quest b){
+            public int compare(Quest a, Quest b) {
                 if (a.getRequirements().getClassLvReq() > b.getRequirements().getClassLvReq()) {
                     return 1;
                 } else if (a.getRequirements().getClassLvReq() < b.getRequirements().getClassLvReq()) {
@@ -77,7 +77,7 @@ public class EventInventory implements Listener {
             }
         });
         Collections.sort(unstartedQuests, new Comparator<Quest>() {
-            public int compare(Quest a, Quest b){
+            public int compare(Quest a, Quest b) {
                 if (a.getRequirements().getClassLvReq() > b.getRequirements().getClassLvReq()) {
                     return 1;
                 } else if (a.getRequirements().getClassLvReq() < b.getRequirements().getClassLvReq()) {
@@ -88,7 +88,7 @@ public class EventInventory implements Listener {
             }
         });
         Collections.sort(completedQuests, new Comparator<Quest>() {
-            public int compare(Quest a, Quest b){
+            public int compare(Quest a, Quest b) {
                 if (a.getRequirements().getClassLvReq() > b.getRequirements().getClassLvReq()) {
                     return 1;
                 } else if (a.getRequirements().getClassLvReq() < b.getRequirements().getClassLvReq()) {

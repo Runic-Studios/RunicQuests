@@ -1,5 +1,7 @@
 package com.runicrealms.runicquests.player;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,6 +25,18 @@ public class QuestProfile {
 	public QuestProfile(UUID uuid, Integer characterSlot) {
 		this.playerUUID = uuid;
 		this.quests = PlayerDataLoader.getQuestDataForUser(uuid, characterSlot);
+		Collections.sort(this.quests, new Comparator<Quest>() {
+			@Override
+			public int compare(Quest a, Quest b) {
+				if (a.getRequirements().getClassLvReq() > b.getRequirements().getClassLvReq()) {
+					return 1;
+				} else if (a.getRequirements().getClassLvReq() < b.getRequirements().getClassLvReq()) {
+					return -1;
+				} else {
+					return 0;
+				}
+			}
+		});
 		this.savedData = PlayerDataLoader.getConfigFromCache(uuid);
 		this.characterSlot = characterSlot;
 	}

@@ -223,6 +223,7 @@ public class QuestLoader {
 	public static QuestObjective loadObjective(ConfigurationSection configSec, Integer objectiveNumber, int objectivesNumber) throws QuestLoadException {
 		try {
 			String goalMessage = checkValueNull(configSec.getString("goal-message"), "goal-message");
+			String goalLocation = configSec.contains("goal-location") ? configSec.getString("goal-location") : "";
 			if (configSec.getString("requirement.type").equalsIgnoreCase("slay")) {
 				return new QuestObjectiveSlay(
 						checkValueNull(getStringList(configSec, "requirement.mob-names"), "mob-names"),
@@ -231,7 +232,8 @@ public class QuestLoader {
 						goalMessage,
 						(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
 						objectiveNumber,
-						(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
+						(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null),
+						goalLocation);
 			} else if (configSec.getString("requirement.type").equalsIgnoreCase("talk")) {
 				QuestNpc npc;
 				try {
@@ -246,7 +248,8 @@ public class QuestLoader {
 						goalMessage,
 						(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
 						objectiveNumber,
-						(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
+						(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null),
+						goalLocation);
 			} else if (configSec.getString("requirement.type").equalsIgnoreCase("location")) {
 				if (checkValueNull(configSec.getString("requirement.location-type")).equalsIgnoreCase("radius")) {
 					return new QuestObjectiveLocation(
@@ -255,7 +258,8 @@ public class QuestLoader {
 							goalMessage,
 							(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
 							objectiveNumber,
-							(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
+							(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null),
+							goalLocation);
 				} else {
 					return new QuestObjectiveLocation(
 							new BoxLocation(checkValueNull(parseLocation(configSec.getString("requirement.corner-one"))), checkValueNull(parseLocation(configSec.getString("requirement.corner-two")))),
@@ -263,7 +267,8 @@ public class QuestLoader {
 							goalMessage,
 							(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
 							objectiveNumber,
-							(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
+							(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null),
+							goalLocation);
 
 				}
 			} else if (configSec.getString("requirement.type").equalsIgnoreCase("break")) {
@@ -275,7 +280,8 @@ public class QuestLoader {
 						goalMessage,
 						(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
 						objectiveNumber,
-						(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null));
+						(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null),
+						goalLocation);
 			}
 		} catch (QuestLoadException exception) {
 			throw exception;

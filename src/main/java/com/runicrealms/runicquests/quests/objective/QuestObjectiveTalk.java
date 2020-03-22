@@ -14,8 +14,8 @@ public class QuestObjectiveTalk extends QuestObjective {
 	
 	private QuestNpc questNpc;
 	
-	public QuestObjectiveTalk(QuestNpc questNpc, List<QuestItem> questItems, String goalMessage, List<String> execute, Integer objectiveNumber, List<String> completedMessage) {
-		super(objectiveNumber, QuestObjectiveType.TALK, completedMessage, questItems, goalMessage, execute);
+	public QuestObjectiveTalk(QuestNpc questNpc, List<QuestItem> questItems, String goalMessage, List<String> execute, Integer objectiveNumber, List<String> completedMessage, String goalLocation) {
+		super(objectiveNumber, QuestObjectiveType.TALK, completedMessage, questItems, goalMessage, execute, goalLocation);
 		this.questNpc = questNpc;
 	}
 	
@@ -25,7 +25,7 @@ public class QuestObjectiveTalk extends QuestObjective {
 
 	@Override
 	public QuestObjectiveTalk clone() {
-		return new QuestObjectiveTalk(this.questNpc.clone(), this.questItems, this.goalMessage, this.execute, this.objectiveNumber, this.completedMessage);
+		return new QuestObjectiveTalk(this.questNpc.clone(), this.questItems, this.goalMessage, this.execute, this.objectiveNumber, this.completedMessage, this.goalLocation);
 	}
 	
 }

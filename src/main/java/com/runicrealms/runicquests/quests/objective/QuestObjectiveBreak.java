@@ -19,8 +19,8 @@ public class QuestObjectiveBreak extends QuestObjective {
 	private Location blockLocation;
 	private Integer blocksBroken;
 	
-	public QuestObjectiveBreak(Material blockMaterial, Integer blockAmount, Location blockLocation, List<QuestItem> questItems, String goalMessage, List<String> execute, Integer objectiveNumber, List<String> completedMessage) {
-		super(objectiveNumber, QuestObjectiveType.BREAK, completedMessage, questItems, goalMessage, execute);
+	public QuestObjectiveBreak(Material blockMaterial, Integer blockAmount, Location blockLocation, List<QuestItem> questItems, String goalMessage, List<String> execute, Integer objectiveNumber, List<String> completedMessage, String goalLocation) {
+		super(objectiveNumber, QuestObjectiveType.BREAK, completedMessage, questItems, goalMessage, execute, goalLocation);
 		this.blockMaterial = blockMaterial;
 		this.blockAmount = blockAmount;
 		this.blockLocation = blockLocation;
@@ -56,7 +56,7 @@ public class QuestObjectiveBreak extends QuestObjective {
 
 	@Override
 	public QuestObjectiveBreak clone() {
-		return new QuestObjectiveBreak(this.blockMaterial, this.blockAmount, this.blockLocation, this.questItems, this.goalMessage, this.execute, this.objectiveNumber, this.completedMessage);
+		return new QuestObjectiveBreak(this.blockMaterial, this.blockAmount, this.blockLocation, this.questItems, this.goalMessage, this.execute, this.objectiveNumber, this.completedMessage, this.goalLocation);
 	}
 	
 }

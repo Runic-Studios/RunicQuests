@@ -34,7 +34,6 @@ public class EventClickNpc implements Listener {
 
 	@EventHandler
 	public void onNpcRightClick(NPCRightClickEvent event) {
-		//Bukkit.broadcastMessage("npc right click event");
 		Player player = event.getClicker();
 		QuestProfile questProfile = Plugin.getQuestProfile(player.getUniqueId().toString());
 		int characterSlot = RunicCharactersApi.getCurrentCharacterSlot(player.getUniqueId());
@@ -42,7 +41,6 @@ public class EventClickNpc implements Listener {
 		Map<UUID, Map<Integer, Set<Integer>>> questCooldowns = Plugin.getQuestCooldowns();
 		if (questProfile == null) return;
 		for (Quest quest : questProfile.getQuests()) { // Loop through quests to find a match for the NPC
-			//Bukkit.broadcastMessage("npc found");
 			if (quest.getQuestState().isCompleted() && !quest.isRepeatable()) { // Check for if the quest is completed
 				if (quest.getFirstNPC().getCitizensNpc().getId() == event.getNPC().getId()) { // Check for first NPC quest completed speech
 					if (quest.getFirstNPC().hasQuestCompletedSpeech()) { // Create a task queue for the speech
@@ -56,7 +54,6 @@ public class EventClickNpc implements Listener {
 			}
 			if ((!quest.getQuestState().isCompleted()) ||
 					(quest.isRepeatable() && quest.getQuestState().hasStarted() && quest.getQuestState().isCompleted())) { // Check that the quest is not completed
-				//Bukkit.broadcastMessage("quest not completed");
 				if (quest.getFirstNPC().getCitizensNpc().getId() == event.getNPC().getId()
 						&& !questCooldowns.get(player.getUniqueId()).get(characterSlot).contains(quest.getQuestID())) { // Check for an NPC id match between the first NPC and the clicked NPC
 					if (QuestObjective.getObjective(quest.getObjectives(), 1).isCompleted() == false || quest.isRepeatable()) { // Check that the first objective has not been completed
@@ -160,7 +157,6 @@ public class EventClickNpc implements Listener {
 										}
 									});
 									npcs.put(quest.getFirstNPC().getId(), queue);
-									//Bukkit.broadcastMessage("start task");
 									queue.startTasks();
 								}
 								return;

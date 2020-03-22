@@ -141,7 +141,11 @@ public class Quest implements Cloneable {
 			ItemMeta meta = item.getItemMeta();
 			List<String> lore = new ArrayList<String>();
 			meta.setDisplayName(ChatColor.YELLOW + this.getQuestName());
-			lore.add(ChatColor.GOLD + Plugin.getFirstUncompletedGoalMessage(this));
+			String[] messageLocation = Plugin.getFirstUncompletedGoalMessageAndLocation(this);
+			lore.add(ChatColor.GOLD + messageLocation[0]);
+			if (!messageLocation[1].equalsIgnoreCase("")) {
+				lore.add(ChatColor.GOLD + "Location: " + messageLocation[1]);
+			}
 			lore.add(ChatColor.GRAY + "Level " + this.getRequirements().getClassLvReq());
 			meta.setLore(lore);
 			item.setItemMeta(meta);
@@ -151,7 +155,11 @@ public class Quest implements Cloneable {
 			ItemMeta meta = item.getItemMeta();
 			List<String> lore = new ArrayList<String>();
 			meta.setDisplayName(ChatColor.GOLD + this.getQuestName());
-			lore.add(ChatColor.YELLOW + Plugin.getFirstUncompletedGoalMessage(this));
+			String[] messageLocation = Plugin.getFirstUncompletedGoalMessageAndLocation(this);
+			lore.add(ChatColor.YELLOW + messageLocation[0]);
+			if (!messageLocation[1].equalsIgnoreCase("")) {
+				lore.add(ChatColor.YELLOW + "Location: " + messageLocation[1]);
+			}
 			lore.add(ChatColor.GRAY + "Level " + this.getRequirements().getClassLvReq());
 			meta.setLore(lore);
 			item.setItemMeta(meta);

@@ -175,12 +175,13 @@ public class Plugin extends JavaPlugin {
 		}
 	}
 
-	public static String getFirstUncompletedGoalMessage(Quest quest) {
+	public static String[] getFirstUncompletedGoalMessageAndLocation(Quest quest) {
 		if (quest.getQuestState().hasStarted() == false) {
-			return "Speak with: " + quest.getFirstNPC().getNpcName() + " at " +
+			return new String[] {"Speak with: " + quest.getFirstNPC().getNpcName() + " at " +
 					quest.getFirstNPC().getCitizensNpc().getStoredLocation().getBlockX() + " " +
 					quest.getFirstNPC().getCitizensNpc().getStoredLocation().getBlockY() + " " +
-					quest.getFirstNPC().getCitizensNpc().getStoredLocation().getBlockZ();
+					quest.getFirstNPC().getCitizensNpc().getStoredLocation().getBlockZ(),
+					""};
 		}
 		QuestObjective lowest = null;
 		for (QuestObjective objective : quest.getObjectives()) {
@@ -195,7 +196,7 @@ public class Plugin extends JavaPlugin {
 		if (lowest == null) {
 			return null;
 		}
-		return lowest.getGoalMessage();
+		return new String[] {lowest.getGoalMessage(), lowest.getGoalLocation()};
 	}
 
 	public static String getItemName(ItemStack item) { // Get the name of an ItemStack
