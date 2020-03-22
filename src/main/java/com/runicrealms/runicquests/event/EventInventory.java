@@ -3,9 +3,9 @@ package com.runicrealms.runicquests.event;
 import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.player.QuestProfile;
 import com.runicrealms.runicquests.quests.Quest;
-import com.runicrealms.runicquests.util.RunicCoreHook;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -14,6 +14,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.*;
 
@@ -25,7 +26,7 @@ public class EventInventory implements Listener {
         Map<Integer, ItemStack> items = new HashMap<Integer, ItemStack>();
         List<Quest> quests = getSortedQuests(player);
         boolean hasExtraPage = true;
-        for (int i = (page - 1) * 26; i <= page * 26; i++) {
+        for (int i = (page - 1) * 26; i < page * 26; i++) {
             if (quests.size() > i) {
                 items.put(i - (page - 1) * 26, quests.get(i).generateQuestIcon(player));
             } else {
@@ -33,7 +34,11 @@ public class EventInventory implements Listener {
             }
         }
         if (hasExtraPage) {
-            
+            ItemStack arrow = new ItemStack(Material.ARROW);
+            ItemMeta meta = arrow.getItemMeta();
+            meta.setDisplayName(ChatColor.GOLD + "Next Page");
+            arrow.setItemMeta(meta);
+            items.put(26, arrow);
         }
         Inventory inventory = Bukkit.createInventory(null, 27, ChatColor.translateAlternateColorCodes('&', "Quests"));
         for (Map.Entry<Integer, ItemStack> item : items.entrySet()) {
@@ -124,6 +129,9 @@ public class EventInventory implements Listener {
     public void onInventoryClick(InventoryClickEvent event) {
         if (playersInQuestGui.containsKey(((Player) event.getWhoClicked()).getUniqueId())) {
             event.setCancelled(true);
+            if (event.getCurrentItem().getType() == Material.ARROW) {
+                openQuestGui((Player) event.getWhoClicked(), playersInQuestGui.get(((Player) event.getWhoClicked()).getUniqueId()));
+            }
         }
     }
 

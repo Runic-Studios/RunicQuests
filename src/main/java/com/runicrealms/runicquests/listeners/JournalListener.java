@@ -66,7 +66,7 @@ public class JournalListener implements Listener {
         if (e.getClickedInventory() == null) return;
         if (!(e.getClickedInventory().getType().equals(InventoryType.PLAYER))) return;
 
-        EventInventory.openQuestGui(pl);
+        EventInventory.openQuestGui(pl, 1);
         e.setCancelled(true);
     }
 
@@ -86,7 +86,7 @@ public class JournalListener implements Listener {
         if (e.getAction() != Action.RIGHT_CLICK_AIR && e.getAction() != Action.RIGHT_CLICK_BLOCK) return;
 
 
-        EventInventory.openQuestGui(pl);
+        EventInventory.openQuestGui(pl, 1);
         e.setCancelled(true);
     }
 
