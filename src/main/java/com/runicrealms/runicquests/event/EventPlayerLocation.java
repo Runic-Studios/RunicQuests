@@ -43,7 +43,7 @@ public class EventPlayerLocation implements Listener {
 		if (quest.getFirstNPC().getState() != FirstNpcState.ACCEPTED) {
 			return;
 		}
-		if (quest.getQuestState().isCompleted() == false) {
+		if (quest.getQuestState().isCompleted()) {
 			return;
 		}
 		for (QuestObjective objective : quest.getObjectives()) {
