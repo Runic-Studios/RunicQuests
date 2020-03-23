@@ -10,7 +10,7 @@ public class QuestRequirements {
 	
 	private Integer levelReq;
 	private Integer craftingReq;
-	private CraftingProfessionType craftingType;
+	private List<CraftingProfessionType> craftingType;
 	private List<Integer> completedQuestsReq;
 	private List<String> levelMsg;
 	private List<String> craftingMsg;
@@ -18,7 +18,7 @@ public class QuestRequirements {
 	private PlayerClassType classType;
 	private List<String> classTypeNotMet;
 	
-	public QuestRequirements(Integer levelReq, Integer craftingReq, CraftingProfessionType craftingType, List<Integer> completedQuestsReq, List<String> levelMsg, List<String> craftingMsg, List<String> completedQuestsMsg, PlayerClassType classType, List<String> classTypeNotMet) {
+	public QuestRequirements(Integer levelReq, Integer craftingReq, List<CraftingProfessionType> craftingType, List<Integer> completedQuestsReq, List<String> levelMsg, List<String> craftingMsg, List<String> completedQuestsMsg, PlayerClassType classType, List<String> classTypeNotMet) {
 		this.levelReq = levelReq;
 		this.craftingReq = craftingReq;
 		this.craftingType = craftingType;
@@ -38,7 +38,7 @@ public class QuestRequirements {
 		return craftingReq;
 	}
 
-	public CraftingProfessionType getCraftingProfessionType() {
+	public List<CraftingProfessionType> getCraftingProfessionType() {
 		return craftingType;
 	}
 

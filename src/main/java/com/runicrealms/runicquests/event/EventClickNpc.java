@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.logging.Level;
 
 import com.runicrealms.runiccharacters.api.RunicCharactersApi;
+import com.runicrealms.runicquests.quests.*;
 import net.citizensnpcs.api.event.NPCRightClickEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -15,11 +16,6 @@ import org.bukkit.event.Listener;
 import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.api.QuestCompleteEvent;
 import com.runicrealms.runicquests.player.QuestProfile;
-import com.runicrealms.runicquests.quests.FirstNpcState;
-import com.runicrealms.runicquests.quests.Quest;
-import com.runicrealms.runicquests.quests.QuestIdleMessage;
-import com.runicrealms.runicquests.quests.QuestItem;
-import com.runicrealms.runicquests.quests.QuestObjectiveType;
 import com.runicrealms.runicquests.quests.objective.QuestObjective;
 import com.runicrealms.runicquests.quests.objective.QuestObjectiveBreak;
 import com.runicrealms.runicquests.quests.objective.QuestObjectiveSlay;
@@ -49,6 +45,111 @@ public class EventClickNpc implements Listener {
 						npcs.put(quest.getFirstNPC().getId(), queue);
 						queue.startTasks();
 						continue;
+					}
+				}
+			}
+			if (quest.getQuestState().hasStarted()) { // If the quest has started...
+				for (QuestObjective objective : quest.getObjectives()) { // Loop through the objectives
+					if (objective.getObjectiveType() == QuestObjectiveType.TALK) { // Check the objective type
+						QuestObjectiveTalk talkObjective = (QuestObjectiveTalk) objective;
+						if (talkObjective.getQuestNpc().getCitizensNpc().getId() == event.getNPC().getId()) { // Check that the NPC id matches the one that has been clicked
+							if (talkObjective.getQuestNpc().getCitizensNpc().getId() == quest.getFirstNPC().getCitizensNpc().getId()) { // Check if the NPC being talked to is the first NPC (same NPC used twice)
+								if (npcs.containsKey(quest.getFirstNPC().getId())) { // If you are talking to the first NPC, continue to next objective
+									continue;
+								}
+							}
+							if (npcs.containsKey(talkObjective.getQuestNpc().getId())) { // If you are talking to the NPC...
+								npcs.get(talkObjective.getQuestNpc().getId()).nextTask(); // Move to next speech line
+								return;
+							}
+							if (objective.isCompleted() == false) { // Check that the objective isn't completed
+								if (objective.getObjectiveNumber() != 1) { // Check that the previous objective has been completed
+									if (QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() - 1).isCompleted() == false) {
+										continue;
+									}
+								}
+								if (quest.getFirstNPC().getState() != FirstNpcState.ACCEPTED) { // Check that you have accepted the quest
+									continue;
+								}
+								if (objective.requiresQuestItem()) { // Check for a required quest item, remove it from inventory
+									if (Plugin.hasQuestItems(objective, player)) {
+										for (QuestItem questItem : objective.getQuestItems()) {
+											Plugin.removeItem(player.getInventory(), questItem.getItemName(), questItem.getItemType(), questItem.getAmount());
+										}
+										player.updateInventory();
+									} else {
+										return;
+									}
+								}
+								objective.setCompleted(true);
+								questProfile.save();
+								player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 10, 0); // Play sound
+								if (objective.hasExecute()) { // Execute objective commands
+									objective.executeCommand(player.getName());
+								}
+								if (objective.hasCompletedMessage()) { // Display completed message if there is one
+									for (String message : objective.getCompletedMessage()) {
+										player.sendMessage(ChatColor.translateAlternateColorCodes('&', Plugin.parseMessage(message, player.getName())));
+									}
+								}
+								TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, talkObjective.getQuestNpc().getSpeech(), talkObjective.getQuestNpc().getNpcName())); // Put the NPC speech in a task queue
+								queue.setCompletedTask(new Runnable() {
+									@Override
+									public void run() {
+										npcs.remove(talkObjective.getQuestNpc().getId());
+									}
+								});
+								if (objective.getObjectiveNumber() != QuestObjective.getLastObjective(quest.getObjectives()).getObjectiveNumber()) { // Check that this is not the last objective
+									queue.addTasks(new Runnable() { // Add the new objective message to the task queue
+										@Override
+										public void run() {
+											String goalMessage = QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() + 1).getGoalMessage();
+											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&l&6New objective for: &r&l&e") + quest.getQuestName());
+											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + goalMessage));
+											player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.YELLOW + goalMessage));
+											player.sendTitle(ChatColor.GOLD + "New Objective", ChatColor.YELLOW + goalMessage, 10, 80, 10); // Send a goal message title
+											Plugin.updatePlayerCachedLocations(player);
+										}
+									});
+								} else { // If this is the last objective then...
+									queue.addTasks(new Runnable() { // Add the quest rewards to the task queue
+										@Override
+										public void run() {
+											quest.getQuestState().setCompleted(true);
+											questProfile.save();
+											player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 10, 1); // Play sound
+											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&2&lRewards:"));
+											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getQuestPointsReward() + " &r&aQuest Point" + (quest.getRewards().getQuestPointsReward() == 1 ? "" : "s")));
+											if (quest.getRewards().getMoneyReward() != 0) player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getMoneyReward() + " &r&aCoin" + (quest.getRewards().getMoneyReward() == 1 ? "" : "s")));
+											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getExperienceReward() + " &r&aExperience Point" + (quest.getRewards().getExperienceReward() == 1 ? "" : "s")));
+											player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.YELLOW + "Quest Complete!"));
+											player.sendTitle(ChatColor.GOLD + "Quest Complete!", ChatColor.YELLOW + quest.getQuestName(), 10, 80, 10); // Send a goal message title
+											if (quest.getRewards().hasExecute()) { // Execute the quest rewards commands
+												quest.getRewards().executeCommand(player.getName());
+											}
+											RunicCoreHook.giveRewards(player, quest.getRewards()); // Give the rewards
+											if (quest.isRepeatable() == true) { // The the quest is repeatable, then handle the cooldowns
+												questCooldowns.get(player.getUniqueId()).get(characterSlot).add(quest.getQuestID());
+												Bukkit.getScheduler().runTaskLater(Plugin.getInstance(), new Runnable() {
+													@Override
+													public void run() {
+														if (questCooldowns.get(player.getUniqueId()).get(characterSlot).contains(quest.getQuestID())) {
+															questCooldowns.get(player.getUniqueId()).get(characterSlot).remove(quest.getQuestID());
+														} else {
+															Bukkit.getLogger().log(Level.INFO, "[RunicQuests] ERROR - failed to remove quest cooldown from player \"" + questProfile.getPlayerUUID() + "\"!");
+														}
+													}
+												}, quest.getCooldown() * 20);
+											}
+											Bukkit.getServer().getPluginManager().callEvent(new QuestCompleteEvent(quest, questProfile)); // Fire the quest completed event
+										}
+									});
+								}
+								npcs.put(talkObjective.getQuestNpc().getId(), queue); // Add the queue to the NPCs that are being talked to
+								queue.startTasks();
+								return;
+							}
+						}
 					}
 				}
 			}
@@ -87,18 +188,20 @@ public class EventClickNpc implements Listener {
 									npcs.put(quest.getFirstNPC().getId(), queue);
 									queue.startTasks();
 								} else if (quest.getRequirements().hasCraftingRequirement()) { // Check if the quest has a crafting requirement
-									if (!RunicCoreHook.isRequiredCraftingLevel(player, quest.getRequirements().getCraftingProfessionType(), quest.getRequirements().getCraftingRequirement())) { // Check that the player is the required crafting level
-										player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.5f, 1.0f);
-										meetsRequirements = false;
-										TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getCraftingLevelNotMetMsg(), quest.getFirstNPC().getNpcName())); // Create a task queue with the crafting not met message
-										queue.setCompletedTask(new Runnable() {
-											@Override
-											public void run() {
-												npcs.remove(quest.getFirstNPC().getId());
-											}
-										});
-										npcs.put(quest.getFirstNPC().getId(), queue);
-										queue.startTasks();
+									for (CraftingProfessionType profession : quest.getRequirements().getCraftingProfessionType()) {
+										if (!RunicCoreHook.isRequiredCraftingLevel(player, profession, quest.getRequirements().getCraftingRequirement())) { // Check that the player is the required crafting level
+											player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.5f, 1.0f);
+											meetsRequirements = false;
+											TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getCraftingLevelNotMetMsg(), quest.getFirstNPC().getNpcName())); // Create a task queue with the crafting not met message
+											queue.setCompletedTask(new Runnable() {
+												@Override
+												public void run() {
+													npcs.remove(quest.getFirstNPC().getId());
+												}
+											});
+											npcs.put(quest.getFirstNPC().getId(), queue);
+											queue.startTasks();
+										}
 									}
 								} else if (quest.getRequirements().hasCompletedQuestRequirement()) { // Check if the quest has a completed quests requirement
 									if (!RunicCoreHook.hasCompletedRequiredQuests(player, quest.getRequirements().getCompletedQuestsRequirement())) { // Check that player has completed the required quests
@@ -177,111 +280,6 @@ public class EventClickNpc implements Listener {
 					time.append(minutes == 0 ? "" : minutes + " " + (seconds == 0 ? (minutes == 1 ? "minute" : "minutes") : (minutes == 1 ? "minute, " : "minutes, ")));
 					time.append(seconds == 0 ? "" : seconds + " " + (seconds == 1 ? "second" : "seconds"));
 					player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7You must wait " + time.toString() + " between each completion of this quest!"));
-				}
-			}
-			if (quest.getQuestState().hasStarted()) { // If the quest has started...
-				for (QuestObjective objective : quest.getObjectives()) { // Loop through the objectives
-					if (objective.getObjectiveType() == QuestObjectiveType.TALK) { // Check the objective type
-						QuestObjectiveTalk talkObjective = (QuestObjectiveTalk) objective;
-						if (talkObjective.getQuestNpc().getCitizensNpc().getId() == event.getNPC().getId()) { // Check that the NPC id matches the one that has been clicked
-							if (talkObjective.getQuestNpc().getCitizensNpc().getId() == quest.getFirstNPC().getCitizensNpc().getId()) { // Check if the NPC being talked to is the first NPC (same NPC used twice)
-								if (npcs.containsKey(quest.getFirstNPC().getId())) { // If you are talking to the first NPC, continue to next objective
-									continue;
-								}
-							}
-							if (npcs.containsKey(talkObjective.getQuestNpc().getId())) { // If you are talking to the NPC...
-								npcs.get(talkObjective.getQuestNpc().getId()).nextTask(); // Move to next speech line
-								return;
-							}
-							if (objective.isCompleted() == false) { // Check that the objective isn't completed
-								if (objective.getObjectiveNumber() != 1) { // Check that the previous objective has been completed
-									if (QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() - 1).isCompleted() == false) {
-										continue;
-									}
-								}
-								if (quest.getFirstNPC().getState() != FirstNpcState.ACCEPTED) { // Check that you have accepted the quest
-									continue;
-								}
-								if (objective.requiresQuestItem()) { // Check for a required quest item, remove it from inventory
-									if (Plugin.hasQuestItems(objective, player)) {
-										for (QuestItem questItem : objective.getQuestItems()) {
-											Plugin.removeItem(player.getInventory(), questItem.getItemName(), questItem.getItemType(), questItem.getAmount());
-										}
-										player.updateInventory();
-									} else {
-										continue;
-									}
-								}
-								objective.setCompleted(true);
-								questProfile.save();
-								player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 10, 0); // Play sound
-								if (objective.hasExecute()) { // Execute objective commands
-									objective.executeCommand(player.getName());
-								}
-								if (objective.hasCompletedMessage()) { // Display completed message if there is one
-									for (String message : objective.getCompletedMessage()) {
-										player.sendMessage(ChatColor.translateAlternateColorCodes('&', Plugin.parseMessage(message, player.getName())));
-									}
-								}
-								TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, talkObjective.getQuestNpc().getSpeech(), talkObjective.getQuestNpc().getNpcName())); // Put the NPC speech in a task queue
-								queue.setCompletedTask(new Runnable() {
-									@Override
-									public void run() {
-										npcs.remove(talkObjective.getQuestNpc().getId());
-									}
-								});
-								if (objective.getObjectiveNumber() != QuestObjective.getLastObjective(quest.getObjectives()).getObjectiveNumber()) { // Check that this is not the last objective
-									queue.addTasks(new Runnable() { // Add the new objective message to the task queue
-										@Override
-										public void run() {
-											String goalMessage = QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() + 1).getGoalMessage();
-											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&l&6New objective for: &r&l&e") + quest.getQuestName());
-											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + goalMessage));
-											player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.YELLOW + goalMessage));
-											player.sendTitle(ChatColor.GOLD + "New Objective", ChatColor.YELLOW + goalMessage, 10, 80, 10); // Send a goal message title
-											Plugin.updatePlayerCachedLocations(player);
-										}
-									});
-								} else { // If this is the last objective then...
-									queue.addTasks(new Runnable() { // Add the quest rewards to the task queue
-										@Override
-										public void run() {
-											quest.getQuestState().setCompleted(true);
-											questProfile.save();
-											player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 10, 1); // Play sound
-											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&2&lRewards:"));
-											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getQuestPointsReward() + " &r&aQuest Point" + (quest.getRewards().getQuestPointsReward() == 1 ? "" : "s")));
-											if (quest.getRewards().getMoneyReward() != 0) player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getMoneyReward() + " &r&aCoin" + (quest.getRewards().getMoneyReward() == 1 ? "" : "s")));
-											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getExperienceReward() + " &r&aExperience Point" + (quest.getRewards().getExperienceReward() == 1 ? "" : "s")));
-											player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.YELLOW + "Quest Complete!"));
-											player.sendTitle(ChatColor.GOLD + "Quest Complete!", ChatColor.YELLOW + quest.getQuestName(), 10, 80, 10); // Send a goal message title
-											if (quest.getRewards().hasExecute()) { // Execute the quest rewards commands
-												quest.getRewards().executeCommand(player.getName());
-											}
-											RunicCoreHook.giveRewards(player, quest.getRewards()); // Give the rewards
-											if (quest.isRepeatable() == true) { // The the quest is repeatable, then handle the cooldowns
-												questCooldowns.get(player.getUniqueId()).get(characterSlot).add(quest.getQuestID());
-												Bukkit.getScheduler().runTaskLater(Plugin.getInstance(), new Runnable() {
-													@Override
-													public void run() {
-														if (questCooldowns.get(player.getUniqueId()).get(characterSlot).contains(quest.getQuestID())) {
-															questCooldowns.get(player.getUniqueId()).get(characterSlot).remove(quest.getQuestID());
-														} else {
-															Bukkit.getLogger().log(Level.INFO, "[RunicQuests] ERROR - failed to remove quest cooldown from player \"" + questProfile.getPlayerUUID() + "\"!");
-														}
-													}
-												}, quest.getCooldown() * 20);
-											}
-											Bukkit.getServer().getPluginManager().callEvent(new QuestCompleteEvent(quest, questProfile)); // Fire the quest completed event
-										}
-									});
-								}
-								npcs.put(talkObjective.getQuestNpc().getId(), queue); // Add the queue to the NPCs that are being talked to
-								queue.startTasks();
-								return;
-							}
-						}
-					}
 				}
 			}
 		}
