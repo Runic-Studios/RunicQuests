@@ -32,8 +32,27 @@ public class EventPlayerJoinQuit implements Listener {
 
 	@EventHandler
 	public void onPlayerQuit(CharacterQuitEvent event) {
-		Plugin.getQuestCooldowns().remove(event.getPlayer().getUniqueId()); // Remove the cooldown object
-		QuestProfile questProfile = Plugin.getQuestProfile(event.getPlayer().getUniqueId().toString()); // Get the quest profile
+		runQuitEvent(event.getPlayer());
+	}
+
+	public static void runJoinEvent(Player player, Integer characterSlot) {
+		Map<Integer, Set<Integer>> cooldowns = new HashMap<Integer, Set<Integer>>();
+		for (int i = 1; i <= RunicCharactersApi.getAllCharacters(player.getUniqueId()).size(); i++) {
+			cooldowns.put(i, new HashSet<>());
+		}
+		Plugin.getQuestCooldowns().put(player.getUniqueId(), cooldowns); // Add a cooldown to the list of cooldowns
+//		for (QuestProfile profile : Plugin.getQuestProfiles()) { // Loop through quest profiles
+//			if (profile.getPlayerUUID().toString().equalsIgnoreCase(player.getUniqueId().toString())) { // If there is a cached profile, we can exit
+//				return;
+//			}
+//		}
+		Plugin.getQuestProfiles().add(new QuestProfile(player.getUniqueId(), characterSlot)); // Add a quest profile
+		PlayerDataLoader.preLoadQuestData(player.getUniqueId()); // Bug fix
+	}
+
+	public static void runQuitEvent(Player player) {
+		Plugin.getQuestCooldowns().remove(player.getUniqueId()); // Remove the cooldown object
+		QuestProfile questProfile = Plugin.getQuestProfile(player.getUniqueId().toString()); // Get the quest profile
 		for (Quest quest : questProfile.getQuests()) { // Loop through the quests
 			for (QuestObjective objective : quest.getObjectives()) { // Loop through objectives
 				if (objective.getObjectiveType() == QuestObjectiveType.TALK) { // Check for objective of type talk
@@ -51,27 +70,12 @@ public class EventPlayerJoinQuit implements Listener {
 		Plugin.getQuestProfiles().remove(questProfile);
 		// -----------------------------------------------
 
-		if (PlayerDataLoader.getCachedPlayerData().containsKey(event.getPlayer().getUniqueId())) {
-			PlayerDataLoader.getCachedPlayerData().remove(event.getPlayer().getUniqueId());
+		if (PlayerDataLoader.getCachedPlayerData().containsKey(player.getUniqueId())) {
+			PlayerDataLoader.getCachedPlayerData().remove(player.getUniqueId());
 		}
-		if (Plugin.getCachedLocations().containsKey(event.getPlayer())) {
-			Plugin.getCachedLocations().remove(event.getPlayer());
+		if (Plugin.getCachedLocations().containsKey(player)) {
+			Plugin.getCachedLocations().remove(player);
 		}
-	}
-
-	public static void runJoinEvent(Player player, Integer characterSlot) {
-		Map<Integer, Set<Integer>> cooldowns = new HashMap<Integer, Set<Integer>>();
-		for (int i = 1; i <= RunicCharactersApi.getAllCharacters(player.getUniqueId()).size(); i++) {
-			cooldowns.put(i, new HashSet<>());
-		}
-		Plugin.getQuestCooldowns().put(player.getUniqueId(), cooldowns); // Add a cooldown to the list of cooldowns
-//		for (QuestProfile profile : Plugin.getQuestProfiles()) { // Loop through quest profiles
-//			if (profile.getPlayerUUID().toString().equalsIgnoreCase(player.getUniqueId().toString())) { // If there is a cached profile, we can exit
-//				return;
-//			}
-//		}
-		Plugin.getQuestProfiles().add(new QuestProfile(player.getUniqueId(), characterSlot)); // Add a quest profile
-		PlayerDataLoader.preLoadQuestData(player.getUniqueId()); // Bug fix
 	}
 
 	/**

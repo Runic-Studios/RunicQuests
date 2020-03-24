@@ -36,7 +36,7 @@ public class EventClickNpc implements Listener {
 		HashMap<Long, TaskQueue> npcs = Plugin.getNpcTaskQueues();
 		Map<UUID, Map<Integer, Set<Integer>>> questCooldowns = Plugin.getQuestCooldowns();
 		if (questProfile == null) return;
-		for (Quest quest : questProfile.getQuests()) { // Loop through quests to find a match for the NPC
+		questsLoop: for (Quest quest : questProfile.getQuests()) { // Loop through quests to find a match for the NPC
 			if (quest.getQuestState().isCompleted() && !quest.isRepeatable()) { // Check for if the quest is completed
 				if (quest.getFirstNPC().getCitizensNpc().getId() == event.getNPC().getId()) { // Check for first NPC quest completed speech
 					if (quest.getFirstNPC().hasQuestCompletedSpeech()) { // Create a task queue for the speech
@@ -78,7 +78,7 @@ public class EventClickNpc implements Listener {
 										}
 										player.updateInventory();
 									} else {
-										return;
+										break questsLoop;
 									}
 								}
 								objective.setCompleted(true);
@@ -153,6 +153,57 @@ public class EventClickNpc implements Listener {
 					}
 				}
 			}
+		}
+		for (Quest quest : questProfile.getQuests()) { // Loop through the quests, check for idle messages
+			for (QuestObjective objective : quest.getObjectives()) { // Loop through objectives
+				if (objective.getObjectiveType() == QuestObjectiveType.TALK) { // Check for objective of type talk
+					QuestObjectiveTalk talkObjective = (QuestObjectiveTalk) objective;
+					if (talkObjective.getQuestNpc().getCitizensNpc().getId() == event.getNPC().getId()) { // Check that the NPC id matches the one clicked on
+						if (talkObjective.getQuestNpc().hasIdleSpeech()) { // Check for idle speech
+							idleMessageLoop: for (QuestIdleMessage idleMessage : talkObjective.getQuestNpc().getIdleSpeech()) { // Loop through idle messages
+								if (idleMessage.getConditions().hasQuestCompleted()) { // Check for quest completed condition
+									if (quest.getQuestState().isCompleted() != idleMessage.getConditions().getQuestCompleted()) {
+										continue idleMessageLoop;
+									}
+								}
+								if (idleMessage.getConditions().hasQuestStarted()) { // Check for quest started condition
+									if (quest.getQuestState().hasStarted() != idleMessage.getConditions().getQuestStarted()) {
+										continue idleMessageLoop;
+									}
+								}
+								if (idleMessage.getConditions().hasObjectiveStates()) { // Check for objectives completed condition
+									for (int i = 0; i < idleMessage.getConditions().getObjectiveStates().size(); i++) {
+										if (i < quest.getObjectives().size()) {
+											if (idleMessage.getConditions().getObjectiveStates().get(i) != null) {
+												if (quest.getObjectives().get(i).isCompleted() != idleMessage.getConditions().getObjectiveStates().get(i)) {
+													continue idleMessageLoop;
+												}
+											}
+										}
+									}
+								}
+								if (idleMessage.getConditions().hasRequiresQuestItems()) { // Check for requires quest items condition
+									if (Plugin.hasQuestItems(objective, player) != idleMessage.getConditions().requiresQuestItems()) {
+										continue idleMessageLoop;
+									}
+								}
+								TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, idleMessage.getSpeech(), talkObjective.getQuestNpc().getNpcName())); // Creates a task queue with the idle message
+								queue.setCompletedTask(new Runnable() {
+									@Override
+									public void run() {
+										npcs.remove(talkObjective.getQuestNpc().getId());
+									}
+								});
+								npcs.put(talkObjective.getQuestNpc().getId(), queue);
+								queue.startTasks();
+								return;
+							}
+						}
+					}
+				}
+			}
+		}
+		for (Quest quest : questProfile.getQuests()) {
 			if ((!quest.getQuestState().isCompleted()) ||
 					(quest.isRepeatable() && quest.getQuestState().hasStarted() && quest.getQuestState().isCompleted())) { // Check that the quest is not completed
 				if (quest.getFirstNPC().getCitizensNpc().getId() == event.getNPC().getId()
@@ -280,55 +331,6 @@ public class EventClickNpc implements Listener {
 					time.append(minutes == 0 ? "" : minutes + " " + (seconds == 0 ? (minutes == 1 ? "minute" : "minutes") : (minutes == 1 ? "minute, " : "minutes, ")));
 					time.append(seconds == 0 ? "" : seconds + " " + (seconds == 1 ? "second" : "seconds"));
 					player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7You must wait " + time.toString() + " between each completion of this quest!"));
-				}
-			}
-		}
-		for (Quest quest : questProfile.getQuests()) { // Loop through the quests, check for idle messages
-			for (QuestObjective objective : quest.getObjectives()) { // Loop through objectives
-				if (objective.getObjectiveType() == QuestObjectiveType.TALK) { // Check for objective of type talk
-					QuestObjectiveTalk talkObjective = (QuestObjectiveTalk) objective;
-					if (talkObjective.getQuestNpc().getCitizensNpc().getId() == event.getNPC().getId()) { // Check that the NPC id matches the one clicked on
-						if (talkObjective.getQuestNpc().hasIdleSpeech()) { // Check for idle speech
-							idleMessageLoop: for (QuestIdleMessage idleMessage : talkObjective.getQuestNpc().getIdleSpeech()) { // Loop through idle messages
-								if (idleMessage.getConditions().hasQuestCompleted()) { // Check for quest completed condition
-									if (quest.getQuestState().isCompleted() != idleMessage.getConditions().getQuestCompleted()) {
-										continue idleMessageLoop;
-									}
-								}
-								if (idleMessage.getConditions().hasQuestStarted()) { // Check for quest started condition
-									if (quest.getQuestState().hasStarted() != idleMessage.getConditions().getQuestStarted()) {
-										continue idleMessageLoop;
-									}
-								}
-								if (idleMessage.getConditions().hasObjectiveStates()) { // Check for objectives completed condition
-									for (int i = 0; i < idleMessage.getConditions().getObjectiveStates().size(); i++) {
-										if (i < quest.getObjectives().size()) {
-											if (idleMessage.getConditions().getObjectiveStates().get(i) != null) {
-												if (quest.getObjectives().get(i).isCompleted() != idleMessage.getConditions().getObjectiveStates().get(i)) {
-													continue idleMessageLoop;
-												}
-											}
-										}
-									}
-								}
-								if (idleMessage.getConditions().hasRequiresQuestItems()) { // Check for requires quest items condition
-									if (Plugin.hasQuestItems(objective, player) != idleMessage.getConditions().requiresQuestItems()) {
-										continue idleMessageLoop;
-									}
-								}
-								TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, idleMessage.getSpeech(), talkObjective.getQuestNpc().getNpcName())); // Creates a task queue with the idle message
-								queue.setCompletedTask(new Runnable() {
-									@Override
-									public void run() {
-										npcs.remove(talkObjective.getQuestNpc().getId());
-									}
-								});
-								npcs.put(talkObjective.getQuestNpc().getId(), queue);
-								queue.startTasks();
-								return;
-							}
-						}
-					}
 				}
 			}
 		}

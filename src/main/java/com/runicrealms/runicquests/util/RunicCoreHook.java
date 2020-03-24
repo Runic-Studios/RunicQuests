@@ -31,7 +31,7 @@ public class RunicCoreHook {
 	}
 
 	public static boolean hasCompletedRequiredQuests(Player player, List<Integer> quests) {
-		//Bukkit.broadcastMessage("checking quest req.");
+			//Bukkit.broadcastMessage("checking quest req.");
 		QuestProfile profile = Plugin.getQuestProfile(player.getUniqueId().toString());
 		for (Integer questID : quests) {
 			if (profile.getSavedData().getConfig().get(RunicCharactersApi.getCurrentCharacterSlot(player.getUniqueId())).contains(questID + "")) {
@@ -47,6 +47,7 @@ public class RunicCoreHook {
 
 	public static boolean isRequiredCraftingLevel(Player player, CraftingProfessionType profession, int level) {
 		String playerProf = RunicCore.getCacheManager().getPlayerCache(player.getUniqueId()).getProfName().toLowerCase();
+		if (playerProf.equalsIgnoreCase("none") && profession == CraftingProfessionType.ANY) return false;
 		int profLevel = RunicCore.getCacheManager().getPlayerCache(player.getUniqueId()).getProfLevel();
 		if (profession == CraftingProfessionType.ANY && profLevel >= level) return true;
 		return profession != CraftingProfessionType.ANY && playerProf.equals(profession.getName()) && profLevel >= level;
