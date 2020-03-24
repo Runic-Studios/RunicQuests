@@ -36,11 +36,8 @@ public class JournalListener implements Listener {
         new BukkitRunnable() {
             @Override
             public void run() {
-                if (pl.getInventory().getItem(7) == null
-                        || (pl.getInventory().getItem(7) != null
-                        && pl.getInventory().getItem(7).getType() != Material.BOOK)) {
-                    pl.getInventory().setItem(7, getQuestJournal());
-                }
+                pl.getInventory().setItem(7, getQuestJournal());
+                pl.updateInventory();
             }
         }.runTaskLater(Plugin.getInstance(), 2L);
     }
@@ -111,7 +108,8 @@ public class JournalListener implements Listener {
         meta.setDisplayName(ChatColor.GOLD + "Quest Journal");
         ArrayList<String> lore = new ArrayList<>();
         lore.add(ChatColor.GRAY + "");
-        lore.add(ChatColor.RED + "Coming soon!");
+        lore.add(ChatColor.GOLD + "" + ChatColor.BOLD + "RIGHT CLICK");
+        lore.add(ChatColor.GRAY + "To view your quests!");
         lore.add(ChatColor.GRAY + "");
         lore.add(ChatColor.DARK_GRAY + "Soulbound");
         meta.setLore(lore);

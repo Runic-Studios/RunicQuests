@@ -25,15 +25,10 @@ public class EventInventory implements Listener {
     public static void openQuestGui(Player player, Integer page) {
         Map<Integer, ItemStack> items = new HashMap<Integer, ItemStack>();
         List<Quest> quests = getSortedQuests(player);
-        boolean hasExtraPage = true;
         for (int i = (page - 1) * 26; i < page * 26; i++) {
-            if (quests.size() > i) {
-                items.put(i - (page - 1) * 26, quests.get(i).generateQuestIcon(player));
-            } else {
-                hasExtraPage = false;
-            }
+            items.put(i - (page - 1) * 26, quests.get(i).generateQuestIcon(player));
         }
-        if (hasExtraPage) {
+        if (quests.size() - page * 26 > 0) {
             ItemStack arrow = new ItemStack(Material.ARROW);
             ItemMeta meta = arrow.getItemMeta();
             meta.setDisplayName(ChatColor.GOLD + "Next Page");
@@ -130,7 +125,7 @@ public class EventInventory implements Listener {
         if (playersInQuestGui.containsKey(((Player) event.getWhoClicked()).getUniqueId())) {
             event.setCancelled(true);
             if (event.getCurrentItem().getType() == Material.ARROW) {
-                openQuestGui((Player) event.getWhoClicked(), playersInQuestGui.get(((Player) event.getWhoClicked()).getUniqueId()));
+                openQuestGui((Player) event.getWhoClicked(), playersInQuestGui.get(((Player) event.getWhoClicked()).getUniqueId()) + 1);
             }
         }
     }
