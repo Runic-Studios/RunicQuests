@@ -124,8 +124,10 @@ public class EventInventory implements Listener {
     public void onInventoryClick(InventoryClickEvent event) {
         if (playersInQuestGui.containsKey(((Player) event.getWhoClicked()).getUniqueId())) {
             event.setCancelled(true);
-            if (event.getCurrentItem().getType() == Material.ARROW) {
-                openQuestGui((Player) event.getWhoClicked(), playersInQuestGui.get(((Player) event.getWhoClicked()).getUniqueId()) + 1);
+            if (event.getCurrentItem() != null) {
+                if (event.getCurrentItem().getType() == Material.ARROW) {
+                    openQuestGui((Player) event.getWhoClicked(), playersInQuestGui.get(((Player) event.getWhoClicked()).getUniqueId()) + 1);
+                }
             }
         }
     }
