@@ -26,7 +26,9 @@ public class EventInventory implements Listener {
         Map<Integer, ItemStack> items = new HashMap<Integer, ItemStack>();
         List<Quest> quests = getSortedQuests(player);
         for (int i = (page - 1) * 26; i < page * 26; i++) {
-            items.put(i - (page - 1) * 26, quests.get(i).generateQuestIcon(player));
+            if (i < quests.size() - 1) {
+                items.put(i - (page - 1) * 26, quests.get(i).generateQuestIcon(player));
+            }
         }
         if (quests.size() - page * 26 > 0) {
             ItemStack arrow = new ItemStack(Material.ARROW);

@@ -10,6 +10,7 @@ import java.util.UUID;
 import com.runicrealms.runicquests.command.ResetQuestsCommand;
 import com.runicrealms.runicquests.event.*;
 import com.runicrealms.runicquests.listeners.JournalListener;
+import com.runicrealms.runicquests.quests.FirstNpcState;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.PluginCommand;
@@ -176,7 +177,7 @@ public class Plugin extends JavaPlugin {
 	}
 
 	public static String[] getFirstUncompletedGoalMessageAndLocation(Quest quest) {
-		if (quest.getQuestState().hasStarted() == false) {
+		if (quest.getFirstNPC().getState() != FirstNpcState.ACCEPTED) {
 			return new String[] {"Speak with: " + quest.getFirstNPC().getNpcName() + " at " +
 					quest.getFirstNPC().getCitizensNpc().getStoredLocation().getBlockX() + " " +
 					quest.getFirstNPC().getCitizensNpc().getStoredLocation().getBlockY() + " " +
@@ -185,16 +186,13 @@ public class Plugin extends JavaPlugin {
 		}
 		QuestObjective lowest = null;
 		for (QuestObjective objective : quest.getObjectives()) {
-			if (lowest == null) {
-				lowest = objective;
-				continue;
+			if (objective.isCompleted() == false) {
+				if (lowest == null) {
+					lowest = objective;
+				} else if (objective.getObjectiveNumber() < lowest.getObjectiveNumber()) {
+					lowest = objective;
+				}
 			}
-			if (objective.getObjectiveNumber() < lowest.getObjectiveNumber()) {
-				lowest = objective;
-			}
-		}
-		if (lowest == null) {
-			return null;
 		}
 		return new String[] {lowest.getGoalMessage(), lowest.getGoalLocation()};
 	}
