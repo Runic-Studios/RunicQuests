@@ -60,7 +60,7 @@ public class EventKillMythicMob implements Listener {
 							for (String mob : slayObjective.getMobNames()) { // Checks that the mob in the objective has the correct name
 								if (event.getMob().getType().getInternalName().equalsIgnoreCase(mob)) {
 									slayObjective.setMobsKilled(slayObjective.getMobsKilled() + 1); // Add to the slayed mobs
-									player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7+1 &r" + event.getMobType().getDisplayName() + "&7 [" + slayObjective.getMobsKilled() + "/" + slayObjective.getMobAmount() + "]"));
+									player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7+1 &r" + event.getMobType().getInternalName() + "&7 [" + slayObjective.getMobsKilled() + "/" + slayObjective.getMobAmount() + "]"));
 									if (slayObjective.getMobsKilled() == slayObjective.getMobAmount()) { // Check if player has killed required amount
 										if (objective.requiresQuestItem()) { // Check for quest item
 											if (Plugin.hasQuestItems(objective, player)) {

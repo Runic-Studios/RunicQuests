@@ -41,8 +41,6 @@ public class ResetQuestsCommand implements CommandExecutor {
                     PlayerDataLoader.getConfigFromCache(otherPlayer.getUniqueId()).saveToConfig(quests, profile.getCharacterSlot());
                     EventPlayerJoinQuit.runQuitEvent(otherPlayer);
                     EventPlayerJoinQuit.runJoinEvent(otherPlayer, slot);
-//                    Plugin.getQuestProfiles().remove(Plugin.getQuestProfile(otherPlayer.getUniqueId().toString()));
-//                    Plugin.getQuestProfiles().add(new QuestProfile(otherPlayer.getUniqueId(), RunicCharactersApi.getCurrentCharacterSlot(player.getUniqueId())));
                     player.sendMessage(ChatColor.GREEN + "Reset their quest data!");
                 } else {
                     player.sendMessage(ChatColor.RED + "Player \"" + args[0] + "\" is not online.");
@@ -56,6 +54,7 @@ public class ResetQuestsCommand implements CommandExecutor {
                         if (quest.getQuestName().equalsIgnoreCase(combineArgs(args, 1))) {
                             quests.add(quest.clone());
                             reset = true;
+                            break;
                         } else {
                             quests.add(quest);
                         }

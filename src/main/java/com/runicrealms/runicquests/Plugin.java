@@ -7,12 +7,14 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 
+import com.runicrealms.runicquests.command.CompleteQuestCommand;
 import com.runicrealms.runicquests.command.ResetQuestsCommand;
 import com.runicrealms.runicquests.event.*;
 import com.runicrealms.runicquests.listeners.JournalListener;
 import com.runicrealms.runicquests.quests.FirstNpcState;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -63,22 +65,20 @@ public class Plugin extends JavaPlugin {
 			EventPlayerJoinQuit.runJoinEvent(player, RunicCharactersApi.getCurrentCharacterSlot(player.getUniqueId())); // Read PlayerJoinQuitEvent.runJoinEvent
 		}
 		EventPlayerJoinQuit.displayQuestionMarks();
-		QuestsCommand questsCommandExecutor = new QuestsCommand(); // Register the /quests command
-		String[] questCommands = new String[] {"quests", "quest", "objectives", "objective"};
-		for (int i = 0; i < questCommands.length; i++) {
-			PluginCommand pluginCommand = this.getCommand(questCommands[i]);
-			pluginCommand.setExecutor(questsCommandExecutor);
-		}
-		ResetQuestsCommand resetCommandExecutor = new ResetQuestsCommand();
-		String[] resetCommands = new String[] {"resetquests", "questsreset", "resetquest", "questreset", "rq", "qr"};
-		for (int i = 0; i < resetCommands.length; i++) {
-			PluginCommand pluginCommand = this.getCommand(resetCommands[i]);
-			pluginCommand.setExecutor(resetCommandExecutor);
-		}
+		registerCommand(new CompleteQuestCommand(), "completequest", "questcomplete", "cq", "qc");
+		registerCommand(new QuestsCommand(), "quests", "quest", "objectives", "objective");
+		registerCommand(new ResetQuestsCommand(), "resetquests", "questsreset", "resetquest", "questreset", "rq", "qr");
 		for (Player player : Bukkit.getOnlinePlayers()) {
 			updatePlayerCachedLocations(player);
 		}
 		registerMoveTask();
+	}
+
+	private static void registerCommand(CommandExecutor executor, String... aliases) {
+		for (int i = 0; i < aliases.length; i++) {
+			PluginCommand pluginCommand = getInstance().getCommand(aliases[i]);
+			pluginCommand.setExecutor(executor);
+		}
 	}
 
 	public static Plugin getInstance() { // Get the plugin instance

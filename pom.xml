@@ -91,9 +91,9 @@
 		<dependency>
 			<groupId>net.elseland.xikage</groupId>
 			<artifactId>mythicmobs</artifactId>
-			<version>4.6.5</version>
+			<version>4.5.8</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/lib/MythicMobs-4.6.5.jar</systemPath>
+			<systemPath>${project.basedir}/lib/MythicMobs-4.5.8.jar</systemPath>
 		</dependency>
 		<!-- Paper API -->
 		<dependency>
