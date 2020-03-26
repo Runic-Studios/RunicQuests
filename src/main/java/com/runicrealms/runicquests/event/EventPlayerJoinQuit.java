@@ -48,6 +48,7 @@ public class EventPlayerJoinQuit implements Listener {
 //		}
 		Plugin.getQuestProfiles().add(new QuestProfile(player.getUniqueId(), characterSlot)); // Add a quest profile
 		PlayerDataLoader.preLoadQuestData(player.getUniqueId()); // Bug fix
+		Plugin.updatePlayerCachedLocations(player);
 	}
 
 	public static void runQuitEvent(Player player) {
