@@ -154,6 +154,147 @@ public class EventClickNpc implements Listener {
 				}
 			}
 		}
+		for (Quest quest : questProfile.getQuests()) {
+			if ((!quest.getQuestState().isCompleted()) ||
+					(quest.isRepeatable() && quest.getQuestState().hasStarted() && quest.getQuestState().isCompleted())) { // Check that the quest is not completed
+				if (quest.getFirstNPC().getCitizensNpc().getId() == event.getNPC().getId()
+						&& !questCooldowns.get(player.getUniqueId()).get(characterSlot).contains(quest.getQuestID())) { // Check for an NPC id match between the first NPC and the clicked NPC
+					if (QuestObjective.getObjective(quest.getObjectives(), 1).isCompleted() == false || quest.isRepeatable()) { // Check that the first objective has not been completed
+						if (!npcs.containsKey(quest.getFirstNPC().getId())) { // Check that the player is not currently talking with the NPC
+							if (quest.getFirstNPC().getState() != FirstNpcState.ACCEPTED || (quest.isRepeatable() && Plugin.allObjectivesComplete(quest))) { // Check that the player has not yet accepted the quest
+								if (quest.isRepeatable()) { // Check if the quest is repeatable
+									for (QuestObjective qobjective : quest.getObjectives()) { // Reset all the objective stats (mobs killed and blocks broken)
+										qobjective.setCompleted(false);
+										if (qobjective.getObjectiveType() == QuestObjectiveType.SLAY) {
+											((QuestObjectiveSlay) qobjective).setMobsKilled(0);
+										}
+										if (qobjective.getObjectiveType() == QuestObjectiveType.BREAK) {
+											if (((QuestObjectiveBreak) qobjective).hasBlockAmount()) {
+												((QuestObjectiveBreak) qobjective).setBlocksBroken(0);
+											}
+										}
+									}
+									questProfile.save();
+								}
+								boolean meetsRequirements = true;
+								if (quest.getRequirements().hasCompletedQuestRequirement()) { // Check if the quest has a completed quests requirement
+									if (!RunicCoreHook.hasCompletedRequiredQuests(player, quest.getRequirements().getCompletedQuestsRequirement())) { // Check that player has completed the required quests
+										player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.5f, 1.0f);
+										meetsRequirements = false;
+										if (quest.getRequirements().hasCompletedQuestsNotMetMsg()) {
+											TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getCompletedQuestsNotMetMsg(), quest.getFirstNPC().getNpcName())); // Create a task queue with the quests completed not met message
+											queue.setCompletedTask(new Runnable() {
+												@Override
+												public void run() {
+													npcs.remove(quest.getFirstNPC().getId());
+												}
+											});
+											npcs.put(quest.getFirstNPC().getId(), queue);
+											queue.startTasks();
+										}
+									}
+								} else if (!RunicCoreHook.isReqClassLv(player, quest.getRequirements().getClassLvReq())) { // Check that the player is the required level
+									player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.5f, 1.0f);
+									meetsRequirements = false;
+									if (quest.getRequirements().hasLevelNotMetMsg()) {
+										TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getLevelNotMetMsg(), quest.getFirstNPC().getNpcName())); // Create a task queue with the level not met message
+										queue.setCompletedTask(new Runnable() {
+											@Override
+											public void run() {
+												npcs.remove(quest.getFirstNPC().getId());
+											}
+										});
+										npcs.put(quest.getFirstNPC().getId(), queue);
+										queue.startTasks();
+									}
+								} else if (quest.getRequirements().hasCraftingRequirement()) { // Check if the quest has a crafting requirement
+									for (CraftingProfessionType profession : quest.getRequirements().getCraftingProfessionType()) {
+										if (!RunicCoreHook.isRequiredCraftingLevel(player, profession, quest.getRequirements().getCraftingRequirement())) { // Check that the player is the required crafting level
+											player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.5f, 1.0f);
+											meetsRequirements = false;
+											if (quest.getRequirements().hasCraftingLevelNotMetMsg()) {
+												TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getCraftingLevelNotMetMsg(), quest.getFirstNPC().getNpcName())); // Create a task queue with the crafting not met message
+												queue.setCompletedTask(new Runnable() {
+													@Override
+													public void run() {
+														npcs.remove(quest.getFirstNPC().getId());
+													}
+												});
+												npcs.put(quest.getFirstNPC().getId(), queue);
+												queue.startTasks();
+											}
+										}
+									}
+								} else if (quest.getRequirements().hasClassTypeRequirement()) { // Check if the quest has a class requirement
+									if (!RunicCoreHook.isRequiredClass(quest.getRequirements().getClassTypeRequirement(), player)) { // Check that the player is the required class
+										player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.5f, 1.0f);
+										meetsRequirements = false;
+										if (quest.getRequirements().hasClassNotMetMsg()) {
+											TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getClassTypeNotMetMsg(), quest.getFirstNPC().getNpcName())); // Create a task queue with the class type not met message
+											queue.setCompletedTask(new Runnable() {
+												@Override
+												public void run() {
+													npcs.remove(quest.getFirstNPC().getId());
+												}
+											});
+											npcs.put(quest.getFirstNPC().getId(), queue);
+											queue.startTasks();
+										}
+									}
+								}
+								if (meetsRequirements) { // Check that the player meets the requirements
+									player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 10, 0); // Play sound
+									quest.getQuestState().setStarted(true);
+									questProfile.save();
+									if (quest.getFirstNPC().hasExecute()) { // Execute the first NPC commands
+										quest.getFirstNPC().executeCommand(player.getName());
+									}
+									TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getFirstNPC().getSpeech(), quest.getFirstNPC().getNpcName())); // Create a task queue with the first NPC speech
+									queue.setCompletedTask(new Runnable() {
+										@Override
+										public void run() {
+											npcs.remove(quest.getFirstNPC().getId());
+											quest.getFirstNPC().setState(FirstNpcState.ACCEPTED);
+											questProfile.save();
+										}
+									});
+									queue.addTasks(new Runnable() {
+										@Override
+										public void run() {
+											String goalMessage = QuestObjective.getObjective(quest.getObjectives(), 1).getGoalMessage();
+											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&l&6New objective for: &r&l&e") + quest.getQuestName());
+											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + goalMessage));
+											player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.YELLOW + goalMessage));
+											player.sendTitle(ChatColor.GOLD + "New Objective", ChatColor.YELLOW + goalMessage, 10, 80, 10); // Send a goal message title
+											Plugin.updatePlayerCachedLocations(player);
+										}
+									});
+									npcs.put(quest.getFirstNPC().getId(), queue);
+									queue.startTasks();
+									return;
+								} else {
+									break;
+								}
+							}
+						} else { // If the player IS talking to this NPC currently, then...
+							npcs.get(quest.getFirstNPC().getId()).nextTask(); // Move to next speech line
+							return;
+						}
+					}
+				}
+				if (quest.getFirstNPC().getCitizensNpc().getId() == event.getNPC().getId()
+						&& questCooldowns.get(player.getUniqueId()).get(characterSlot).contains(quest.getQuestID())) { // If the player is waiting on a quest cooldown (repeatable quests)
+					int hours = (quest.getCooldown() - (quest.getCooldown() % 3600)) / 3600; // Some very odd code to create a cooldown message
+					int minutes = (quest.getCooldown() - (quest.getCooldown() % 60)) / 60 - (hours * 60);
+					int seconds = quest.getCooldown() - (hours * 3600) - (minutes * 60);
+					StringBuilder time = new StringBuilder();
+					time.append(hours == 0 ? "" : hours + " " + (minutes == 0 && hours == 0 ? (hours == 1 ? "hour" : "hours") : (hours == 1 ? "hour, " : "hours, ")));
+					time.append(minutes == 0 ? "" : minutes + " " + (seconds == 0 ? (minutes == 1 ? "minute" : "minutes") : (minutes == 1 ? "minute, " : "minutes, ")));
+					time.append(seconds == 0 ? "" : seconds + " " + (seconds == 1 ? "second" : "seconds"));
+					player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7You must wait " + time.toString() + " between each completion of this quest!"));
+				}
+			}
+		}
 		for (Quest quest : questProfile.getQuests()) { // Loop through the quests, check for idle messages
 			for (QuestObjective objective : quest.getObjectives()) { // Loop through objectives
 				if (objective.getObjectiveType() == QuestObjectiveType.TALK) { // Check for objective of type talk
@@ -200,137 +341,6 @@ public class EventClickNpc implements Listener {
 							}
 						}
 					}
-				}
-			}
-		}
-		for (Quest quest : questProfile.getQuests()) {
-			if ((!quest.getQuestState().isCompleted()) ||
-					(quest.isRepeatable() && quest.getQuestState().hasStarted() && quest.getQuestState().isCompleted())) { // Check that the quest is not completed
-				if (quest.getFirstNPC().getCitizensNpc().getId() == event.getNPC().getId()
-						&& !questCooldowns.get(player.getUniqueId()).get(characterSlot).contains(quest.getQuestID())) { // Check for an NPC id match between the first NPC and the clicked NPC
-					if (QuestObjective.getObjective(quest.getObjectives(), 1).isCompleted() == false || quest.isRepeatable()) { // Check that the first objective has not been completed
-						if (!npcs.containsKey(quest.getFirstNPC().getId())) { // Check that the player is not currently talking with the NPC
-							if (quest.getFirstNPC().getState() != FirstNpcState.ACCEPTED || (quest.isRepeatable() && Plugin.allObjectivesComplete(quest))) { // Check that the player has not yet accepted the quest
-								if (quest.isRepeatable()) { // Check if the quest is repeatable
-									for (QuestObjective qobjective : quest.getObjectives()) { // Reset all the objective stats (mobs killed and blocks broken)
-										qobjective.setCompleted(false);
-										if (qobjective.getObjectiveType() == QuestObjectiveType.SLAY) {
-											((QuestObjectiveSlay) qobjective).setMobsKilled(0);
-										}
-										if (qobjective.getObjectiveType() == QuestObjectiveType.BREAK) {
-											if (((QuestObjectiveBreak) qobjective).hasBlockAmount()) {
-												((QuestObjectiveBreak) qobjective).setBlocksBroken(0);
-											}
-										}
-									}
-									questProfile.save();
-								}
-								boolean meetsRequirements = true;
-								if (!RunicCoreHook.isReqClassLv(player, quest.getRequirements().getClassLvReq())) { // Check that the player is the required level
-									player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.5f, 1.0f);
-									meetsRequirements = false;
-									TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getLevelNotMetMsg(), quest.getFirstNPC().getNpcName())); // Create a task queue with the level not met message
-									queue.setCompletedTask(new Runnable() {
-										@Override
-										public void run() {
-											npcs.remove(quest.getFirstNPC().getId());
-										}
-									});
-									npcs.put(quest.getFirstNPC().getId(), queue);
-									queue.startTasks();
-								} else if (quest.getRequirements().hasCraftingRequirement()) { // Check if the quest has a crafting requirement
-									for (CraftingProfessionType profession : quest.getRequirements().getCraftingProfessionType()) {
-										if (!RunicCoreHook.isRequiredCraftingLevel(player, profession, quest.getRequirements().getCraftingRequirement())) { // Check that the player is the required crafting level
-											player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.5f, 1.0f);
-											meetsRequirements = false;
-											TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getCraftingLevelNotMetMsg(), quest.getFirstNPC().getNpcName())); // Create a task queue with the crafting not met message
-											queue.setCompletedTask(new Runnable() {
-												@Override
-												public void run() {
-													npcs.remove(quest.getFirstNPC().getId());
-												}
-											});
-											npcs.put(quest.getFirstNPC().getId(), queue);
-											queue.startTasks();
-										}
-									}
-								} else if (quest.getRequirements().hasCompletedQuestRequirement()) { // Check if the quest has a completed quests requirement
-									if (!RunicCoreHook.hasCompletedRequiredQuests(player, quest.getRequirements().getCompletedQuestsRequirement())) { // Check that player has completed the required quests
-										player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.5f, 1.0f);
-										meetsRequirements = false;
-										TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getCompletedQuestsNotMetMsg(), quest.getFirstNPC().getNpcName())); // Create a task queue with the quests completed not met message
-										queue.setCompletedTask(new Runnable() {
-											@Override
-											public void run() {
-												npcs.remove(quest.getFirstNPC().getId());
-											}
-										});
-										npcs.put(quest.getFirstNPC().getId(), queue);
-										queue.startTasks();
-									}
-								} else if (quest.getRequirements().hasClassTypeRequirement()) { // Check if the quest has a class requirement
-									if (!RunicCoreHook.isRequiredClass(quest.getRequirements().getClassTypeRequirement(), player)) { // Check that the player is the required class
-										player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.5f, 1.0f);
-										meetsRequirements = false;
-										TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getClassTypeNotMetMsg(), quest.getFirstNPC().getNpcName())); // Create a task queue with the class type not met message
-										queue.setCompletedTask(new Runnable() {
-											@Override
-											public void run() {
-												npcs.remove(quest.getFirstNPC().getId());
-											}
-										});
-										npcs.put(quest.getFirstNPC().getId(), queue);
-										queue.startTasks();
-									}
-								}
-								if (meetsRequirements) { // Check that the player meets the requirements
-									player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 10, 0); // Play sound
-									quest.getQuestState().setStarted(true);
-									questProfile.save();
-									if (quest.getFirstNPC().hasExecute()) { // Execute the first NPC commands
-										quest.getFirstNPC().executeCommand(player.getName());
-									}
-									TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getFirstNPC().getSpeech(), quest.getFirstNPC().getNpcName())); // Create a task queue with the first NPC speech
-									queue.setCompletedTask(new Runnable() {
-										@Override
-										public void run() {
-											npcs.remove(quest.getFirstNPC().getId());
-											quest.getFirstNPC().setState(FirstNpcState.ACCEPTED);
-											questProfile.save();
-										}
-									});
-									queue.addTasks(new Runnable() {
-										@Override
-										public void run() {
-											String goalMessage = QuestObjective.getObjective(quest.getObjectives(), 1).getGoalMessage();
-											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&l&6New objective for: &r&l&e") + quest.getQuestName());
-											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + goalMessage));
-											player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.YELLOW + goalMessage));
-											player.sendTitle(ChatColor.GOLD + "New Objective", ChatColor.YELLOW + goalMessage, 10, 80, 10); // Send a goal message title
-											Plugin.updatePlayerCachedLocations(player);
-										}
-									});
-									npcs.put(quest.getFirstNPC().getId(), queue);
-									queue.startTasks();
-								}
-								return;
-							}
-						} else { // If the player IS talking to this NPC currently, then...
-							npcs.get(quest.getFirstNPC().getId()).nextTask(); // Move to next speech line
-							return;
-						}
-					}
-				}
-				if (quest.getFirstNPC().getCitizensNpc().getId() == event.getNPC().getId()
-						&& questCooldowns.get(player.getUniqueId()).get(characterSlot).contains(quest.getQuestID())) { // If the player is waiting on a quest cooldown (repeatable quests)
-					int hours = (quest.getCooldown() - (quest.getCooldown() % 3600)) / 3600; // Some very odd code to create a cooldown message
-					int minutes = (quest.getCooldown() - (quest.getCooldown() % 60)) / 60 - (hours * 60);
-					int seconds = quest.getCooldown() - (hours * 3600) - (minutes * 60);
-					StringBuilder time = new StringBuilder();
-					time.append(hours == 0 ? "" : hours + " " + (minutes == 0 && hours == 0 ? (hours == 1 ? "hour" : "hours") : (hours == 1 ? "hour, " : "hours, ")));
-					time.append(minutes == 0 ? "" : minutes + " " + (seconds == 0 ? (minutes == 1 ? "minute" : "minutes") : (minutes == 1 ? "minute, " : "minutes, ")));
-					time.append(seconds == 0 ? "" : seconds + " " + (seconds == 1 ? "second" : "seconds"));
-					player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7You must wait " + time.toString() + " between each completion of this quest!"));
 				}
 			}
 		}

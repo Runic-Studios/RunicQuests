@@ -63,8 +63,12 @@ public class QuestLoader {
 	public static List<Quest> obtainNewNpcIds(List<Quest> quests) {
 		List<Quest> newQuests = new ArrayList<Quest>();
 		for (Quest quest : quests) {
-			Quest newQuest = quest.clone();
-			newQuests.add(newQuest);
+			if (quest != null) {
+				Quest newQuest = quest.clone();
+				newQuests.add(newQuest);
+			} else {
+				newQuests.add(null);
+			}
 		}
 		return newQuests;
 	}
@@ -154,44 +158,44 @@ public class QuestLoader {
 	public static QuestRequirements loadRequirements(ConfigurationSection configSec) throws QuestLoadException {
 		try {
 			Integer levelReq = checkValueNull(configSec.getInt("level"), "level");
-			List<String> levelNotMet = checkValueNull(getStringList(configSec, "level-not-met"), "levle-not-met");
+			List<String> levelNotMet = configSec.contains("level-not-met") ? getStringList(configSec, "level-not-met") : null;
 			Integer craftingReq = null;
 			List<String> craftingNotMet = null;
 			List<CraftingProfessionType> professionType = new ArrayList<CraftingProfessionType>();
 			if (configSec.contains("blacksmith-level")) {
-				craftingNotMet = checkValueNull(getStringList(configSec, "crafting-level-not-met"), "crafting-level-not-met");
+				craftingNotMet = configSec.contains("crafting-level-not-met") ? getStringList(configSec, "crafting-level-not-met") : null;
 				craftingReq = checkValueNull(configSec.getInt("blacksmith-level"), "blacksmith-level");
 				professionType.add(CraftingProfessionType.BLACKSMITH);
 			}
 			if (configSec.contains("jeweling-level")) {
-				craftingNotMet = checkValueNull(getStringList(configSec, "crafting-level-not-met"), "crafting-level-not-met");
+				craftingNotMet = configSec.contains("crafting-level-not-met") ? getStringList(configSec, "crafting-level-not-met") : null;
 				craftingReq = checkValueNull(configSec.getInt("enchanter-level"), "enchanter-level");
 				professionType.add(CraftingProfessionType.JEWELER);
 			}
 			if (configSec.contains("hunter-level")) {
-				craftingNotMet = checkValueNull(getStringList(configSec, "crafting-level-not-met"), "crafting-level-not-met");
+				craftingNotMet = configSec.contains("crafting-level-not-met") ? getStringList(configSec, "crafting-level-not-met") : null;
 				craftingReq = checkValueNull(configSec.getInt("hunter-level"), "hunter-level");
 				professionType.add(CraftingProfessionType.HUNTER);
 			}
 			if (configSec.contains("alchemist-level")) {
-				craftingNotMet = checkValueNull(getStringList(configSec, "crafting-level-not-met"), "crafting-level-not-met");
+				craftingNotMet = configSec.contains("crafting-level-not-met") ? getStringList(configSec, "crafting-level-not-met") : null;
 				craftingReq = checkValueNull(configSec.getInt("alchemist-level"), "alchemist-level");
 				professionType.add(CraftingProfessionType.ALCHEMIST);
 			}
 			if (configSec.contains("enchanter-level")) {
-				craftingNotMet = checkValueNull(getStringList(configSec, "crafting-level-not-met"), "crafting-level-not-met");
+				craftingNotMet = configSec.contains("crafting-level-not-met") ? getStringList(configSec, "crafting-level-not-met") : null;
 				craftingReq = checkValueNull(configSec.getInt("enchanter-level"), "enchanter-level");
 				professionType.add(CraftingProfessionType.ENCHANTER);
 			}
 			if (configSec.contains("crafting-level")) {
-				craftingNotMet = checkValueNull(getStringList(configSec, "crafting-level-not-met"), "crafting-level-not-met");
+				craftingNotMet = configSec.contains("crafting-level-not-met") ? getStringList(configSec, "crafting-level-not-met") : null;
 				craftingReq = checkValueNull(configSec.getInt("crafting-level"), "crafting-level");
 				professionType.add(CraftingProfessionType.ANY);
 			}
 			List<Integer> requiredQuests = new ArrayList<Integer>();
 			List<String> requiredQuestsNotMet = null;
 			if (configSec.contains("required-quests")) {
-				requiredQuestsNotMet = checkValueNull(getStringList(configSec, "required-quests-not-met"), "required-quests-not-met");
+				requiredQuestsNotMet = configSec.contains("required-quests-not-met") ? getStringList(configSec, "required-quests-not-met") : null;
 				if (configSec.isInt("required-quests")) {
 					requiredQuests.add(configSec.getInt("required-quests"));
 				} else {
@@ -199,7 +203,7 @@ public class QuestLoader {
 				}
 			}
 			PlayerClassType classType = configSec.contains("class") ? checkValueNull(PlayerClassType.getFromString(configSec.getString("class")), "class") : null;
-			List<String> classTypeNotMet = configSec.contains("class") ? checkValueNull(getStringList(configSec, "class-not-met"), "class") : null;
+			List<String> classTypeNotMet = configSec.contains("class-not-met") ? getStringList(configSec, "class-not-met") : null;
 			return new QuestRequirements(levelReq, craftingReq, professionType, requiredQuests, levelNotMet, craftingNotMet, requiredQuestsNotMet, classType, classTypeNotMet);
 		} catch (QuestLoadException exception) {
 			throw exception;

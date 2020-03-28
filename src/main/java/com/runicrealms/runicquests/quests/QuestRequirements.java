@@ -77,5 +77,21 @@ public class QuestRequirements {
 	public List<String> getClassTypeNotMetMsg() {
 		return this.classTypeNotMet;
 	}
+
+	public boolean hasLevelNotMetMsg() {
+		return this.levelMsg != null;
+	}
+
+	public boolean hasCompletedQuestsNotMetMsg() {
+		return this.completedQuestsMsg != null;
+	}
+
+	public boolean hasCraftingLevelNotMetMsg() {
+		return this.craftingMsg != null;
+	}
+
+	public boolean hasClassNotMetMsg() {
+		return this.classTypeNotMet != null;
+	}
 	
 }
