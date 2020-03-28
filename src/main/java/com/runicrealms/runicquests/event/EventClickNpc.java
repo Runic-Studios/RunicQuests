@@ -193,27 +193,52 @@ public class EventClickNpc implements Listener {
 											queue.startTasks();
 										}
 									}
-								} else if (!RunicCoreHook.isReqClassLv(player, quest.getRequirements().getClassLvReq())) { // Check that the player is the required level
-									player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.5f, 1.0f);
-									meetsRequirements = false;
-									if (quest.getRequirements().hasLevelNotMetMsg()) {
-										TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getLevelNotMetMsg(), quest.getFirstNPC().getNpcName())); // Create a task queue with the level not met message
-										queue.setCompletedTask(new Runnable() {
-											@Override
-											public void run() {
-												npcs.remove(quest.getFirstNPC().getId());
-											}
-										});
-										npcs.put(quest.getFirstNPC().getId(), queue);
-										queue.startTasks();
+								}
+								if (meetsRequirements) {
+									if (!RunicCoreHook.isReqClassLv(player, quest.getRequirements().getClassLvReq())) { // Check that the player is the required level
+										player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.5f, 1.0f);
+										meetsRequirements = false;
+										if (quest.getRequirements().hasLevelNotMetMsg()) {
+											TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getLevelNotMetMsg(), quest.getFirstNPC().getNpcName())); // Create a task queue with the level not met message
+											queue.setCompletedTask(new Runnable() {
+												@Override
+												public void run() {
+													npcs.remove(quest.getFirstNPC().getId());
+												}
+											});
+											npcs.put(quest.getFirstNPC().getId(), queue);
+											queue.startTasks();
+										}
 									}
-								} else if (quest.getRequirements().hasCraftingRequirement()) { // Check if the quest has a crafting requirement
-									for (CraftingProfessionType profession : quest.getRequirements().getCraftingProfessionType()) {
-										if (!RunicCoreHook.isRequiredCraftingLevel(player, profession, quest.getRequirements().getCraftingRequirement())) { // Check that the player is the required crafting level
+								}
+								if (meetsRequirements) {
+									if (quest.getRequirements().hasCraftingRequirement()) { // Check if the quest has a crafting requirement
+										for (CraftingProfessionType profession : quest.getRequirements().getCraftingProfessionType()) {
+											if (!RunicCoreHook.isRequiredCraftingLevel(player, profession, quest.getRequirements().getCraftingRequirement())) { // Check that the player is the required crafting level
+												player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.5f, 1.0f);
+												meetsRequirements = false;
+												if (quest.getRequirements().hasCraftingLevelNotMetMsg()) {
+													TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getCraftingLevelNotMetMsg(), quest.getFirstNPC().getNpcName())); // Create a task queue with the crafting not met message
+													queue.setCompletedTask(new Runnable() {
+														@Override
+														public void run() {
+															npcs.remove(quest.getFirstNPC().getId());
+														}
+													});
+													npcs.put(quest.getFirstNPC().getId(), queue);
+													queue.startTasks();
+												}
+											}
+										}
+									}
+								}
+								if (meetsRequirements) {
+									if (quest.getRequirements().hasClassTypeRequirement()) { // Check if the quest has a class requirement
+										if (!RunicCoreHook.isRequiredClass(quest.getRequirements().getClassTypeRequirement(), player)) { // Check that the player is the required class
 											player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.5f, 1.0f);
 											meetsRequirements = false;
-											if (quest.getRequirements().hasCraftingLevelNotMetMsg()) {
-												TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getCraftingLevelNotMetMsg(), quest.getFirstNPC().getNpcName())); // Create a task queue with the crafting not met message
+											if (quest.getRequirements().hasClassNotMetMsg()) {
+												TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getClassTypeNotMetMsg(), quest.getFirstNPC().getNpcName())); // Create a task queue with the class type not met message
 												queue.setCompletedTask(new Runnable() {
 													@Override
 													public void run() {
@@ -223,22 +248,6 @@ public class EventClickNpc implements Listener {
 												npcs.put(quest.getFirstNPC().getId(), queue);
 												queue.startTasks();
 											}
-										}
-									}
-								} else if (quest.getRequirements().hasClassTypeRequirement()) { // Check if the quest has a class requirement
-									if (!RunicCoreHook.isRequiredClass(quest.getRequirements().getClassTypeRequirement(), player)) { // Check that the player is the required class
-										player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.5f, 1.0f);
-										meetsRequirements = false;
-										if (quest.getRequirements().hasClassNotMetMsg()) {
-											TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getClassTypeNotMetMsg(), quest.getFirstNPC().getNpcName())); // Create a task queue with the class type not met message
-											queue.setCompletedTask(new Runnable() {
-												@Override
-												public void run() {
-													npcs.remove(quest.getFirstNPC().getId());
-												}
-											});
-											npcs.put(quest.getFirstNPC().getId(), queue);
-											queue.startTasks();
 										}
 									}
 								}
@@ -313,7 +322,7 @@ public class EventClickNpc implements Listener {
 									}
 								}
 								if (idleMessage.getConditions().hasObjectiveStates()) { // Check for objectives completed condition
-									for (int i = 0; i < idleMessage.getConditions().getObjectiveStates().size(); i++) {
+									for (int i = 1; i <= idleMessage.getConditions().getObjectiveStates().size(); i++) {
 										if (i < quest.getObjectives().size()) {
 											if (idleMessage.getConditions().getObjectiveStates().get(i) != null) {
 												if (quest.getObjectives().get(i).isCompleted() != idleMessage.getConditions().getObjectiveStates().get(i)) {
@@ -323,9 +332,11 @@ public class EventClickNpc implements Listener {
 										}
 									}
 								}
-								if (idleMessage.getConditions().hasRequiresQuestItems()) { // Check for requires quest items condition
-									if (Plugin.hasQuestItems(objective, player) != idleMessage.getConditions().requiresQuestItems()) {
-										continue idleMessageLoop;
+								if (objective.requiresQuestItem()) {
+									if (idleMessage.getConditions().hasRequiresQuestItems()) { // Check for requires quest items condition
+										if (Plugin.hasQuestItems(objective, player) != idleMessage.getConditions().requiresQuestItems()) {
+											continue idleMessageLoop;
+										}
 									}
 								}
 								TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, idleMessage.getSpeech(), talkObjective.getQuestNpc().getNpcName())); // Creates a task queue with the idle message

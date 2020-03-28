@@ -134,7 +134,7 @@ public class QuestLoader {
 				List<Boolean> objectives = null;
 				if (configSec.contains(key + ".condition.objectives")) {
 					objectives = new ArrayList<Boolean>();
-					for (int i = 0; i < objectivesNumber; i++) {
+					for (int i = 0; i <= objectivesNumber; i++) {
 						objectives.add(null);
 					}
 					for (String objectiveNumber : configSec.getConfigurationSection(key + ".condition.objectives").getKeys(false)) {
