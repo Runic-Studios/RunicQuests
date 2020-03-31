@@ -93,7 +93,7 @@
 			<artifactId>mythicmobs</artifactId>
 			<version>4.9.0</version>
 			<scope>system</scope>
-			<systemPath>C:/Users/Owner/IdeaProjects/lib/MythicMobs-4.9.0.jar</systemPath>
+			<systemPath>${project.basedir}/lib/MythicMobs-4.9.0.jar</systemPath>
 		</dependency>
 		<!-- Paper API -->
 		<dependency>
@@ -123,7 +123,7 @@
 			<artifactId>RunicCharacters</artifactId>
 			<version>1.15.2</version>
 			<scope>system</scope>
-			<systemPath>C:/Users/Owner/IdeaProjects/lib/RunicCharacters-1.15.2.jar</systemPath>
+			<systemPath>${project.basedir}/lib/RunicCharacters-1.15.2.jar</systemPath>
 		</dependency>
 		<!-- RunicCore -->
 		<dependency>
@@ -131,7 +131,7 @@
 			<artifactId>RunicCore</artifactId>
 			<version>1.15.2</version>
 			<scope>system</scope>
-			<systemPath>C:/Users/Owner/IdeaProjects/lib/RunicCore-1.15.2.jar</systemPath>
+			<systemPath>${project.basedir}/lib/RunicCore-1.15.2.jar</systemPath>
 		</dependency>
 	</dependencies>
 </project>
