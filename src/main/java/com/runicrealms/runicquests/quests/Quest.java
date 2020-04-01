@@ -117,7 +117,7 @@ public class Quest implements Cloneable {
 
 	public ItemStack generateQuestIcon(Player player) {
 		if (this.getQuestState().isCompleted()) {
-			ItemStack item = new ItemStack(Material.LEGACY_CACTUS);
+			ItemStack item = new ItemStack(Material.GREEN_DYE);
 			ItemMeta meta = item.getItemMeta();
 			List<String> lore = new ArrayList<String>();
 			meta.setDisplayName(ChatColor.GREEN + this.getQuestName());
@@ -127,7 +127,7 @@ public class Quest implements Cloneable {
 			item.setItemMeta(meta);
 			return item;
 		} else if (!RunicCoreHook.isReqClassLv(player, this.getRequirements().getClassLvReq())) {
-			ItemStack item = new ItemStack(Material.LEGACY_RED_ROSE);
+			ItemStack item = new ItemStack(Material.RED_DYE);
 			ItemMeta meta = item.getItemMeta();
 			List<String> lore = new ArrayList<String>();
 			meta.setDisplayName(ChatColor.RED + this.getQuestName());
@@ -137,7 +137,7 @@ public class Quest implements Cloneable {
 			item.setItemMeta(meta);
 			return item;
 		} else if (this.isSideQuest()) {
-			ItemStack item = new ItemStack(Material.DANDELION);
+			ItemStack item = new ItemStack(Material.YELLOW_DYE);
 			ItemMeta meta = item.getItemMeta();
 			List<String> lore = new ArrayList<String>();
 			meta.setDisplayName(ChatColor.YELLOW + this.getQuestName());
