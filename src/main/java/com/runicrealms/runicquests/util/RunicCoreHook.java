@@ -6,12 +6,11 @@ import java.util.List;
 import com.runicrealms.plugin.RunicCore;
 import com.runicrealms.plugin.player.utilities.PlayerLevelUtil;
 import com.runicrealms.plugin.utilities.CurrencyUtil;
-import org.bukkit.Bukkit;
+import com.runicrealms.runicquests.config.QuestProfile;
 import org.bukkit.entity.Player;
 
 import com.runicrealms.runiccharacters.api.RunicCharactersApi;
 import com.runicrealms.runicquests.Plugin;
-import com.runicrealms.runicquests.player.QuestProfile;
 import com.runicrealms.runicquests.quests.CraftingProfessionType;
 import com.runicrealms.runicquests.quests.PlayerClassType;
 import com.runicrealms.runicquests.quests.QuestRewards;
@@ -25,17 +24,15 @@ public class RunicCoreHook {
 
 	public static boolean isReqClassLv(Player player, int reqLevel) {
 		int level = RunicCore.getCacheManager().getPlayerCache(player.getUniqueId()).getClassLevel();
-		//Bukkit.broadcastMessage("Players level: " + level);
-		//Bukkit.broadcastMessage("Quest req: " + reqLevel);
 		return level >= reqLevel;
 	}
 
 	public static boolean hasCompletedRequiredQuests(Player player, List<Integer> quests) {
-			//Bukkit.broadcastMessage("checking quest req.");
+		int slot = RunicCharactersApi.getCurrentCharacterSlot(player.getUniqueId());
 		QuestProfile profile = Plugin.getQuestProfile(player.getUniqueId().toString());
 		for (Integer questID : quests) {
-			if (profile.getSavedData().getConfig().get(RunicCharactersApi.getCurrentCharacterSlot(player.getUniqueId())).contains(questID + "")) {
-				if (!profile.getSavedData().getConfig().get(RunicCharactersApi.getCurrentCharacterSlot(player.getUniqueId())).getBoolean(questID + ".completed")) {
+			if (profile.getMongoData().has("character." + slot + ".quests." + questID)) {
+				if (!profile.getMongoData().get("character." + slot + ".quests." + questID + ".completed", Boolean.class)) {
 					return false;
 				}
 			} else {

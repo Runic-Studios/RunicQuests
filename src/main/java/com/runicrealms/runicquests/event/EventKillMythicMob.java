@@ -10,6 +10,7 @@ import java.util.logging.Level;
 import com.runicrealms.plugin.RunicCore;
 import com.runicrealms.plugin.parties.Party;
 import com.runicrealms.runiccharacters.api.RunicCharactersApi;
+import com.runicrealms.runicquests.config.QuestProfile;
 import io.lumine.xikage.mythicmobs.api.bukkit.events.MythicMobDeathEvent;
 import io.lumine.xikage.mythicmobs.mobs.MythicMob;
 import org.bukkit.Bukkit;
@@ -21,7 +22,6 @@ import org.bukkit.event.Listener;
 
 import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.api.QuestCompleteEvent;
-import com.runicrealms.runicquests.player.QuestProfile;
 import com.runicrealms.runicquests.quests.FirstNpcState;
 import com.runicrealms.runicquests.quests.Quest;
 import com.runicrealms.runicquests.quests.QuestItem;
@@ -173,7 +173,7 @@ public class EventKillMythicMob implements Listener {
 													if (questCooldowns.get(player.getUniqueId()).get(characterSlot).contains(quest.getQuestID())) {
 														questCooldowns.get(player.getUniqueId()).get(characterSlot).remove(quest.getQuestID());
 													} else {
-														Bukkit.getLogger().log(Level.INFO, "[RunicQuests] ERROR - failed to remove quest cooldown from player \"" + questProfile.getPlayerUUID() + "\"!");
+														Bukkit.getLogger().log(Level.INFO, "[RunicQuests] ERROR - failed to remove quest cooldown from player \"" + questProfile.getUuid() + "\"!");
 													}
 												}
 											}, quest.getCooldown() * 20);

@@ -2,12 +2,8 @@ package com.runicrealms.runicquests.event;
 
 import java.util.*;
 
-import com.runicrealms.plugin.utilities.FloatingItemUtil;
 import com.runicrealms.runiccharacters.api.events.CharacterLoadEvent;
-import net.citizensnpcs.api.npc.NPC;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import com.runicrealms.runicquests.config.QuestProfile;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -16,12 +12,10 @@ import com.runicrealms.runiccharacters.api.RunicCharactersApi;
 import com.runicrealms.runiccharacters.api.events.CharacterQuitEvent;
 import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.config.PlayerDataLoader;
-import com.runicrealms.runicquests.player.QuestProfile;
 import com.runicrealms.runicquests.quests.Quest;
 import com.runicrealms.runicquests.quests.QuestObjectiveType;
 import com.runicrealms.runicquests.quests.objective.QuestObjective;
 import com.runicrealms.runicquests.quests.objective.QuestObjectiveTalk;
-import org.bukkit.scheduler.BukkitRunnable;
 
 public class EventPlayerJoinQuit implements Listener {
 
@@ -41,13 +35,7 @@ public class EventPlayerJoinQuit implements Listener {
 			cooldowns.put(i, new HashSet<>());
 		}
 		Plugin.getQuestCooldowns().put(player.getUniqueId(), cooldowns); // Add a cooldown to the list of cooldowns
-//		for (QuestProfile profile : Plugin.getQuestProfiles()) { // Loop through quest profiles
-//			if (profile.getPlayerUUID().toString().equalsIgnoreCase(player.getUniqueId().toString())) { // If there is a cached profile, we can exit
-//				return;
-//			}
-//		}
-		Plugin.getQuestProfiles().add(new QuestProfile(player.getUniqueId(), characterSlot)); // Add a quest profile
-		PlayerDataLoader.preLoadQuestData(player.getUniqueId()); // Bug fix
+		Plugin.getQuestProfiles().add(PlayerDataLoader.addPlayerQuestData(player.getUniqueId(), characterSlot)); // Add a quest profile
 		Plugin.updatePlayerCachedLocations(player);
 	}
 
@@ -67,12 +55,10 @@ public class EventPlayerJoinQuit implements Listener {
 				}
 			}
 		}
-		// -----------------------------------------------
 		Plugin.getQuestProfiles().remove(questProfile);
-		// -----------------------------------------------
 
-		if (PlayerDataLoader.getCachedPlayerData().containsKey(player.getUniqueId())) {
-			PlayerDataLoader.getCachedPlayerData().remove(player.getUniqueId());
+		if (PlayerDataLoader.getAllPlayerData().containsKey(player.getUniqueId())) {
+			PlayerDataLoader.getAllPlayerData().remove(player.getUniqueId());
 		}
 		if (Plugin.getCachedLocations().containsKey(player)) {
 			Plugin.getCachedLocations().remove(player);

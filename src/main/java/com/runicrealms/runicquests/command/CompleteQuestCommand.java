@@ -2,8 +2,8 @@ package com.runicrealms.runicquests.command;
 
 import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.config.PlayerDataLoader;
+import com.runicrealms.runicquests.config.QuestProfile;
 import com.runicrealms.runicquests.event.EventPlayerJoinQuit;
-import com.runicrealms.runicquests.player.QuestProfile;
 import com.runicrealms.runicquests.quests.FirstNpcState;
 import com.runicrealms.runicquests.quests.Quest;
 import com.runicrealms.runicquests.quests.objective.QuestObjective;
@@ -43,8 +43,8 @@ public class CompleteQuestCommand implements CommandExecutor {
                     }
                 }
                 if (completed) {
-                    Integer slot = new Integer(profile.getCharacterSlot());
-                    PlayerDataLoader.getConfigFromCache(player.getUniqueId()).saveToConfig(profile.getQuests(), profile.getCharacterSlot());
+                    Integer slot = new Integer(profile.getSlot());
+                    PlayerDataLoader.getPlayerQuestData(player.getUniqueId()).save(profile.getQuests());
                     EventPlayerJoinQuit.runQuitEvent(player);
                     EventPlayerJoinQuit.runJoinEvent(player, slot);
                     player.sendMessage(ChatColor.GREEN + "Completed quest \"" + combineArgs(args, 0) + "\"!");

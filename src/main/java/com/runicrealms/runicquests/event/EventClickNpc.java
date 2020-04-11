@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.logging.Level;
 
 import com.runicrealms.runiccharacters.api.RunicCharactersApi;
+import com.runicrealms.runicquests.config.QuestProfile;
 import com.runicrealms.runicquests.quests.*;
 import net.citizensnpcs.api.event.NPCRightClickEvent;
 import org.bukkit.Bukkit;
@@ -15,7 +16,6 @@ import org.bukkit.event.Listener;
 
 import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.api.QuestCompleteEvent;
-import com.runicrealms.runicquests.player.QuestProfile;
 import com.runicrealms.runicquests.quests.objective.QuestObjective;
 import com.runicrealms.runicquests.quests.objective.QuestObjectiveBreak;
 import com.runicrealms.runicquests.quests.objective.QuestObjectiveSlay;
@@ -136,7 +136,7 @@ public class EventClickNpc implements Listener {
 														if (questCooldowns.get(player.getUniqueId()).get(characterSlot).contains(quest.getQuestID())) {
 															questCooldowns.get(player.getUniqueId()).get(characterSlot).remove(quest.getQuestID());
 														} else {
-															Bukkit.getLogger().log(Level.INFO, "[RunicQuests] ERROR - failed to remove quest cooldown from player \"" + questProfile.getPlayerUUID() + "\"!");
+															Bukkit.getLogger().log(Level.INFO, "[RunicQuests] ERROR - failed to remove quest cooldown from player \"" + questProfile.getUuid() + "\"!");
 														}
 													}
 												}, quest.getCooldown() * 20);

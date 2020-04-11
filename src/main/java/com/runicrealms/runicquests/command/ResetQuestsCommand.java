@@ -1,10 +1,9 @@
 package com.runicrealms.runicquests.command;
 
-import com.runicrealms.runiccharacters.api.RunicCharactersApi;
 import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.config.PlayerDataLoader;
+import com.runicrealms.runicquests.config.QuestProfile;
 import com.runicrealms.runicquests.event.EventPlayerJoinQuit;
-import com.runicrealms.runicquests.player.QuestProfile;
 import com.runicrealms.runicquests.quests.Quest;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -37,8 +36,8 @@ public class ResetQuestsCommand implements CommandExecutor {
                     for (Quest quest : profile.getQuests()) {
                         quests.add(quest.clone());
                     }
-                    Integer slot = new Integer(profile.getCharacterSlot());
-                    PlayerDataLoader.getConfigFromCache(otherPlayer.getUniqueId()).saveToConfig(quests, profile.getCharacterSlot());
+                    Integer slot = new Integer(profile.getSlot());
+                    PlayerDataLoader.getPlayerQuestData(otherPlayer.getUniqueId()).save(quests);
                     EventPlayerJoinQuit.runQuitEvent(otherPlayer);
                     EventPlayerJoinQuit.runJoinEvent(otherPlayer, slot);
                     player.sendMessage(ChatColor.GREEN + "Reset their quest data!");
@@ -60,8 +59,8 @@ public class ResetQuestsCommand implements CommandExecutor {
                         }
                     }
                     if (reset) {
-                        Integer slot = new Integer(profile.getCharacterSlot());
-                        PlayerDataLoader.getConfigFromCache(otherPlayer.getUniqueId()).saveToConfig(quests, profile.getCharacterSlot());
+                        Integer slot = new Integer(profile.getSlot());
+                        PlayerDataLoader.getPlayerQuestData(otherPlayer.getUniqueId()).save(quests);
                         EventPlayerJoinQuit.runQuitEvent(otherPlayer);
                         EventPlayerJoinQuit.runJoinEvent(otherPlayer, slot);
                         player.sendMessage(ChatColor.GREEN + "Reset their quest data for quest \"" + combineArgs(args, 1) + "\"!");

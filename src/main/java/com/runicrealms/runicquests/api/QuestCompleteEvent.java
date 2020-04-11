@@ -1,11 +1,11 @@
 package com.runicrealms.runicquests.api;
 
+import com.runicrealms.runicquests.config.QuestProfile;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-import com.runicrealms.runicquests.player.QuestProfile;
 import com.runicrealms.runicquests.quests.Quest;
 import com.runicrealms.runicquests.quests.QuestRewards;
 
@@ -39,7 +39,7 @@ public class QuestCompleteEvent extends Event {
 	
 	public Player getPlayer() {
 		try {
-			return Bukkit.getPlayer(this.profile.getPlayerUUID());
+			return Bukkit.getPlayer(this.profile.getUuid());
 		} catch (Exception exception) {
 			return null;
 		}

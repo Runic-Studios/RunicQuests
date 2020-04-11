@@ -9,6 +9,7 @@ import java.util.UUID;
 
 import com.runicrealms.runicquests.command.CompleteQuestCommand;
 import com.runicrealms.runicquests.command.ResetQuestsCommand;
+import com.runicrealms.runicquests.config.QuestProfile;
 import com.runicrealms.runicquests.event.*;
 import com.runicrealms.runicquests.listeners.JournalListener;
 import com.runicrealms.runicquests.quests.FirstNpcState;
@@ -24,7 +25,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.runicrealms.runiccharacters.api.RunicCharactersApi;
 import com.runicrealms.runicquests.command.QuestsCommand;
 import com.runicrealms.runicquests.config.ConfigLoader;
-import com.runicrealms.runicquests.player.QuestProfile;
 import com.runicrealms.runicquests.quests.Quest;
 import com.runicrealms.runicquests.quests.QuestItem;
 import com.runicrealms.runicquests.quests.QuestObjectiveType;
@@ -143,7 +143,7 @@ public class Plugin extends JavaPlugin {
 
 	public static QuestProfile getQuestProfile(String uuid) { // Get a quest profile by player UUID
 		for (QuestProfile profile : questProfiles) {
-			if (profile.getPlayerUUID().toString().equalsIgnoreCase(uuid)) {
+			if (profile.getUuid().toString().equalsIgnoreCase(uuid)) {
 				return profile;
 			}
 		}
