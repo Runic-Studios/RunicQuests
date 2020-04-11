@@ -6,7 +6,7 @@ import java.util.List;
 import com.runicrealms.plugin.RunicCore;
 import com.runicrealms.plugin.player.utilities.PlayerLevelUtil;
 import com.runicrealms.plugin.utilities.CurrencyUtil;
-import com.runicrealms.runicquests.config.QuestProfile;
+import com.runicrealms.runicquests.data.QuestProfile;
 import org.bukkit.entity.Player;
 
 import com.runicrealms.runiccharacters.api.RunicCharactersApi;

@@ -1,9 +1,10 @@
-package com.runicrealms.runicquests.config;
+package com.runicrealms.runicquests.data;
 
 import com.runicrealms.plugin.database.MongoData;
 import com.runicrealms.plugin.database.MongoDataSection;
 import com.runicrealms.plugin.database.PlayerMongoData;
 import com.runicrealms.runicquests.Plugin;
+import com.runicrealms.runicquests.config.QuestLoader;
 import com.runicrealms.runicquests.quests.FirstNpcState;
 import com.runicrealms.runicquests.quests.Quest;
 import com.runicrealms.runicquests.quests.objective.QuestObjective;

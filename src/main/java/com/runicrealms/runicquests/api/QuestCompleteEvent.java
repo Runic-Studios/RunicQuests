@@ -1,6 +1,6 @@
 package com.runicrealms.runicquests.api;
 
-import com.runicrealms.runicquests.config.QuestProfile;
+import com.runicrealms.runicquests.data.QuestProfile;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;

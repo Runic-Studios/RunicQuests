@@ -1,4 +1,4 @@
-package com.runicrealms.runicquests.config;
+package com.runicrealms.runicquests.data;
 
 import java.util.HashMap;
 import java.util.UUID;

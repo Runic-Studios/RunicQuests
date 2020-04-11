@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 
-import com.runicrealms.runicquests.config.QuestProfile;
+import com.runicrealms.runicquests.data.QuestProfile;
 import com.runicrealms.runicquests.quests.FirstNpcState;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;

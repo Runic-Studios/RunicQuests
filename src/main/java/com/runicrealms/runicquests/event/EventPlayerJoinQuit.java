@@ -3,7 +3,7 @@ package com.runicrealms.runicquests.event;
 import java.util.*;
 
 import com.runicrealms.runiccharacters.api.events.CharacterLoadEvent;
-import com.runicrealms.runicquests.config.QuestProfile;
+import com.runicrealms.runicquests.data.QuestProfile;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -11,7 +11,7 @@ import org.bukkit.event.Listener;
 import com.runicrealms.runiccharacters.api.RunicCharactersApi;
 import com.runicrealms.runiccharacters.api.events.CharacterQuitEvent;
 import com.runicrealms.runicquests.Plugin;
-import com.runicrealms.runicquests.config.PlayerDataLoader;
+import com.runicrealms.runicquests.data.PlayerDataLoader;
 import com.runicrealms.runicquests.quests.Quest;
 import com.runicrealms.runicquests.quests.QuestObjectiveType;
 import com.runicrealms.runicquests.quests.objective.QuestObjective;

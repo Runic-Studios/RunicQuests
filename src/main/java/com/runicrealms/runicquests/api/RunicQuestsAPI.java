@@ -2,7 +2,7 @@ package com.runicrealms.runicquests.api;
 
 import java.util.List;
 
-import com.runicrealms.runicquests.config.QuestProfile;
+import com.runicrealms.runicquests.data.QuestProfile;
 import org.bukkit.entity.Player;
 
 import com.runicrealms.runicquests.Plugin;

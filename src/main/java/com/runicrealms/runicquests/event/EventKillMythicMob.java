@@ -10,7 +10,7 @@ import java.util.logging.Level;
 import com.runicrealms.plugin.RunicCore;
 import com.runicrealms.plugin.parties.Party;
 import com.runicrealms.runiccharacters.api.RunicCharactersApi;
-import com.runicrealms.runicquests.config.QuestProfile;
+import com.runicrealms.runicquests.data.QuestProfile;
 import io.lumine.xikage.mythicmobs.api.bukkit.events.MythicMobDeathEvent;
 import io.lumine.xikage.mythicmobs.mobs.MythicMob;
 import org.bukkit.Bukkit;

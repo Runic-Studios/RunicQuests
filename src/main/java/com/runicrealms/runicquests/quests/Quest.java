@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.runicrealms.runicquests.Plugin;
-import com.runicrealms.runicquests.player.QuestState;
+import com.runicrealms.runicquests.quests.player.QuestState;
 import com.runicrealms.runicquests.quests.objective.QuestObjective;
 import com.runicrealms.runicquests.quests.objective.QuestObjectiveTalk;
 import com.runicrealms.runicquests.util.RunicCoreHook;

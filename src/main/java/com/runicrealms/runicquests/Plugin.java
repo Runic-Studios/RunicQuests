@@ -9,7 +9,7 @@ import java.util.UUID;
 
 import com.runicrealms.runicquests.command.CompleteQuestCommand;
 import com.runicrealms.runicquests.command.ResetQuestsCommand;
-import com.runicrealms.runicquests.config.QuestProfile;
+import com.runicrealms.runicquests.data.QuestProfile;
 import com.runicrealms.runicquests.event.*;
 import com.runicrealms.runicquests.listeners.JournalListener;
 import com.runicrealms.runicquests.quests.FirstNpcState;

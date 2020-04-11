@@ -12,7 +12,7 @@ public class ConfigLoader {
 	
 	// Main config.yml file
 	private static FileConfiguration mainConfig;
-	
+
 	// Loads a YamlConfiguration from a File
 	public static FileConfiguration getYamlConfigFile(String fileName, File folder) {
 		FileConfiguration config;
@@ -29,7 +29,7 @@ public class ConfigLoader {
 		}
 		return config;
 	}
-	
+
 	// Gets a sub-directory
 	public static File getSubFolder(File folder, String subfolder) {
 		for (File file : folder.listFiles()) {
@@ -52,18 +52,13 @@ public class ConfigLoader {
 			}
 		}
 	}
-	
+
 	// Create users and quests folders if they have not been created
 	public static void initDirs() {
 		if (!Plugin.getInstance().getDataFolder().exists()) {
 			Plugin.getInstance().getDataFolder().mkdir();
 		}
-		File folder = ConfigLoader.getSubFolder(Plugin.getInstance().getDataFolder(), "users");
-		if (folder == null) {
-			folder = new File(Plugin.getInstance().getDataFolder(), "users");
-			folder.mkdir();
-		}
-		folder = ConfigLoader.getSubFolder(Plugin.getInstance().getDataFolder(), "quests");
+		File folder = ConfigLoader.getSubFolder(Plugin.getInstance().getDataFolder(), "quests");
 		if (folder == null) {
 			folder = new File(Plugin.getInstance().getDataFolder(), "quests");
 			folder.mkdir();

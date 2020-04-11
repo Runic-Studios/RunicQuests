@@ -1,4 +1,4 @@
-package com.runicrealms.runicquests.player;
+package com.runicrealms.runicquests.quests.player;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,7 +1,7 @@
 package com.runicrealms.runicquests.event;
 
 import com.runicrealms.runicquests.Plugin;
-import com.runicrealms.runicquests.config.QuestProfile;
+import com.runicrealms.runicquests.data.QuestProfile;
 import com.runicrealms.runicquests.quests.Quest;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;

@@ -4,7 +4,7 @@ import java.util.*;
 import java.util.logging.Level;
 
 import com.runicrealms.runiccharacters.api.RunicCharactersApi;
-import com.runicrealms.runicquests.config.QuestProfile;
+import com.runicrealms.runicquests.data.QuestProfile;
 import com.runicrealms.runicquests.quests.*;
 import net.citizensnpcs.api.event.NPCRightClickEvent;
 import org.bukkit.Bukkit;

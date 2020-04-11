@@ -1,4 +1,4 @@
-package com.runicrealms.runicquests.player;
+package com.runicrealms.runicquests.quests.player;
 
 public class QuestState {
 	

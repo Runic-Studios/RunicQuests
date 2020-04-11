@@ -1,8 +1,8 @@
 package com.runicrealms.runicquests.command;
 
 import com.runicrealms.runicquests.Plugin;
-import com.runicrealms.runicquests.config.PlayerDataLoader;
-import com.runicrealms.runicquests.config.QuestProfile;
+import com.runicrealms.runicquests.data.PlayerDataLoader;
+import com.runicrealms.runicquests.data.QuestProfile;
 import com.runicrealms.runicquests.event.EventPlayerJoinQuit;
 import com.runicrealms.runicquests.quests.FirstNpcState;
 import com.runicrealms.runicquests.quests.Quest;
