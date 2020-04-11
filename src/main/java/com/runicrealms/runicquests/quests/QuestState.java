@@ -1,7 +1,7 @@
-package com.runicrealms.runicquests.quests.player;
+package com.runicrealms.runicquests.quests;
 
 public class QuestState {
-	
+
 	/*
 	 * This class just represents the specific user info that must come with a quest
 	 */
