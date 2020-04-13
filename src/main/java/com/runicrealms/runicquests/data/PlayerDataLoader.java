@@ -11,8 +11,8 @@ public class PlayerDataLoader {
 		return playerData.get(uuid);
 	}
 
-	public static QuestProfile addPlayerQuestData(UUID uuid, Integer slot) {
-		QuestProfile profile = new QuestProfile(uuid.toString(), slot);
+	public static QuestProfile addPlayerQuestData(UUID uuid, Integer slot, Runnable onCompletion) {
+		QuestProfile profile = new QuestProfile(uuid.toString(), slot, onCompletion);
 		playerData.put(uuid, profile);
 		return profile;
 	}

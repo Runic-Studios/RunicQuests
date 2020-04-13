@@ -20,7 +20,7 @@ public class QuestProfile {
     private MongoData mongoData;
     private Integer slot;
 
-    public QuestProfile(String uuid, Integer slot) {
+    public QuestProfile(String uuid, Integer slot, Runnable onCompletion) {
         this.uuid = uuid;
         this.slot = slot;
         this.mongoData = new PlayerMongoData(uuid);
@@ -62,6 +62,7 @@ public class QuestProfile {
                         quests.add(unusedQuest);
                     }
                 }
+                onCompletion.run();
             }
         });
     }

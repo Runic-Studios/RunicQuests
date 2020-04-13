@@ -35,8 +35,12 @@ public class EventPlayerJoinQuit implements Listener {
 			cooldowns.put(i, new HashSet<>());
 		}
 		Plugin.getQuestCooldowns().put(player.getUniqueId(), cooldowns); // Add a cooldown to the list of cooldowns
-		PlayerDataLoader.addPlayerQuestData(player.getUniqueId(), characterSlot); // Add a quest profile
-		Plugin.updatePlayerCachedLocations(player);
+		PlayerDataLoader.addPlayerQuestData(player.getUniqueId(), characterSlot, new Runnable() {
+			@Override
+			public void run() {
+				Plugin.updatePlayerCachedLocations(player);
+			}
+		}); // Add a quest profile
 	}
 
 	public static void runQuitEvent(Player player) {
