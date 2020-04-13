@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.logging.Level;
 
 import com.runicrealms.runiccharacters.api.RunicCharactersApi;
+import com.runicrealms.runicquests.data.PlayerDataLoader;
 import com.runicrealms.runicquests.data.QuestProfile;
 import com.runicrealms.runicquests.quests.*;
 import net.citizensnpcs.api.event.NPCRightClickEvent;
@@ -31,7 +32,7 @@ public class EventClickNpc implements Listener {
 	@EventHandler
 	public void onNpcRightClick(NPCRightClickEvent event) {
 		Player player = event.getClicker();
-		QuestProfile questProfile = Plugin.getQuestProfile(player.getUniqueId().toString());
+		QuestProfile questProfile = PlayerDataLoader.getPlayerQuestData(player.getUniqueId());
 		int characterSlot = RunicCharactersApi.getCurrentCharacterSlot(player.getUniqueId());
 		HashMap<Long, TaskQueue> npcs = Plugin.getNpcTaskQueues();
 		Map<UUID, Map<Integer, Set<Integer>>> questCooldowns = Plugin.getQuestCooldowns();

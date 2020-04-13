@@ -6,6 +6,7 @@ import java.util.List;
 import com.runicrealms.plugin.RunicCore;
 import com.runicrealms.plugin.player.utilities.PlayerLevelUtil;
 import com.runicrealms.plugin.utilities.CurrencyUtil;
+import com.runicrealms.runicquests.data.PlayerDataLoader;
 import com.runicrealms.runicquests.data.QuestProfile;
 import org.bukkit.entity.Player;
 
@@ -29,7 +30,7 @@ public class RunicCoreHook {
 
 	public static boolean hasCompletedRequiredQuests(Player player, List<Integer> quests) {
 		int slot = RunicCharactersApi.getCurrentCharacterSlot(player.getUniqueId());
-		QuestProfile profile = Plugin.getQuestProfile(player.getUniqueId().toString());
+		QuestProfile profile = PlayerDataLoader.getPlayerQuestData(player.getUniqueId());
 		for (Integer questID : quests) {
 			if (profile.getMongoData().has("character." + slot + ".quests." + questID)) {
 				if (!profile.getMongoData().get("character." + slot + ".quests." + questID + ".completed", Boolean.class)) {

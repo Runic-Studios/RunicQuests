@@ -1,6 +1,7 @@
 package com.runicrealms.runicquests.event;
 
 import com.runicrealms.runicquests.Plugin;
+import com.runicrealms.runicquests.data.PlayerDataLoader;
 import com.runicrealms.runicquests.data.QuestProfile;
 import com.runicrealms.runicquests.quests.Quest;
 import org.bukkit.Bukkit;
@@ -47,7 +48,7 @@ public class EventInventory implements Listener {
     }
 
     private static List<Quest> getSortedQuests(Player player) {
-        QuestProfile profile = Plugin.getQuestProfile(player.getUniqueId().toString());
+        QuestProfile profile = PlayerDataLoader.getPlayerQuestData(player.getUniqueId());
         List<Quest> startedQuests = new ArrayList<Quest>();
         List<Quest> unstartedQuests = new ArrayList<Quest>();
         List<Quest> completedQuests = new ArrayList<Quest>();

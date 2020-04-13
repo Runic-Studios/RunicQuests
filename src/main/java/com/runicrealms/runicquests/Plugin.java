@@ -9,10 +9,12 @@ import java.util.UUID;
 
 import com.runicrealms.runicquests.command.CompleteQuestCommand;
 import com.runicrealms.runicquests.command.ResetQuestsCommand;
+import com.runicrealms.runicquests.data.PlayerDataLoader;
 import com.runicrealms.runicquests.data.QuestProfile;
 import com.runicrealms.runicquests.event.*;
 import com.runicrealms.runicquests.listeners.JournalListener;
 import com.runicrealms.runicquests.quests.FirstNpcState;
+import io.lumine.xikage.mythicmobs.players.PlayerData;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandExecutor;
@@ -36,7 +38,6 @@ import com.runicrealms.runicquests.task.TaskQueue;
 public class Plugin extends JavaPlugin {
 
 	private static Plugin plugin; // Used for getInstance()
-	private static Set<QuestProfile> questProfiles = new HashSet<>(); // List of player quest profiles
 	private static volatile HashMap<Long, TaskQueue> npcTaskQueues = new HashMap<Long, TaskQueue>(); // List of NPC task queues
 	private static Map<UUID, Map<Integer, Set<Integer>>> cooldowns = new HashMap<UUID, Map<Integer, Set<Integer>>>(); // List of quest cooldowns
 	private static Long nextId = Long.MIN_VALUE; // This is used to give each NPC a new unique ID.
@@ -104,7 +105,7 @@ public class Plugin extends JavaPlugin {
 
 	public static void updatePlayerCachedLocations(Player player) { // Updates the cached location objectives for a player
 		cachedLocations.put(player, new HashMap<Integer, LocationToReach>());
-		for (Quest quest : getQuestProfile(player.getUniqueId().toString()).getQuests()) {
+		for (Quest quest : PlayerDataLoader.getPlayerQuestData(player.getUniqueId()).getQuests()) {
 			for (QuestObjective objective : quest.getObjectives()) {
 				if (objective.getObjectiveType() != QuestObjectiveType.LOCATION) {
 					continue;
@@ -135,19 +136,6 @@ public class Plugin extends JavaPlugin {
 
 	public static Map<UUID, Map<Integer, Set<Integer>>> getQuestCooldowns() { // Get the quest cooldowns
 		return cooldowns;
-	}
-
-	public static Set<QuestProfile> getQuestProfiles() { // Get the player quest profiles
-		return questProfiles;
-	}
-
-	public static QuestProfile getQuestProfile(String uuid) { // Get a quest profile by player UUID
-		for (QuestProfile profile : questProfiles) {
-			if (profile.getUuid().toString().equalsIgnoreCase(uuid)) {
-				return profile;
-			}
-		}
-		return null;
 	}
 
 	public static Long getNextId() { // Get a new unique ID that can be used for NPCs
@@ -257,6 +245,10 @@ public class Plugin extends JavaPlugin {
 			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
 		}
 		return outputString;
+	}
+
+	public static QuestProfile getQuestProfile(String uuid) {
+		return PlayerDataLoader.getPlayerQuestData(UUID.fromString(uuid));
 	}
 
 }

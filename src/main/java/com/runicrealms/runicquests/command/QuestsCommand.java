@@ -3,6 +3,7 @@ package com.runicrealms.runicquests.command;
 import java.util.HashMap;
 
 import com.runicrealms.plugin.RunicCore;
+import com.runicrealms.runicquests.data.PlayerDataLoader;
 import com.runicrealms.runicquests.quests.FirstNpcState;
 import com.runicrealms.runicquests.util.RunicCoreHook;
 import org.bukkit.ChatColor;
@@ -26,7 +27,7 @@ public class QuestsCommand implements CommandExecutor {
 		// Loops through player's quests, checks for last objective state + quest status
 		Player player = (Player) sender;
 		HashMap<String, String> goalMessages = new HashMap<String, String>();
-		for (Quest quest : Plugin.getQuestProfile(player.getUniqueId().toString()).getQuests()) {
+		for (Quest quest : PlayerDataLoader.getPlayerQuestData(player.getUniqueId()).getQuests()) {
 			if (RunicCoreHook.isReqClassLv(player, quest.getRequirements().getClassLvReq())) {
 				if (quest.getFirstNPC().getState() == FirstNpcState.ACCEPTED) {
 					QuestObjective lowestUncompletedObjective = null;

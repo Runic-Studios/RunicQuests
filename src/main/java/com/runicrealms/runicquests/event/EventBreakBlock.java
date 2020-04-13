@@ -8,7 +8,9 @@ import java.util.UUID;
 import java.util.logging.Level;
 
 import com.runicrealms.runiccharacters.api.RunicCharactersApi;
+import com.runicrealms.runicquests.data.PlayerDataLoader;
 import com.runicrealms.runicquests.data.QuestProfile;
+import io.lumine.xikage.mythicmobs.players.PlayerData;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
@@ -36,7 +38,7 @@ public class EventBreakBlock implements Listener {
 	@EventHandler
 	public void onBreak(BlockBreakEvent event) {
 		Player player = event.getPlayer();
-		QuestProfile questProfile = Plugin.getQuestProfile(player.getUniqueId().toString()); // Get player's questing profile
+		QuestProfile questProfile = PlayerDataLoader.getPlayerQuestData(player.getUniqueId()); // Get player's questing profile
 		int characterSlot = RunicCharactersApi.getCurrentCharacterSlot(player.getUniqueId());
 		Map<UUID, Map<Integer, Set<Integer>>> questCooldowns = Plugin.getQuestCooldowns(); // Get the repeatable quest cooldowns
 		for (Quest quest : questProfile.getQuests()) { // Loop through the quests to find a matching objective

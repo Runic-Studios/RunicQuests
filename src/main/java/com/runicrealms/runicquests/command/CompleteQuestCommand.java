@@ -8,6 +8,7 @@ import com.runicrealms.runicquests.quests.FirstNpcState;
 import com.runicrealms.runicquests.quests.Quest;
 import com.runicrealms.runicquests.quests.objective.QuestObjective;
 
+import io.lumine.xikage.mythicmobs.players.PlayerData;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -28,7 +29,7 @@ public class CompleteQuestCommand implements CommandExecutor {
             if (args.length == 0) {
                 player.sendMessage(ChatColor.RED + "Use /cq <quest>");
             } else {
-                QuestProfile profile = Plugin.getQuestProfile(player.getUniqueId().toString());
+                QuestProfile profile = PlayerDataLoader.getPlayerQuestData(player.getUniqueId());
                 boolean completed = false;
                 for (Quest quest : profile.getQuests()) {
                     if (quest.getQuestName().equalsIgnoreCase(combineArgs(args, 0))) {

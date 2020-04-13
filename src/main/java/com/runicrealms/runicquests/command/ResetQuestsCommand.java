@@ -32,7 +32,7 @@ public class ResetQuestsCommand implements CommandExecutor {
             if (args.length == 1) {
                 Player otherPlayer = Bukkit.getPlayer(args[0]);
                 if (otherPlayer != null) {
-                    QuestProfile profile = Plugin.getQuestProfile(otherPlayer.getUniqueId().toString());
+                    QuestProfile profile = PlayerDataLoader.getPlayerQuestData(otherPlayer.getUniqueId());
                     for (Quest quest : profile.getQuests()) {
                         quests.add(quest.clone());
                     }
@@ -47,7 +47,7 @@ public class ResetQuestsCommand implements CommandExecutor {
             } else {
                 Player otherPlayer = Bukkit.getPlayer(args[0]);
                 if (otherPlayer != null) {
-                    QuestProfile profile = Plugin.getQuestProfile(otherPlayer.getUniqueId().toString());
+                    QuestProfile profile = PlayerDataLoader.getPlayerQuestData(otherPlayer.getUniqueId());
                     boolean reset = false;
                     for (Quest quest : profile.getQuests()) {
                         if (quest.getQuestName().equalsIgnoreCase(combineArgs(args, 1))) {

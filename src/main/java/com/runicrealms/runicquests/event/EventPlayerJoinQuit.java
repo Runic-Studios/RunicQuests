@@ -35,13 +35,13 @@ public class EventPlayerJoinQuit implements Listener {
 			cooldowns.put(i, new HashSet<>());
 		}
 		Plugin.getQuestCooldowns().put(player.getUniqueId(), cooldowns); // Add a cooldown to the list of cooldowns
-		Plugin.getQuestProfiles().add(PlayerDataLoader.addPlayerQuestData(player.getUniqueId(), characterSlot)); // Add a quest profile
+		PlayerDataLoader.addPlayerQuestData(player.getUniqueId(), characterSlot); // Add a quest profile
 		Plugin.updatePlayerCachedLocations(player);
 	}
 
 	public static void runQuitEvent(Player player) {
 		Plugin.getQuestCooldowns().remove(player.getUniqueId()); // Remove the cooldown object
-		QuestProfile questProfile = Plugin.getQuestProfile(player.getUniqueId().toString()); // Get the quest profile
+		QuestProfile questProfile = PlayerDataLoader.getPlayerQuestData(player.getUniqueId()); // Get the quest profile
 		for (Quest quest : questProfile.getQuests()) { // Loop through the quests
 			for (QuestObjective objective : quest.getObjectives()) { // Loop through objectives
 				if (objective.getObjectiveType() == QuestObjectiveType.TALK) { // Check for objective of type talk
@@ -55,7 +55,7 @@ public class EventPlayerJoinQuit implements Listener {
 				}
 			}
 		}
-		Plugin.getQuestProfiles().remove(questProfile);
+		PlayerDataLoader.getAllPlayerData().remove(player.getUniqueId());
 
 		if (PlayerDataLoader.getAllPlayerData().containsKey(player.getUniqueId())) {
 			PlayerDataLoader.getAllPlayerData().remove(player.getUniqueId());

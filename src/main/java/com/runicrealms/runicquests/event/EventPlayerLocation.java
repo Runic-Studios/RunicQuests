@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 
+import com.runicrealms.runicquests.data.PlayerDataLoader;
 import com.runicrealms.runicquests.data.QuestProfile;
 import com.runicrealms.runicquests.quests.FirstNpcState;
 import org.bukkit.Bukkit;
@@ -31,7 +32,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 public class EventPlayerLocation implements Listener {
 	
 	public static void playerCompleteLocationObjective(Player player, Integer questID) {
-		QuestProfile questProfile = Plugin.getQuestProfile(player.getUniqueId().toString());
+		QuestProfile questProfile = PlayerDataLoader.getPlayerQuestData(player.getUniqueId());
 		Map<UUID, Map<Integer, Set<Integer>>> questCooldowns = Plugin.getQuestCooldowns();
 		Quest questFound = null;
 		for (Quest otherQuest : questProfile.getQuests()) {
