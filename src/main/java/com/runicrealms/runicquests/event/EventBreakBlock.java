@@ -10,7 +10,6 @@ import java.util.logging.Level;
 import com.runicrealms.runiccharacters.api.RunicCharactersApi;
 import com.runicrealms.runicquests.data.PlayerDataLoader;
 import com.runicrealms.runicquests.data.QuestProfile;
-import io.lumine.xikage.mythicmobs.players.PlayerData;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;

@@ -1,6 +1,5 @@
 package com.runicrealms.runicquests.command;
 
-import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.data.PlayerDataLoader;
 import com.runicrealms.runicquests.data.QuestProfile;
 import com.runicrealms.runicquests.event.EventPlayerJoinQuit;
@@ -28,8 +27,7 @@ public class ResetQuestsCommand implements CommandExecutor {
             List<Quest> quests = new ArrayList<Quest>();
             if (args.length == 0) {
                 player.sendMessage(ChatColor.RED + "Use /rq <player> <quest> or /rq <player>");
-            }
-            if (args.length == 1) {
+            } else if (args.length == 1) {
                 Player otherPlayer = Bukkit.getPlayer(args[0]);
                 if (otherPlayer != null) {
                     QuestProfile profile = PlayerDataLoader.getPlayerQuestData(otherPlayer.getUniqueId());
@@ -37,9 +35,8 @@ public class ResetQuestsCommand implements CommandExecutor {
                         quests.add(quest.clone());
                     }
                     Integer slot = new Integer(profile.getSlot());
-                    PlayerDataLoader.getPlayerQuestData(otherPlayer.getUniqueId()).save(quests);
-                    EventPlayerJoinQuit.runQuitEvent(otherPlayer);
-                    EventPlayerJoinQuit.runJoinEvent(otherPlayer, slot);
+                    profile.save(quests);
+                    EventPlayerJoinQuit.refreshPlayerData(profile, otherPlayer);
                     player.sendMessage(ChatColor.GREEN + "Reset their quest data!");
                 } else {
                     player.sendMessage(ChatColor.RED + "Player \"" + args[0] + "\" is not online.");
@@ -60,9 +57,8 @@ public class ResetQuestsCommand implements CommandExecutor {
                     }
                     if (reset) {
                         Integer slot = new Integer(profile.getSlot());
-                        PlayerDataLoader.getPlayerQuestData(otherPlayer.getUniqueId()).save(quests);
-                        EventPlayerJoinQuit.runQuitEvent(otherPlayer);
-                        EventPlayerJoinQuit.runJoinEvent(otherPlayer, slot);
+                        profile.save(quests);
+                        EventPlayerJoinQuit.refreshPlayerData(profile, otherPlayer);
                         player.sendMessage(ChatColor.GREEN + "Reset their quest data for quest \"" + combineArgs(args, 1) + "\"!");
                     } else {
                         player.sendMessage(ChatColor.RED + "Quest \"" + combineArgs(args, 1) + "\" does not exist.");

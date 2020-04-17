@@ -27,42 +27,45 @@ public class QuestProfile {
         Bukkit.getScheduler().runTaskAsynchronously(Plugin.getInstance(), new Runnable() {
             @Override
             public void run() {
+                boolean shouldSave = false;
                 List<Quest> unusedQuests = QuestLoader.getUnusedQuestList();
                 quests = new ArrayList<Quest>();
-                MongoDataSection questsData = mongoData.getSection("character." + slot + ".quests");
-                for (Quest unusedQuest : unusedQuests) {
-                    for (String dataQuestId : questsData.getKeys()) {
-                        if (dataQuestId.equalsIgnoreCase(unusedQuest.getQuestID() + "")) {
-                            MongoDataSection questData = questsData.getSection(dataQuestId);
-                            Quest newQuest = new Quest(unusedQuest);
-                            newQuest.getQuestState().setCompleted(questData.get("completed", Boolean.class));
-                            newQuest.getQuestState().setStarted(questData.get("started", Boolean.class));
-                            newQuest.getFirstNPC().setState(FirstNpcState.fromString(questData.get("first-npc-state", String.class)));
-                            MongoDataSection objectivesData = questData.getSection("objectives");
-                            for (String objectiveNumber : objectivesData.getKeys()) {
-                                for (QuestObjective questObjective : unusedQuest.getObjectives()) {
-                                    if (objectiveNumber.equalsIgnoreCase(questObjective.getObjectiveNumber() + "")) {
-                                        questObjective.setCompleted(objectivesData.get(objectiveNumber + "", Boolean.class));
+                if (mongoData.has("character." + slot + ".quests")) {
+                    MongoDataSection questsData = mongoData.getSection("character." + slot + ".quests");
+                    for (Quest unusedQuest : unusedQuests) {
+                        boolean hasQuestData = false;
+                        for (String dataQuestId : questsData.getKeys()) {
+                            if (dataQuestId.equalsIgnoreCase(unusedQuest.getQuestID() + "")) {
+                                MongoDataSection questData = questsData.getSection(dataQuestId);
+                                Quest newQuest = new Quest(unusedQuest);
+                                newQuest.getQuestState().setCompleted(questData.get("completed", Boolean.class));
+                                newQuest.getQuestState().setStarted(questData.get("started", Boolean.class));
+                                newQuest.getFirstNPC().setState(FirstNpcState.fromString(questData.get("first-npc-state", String.class)));
+                                MongoDataSection objectivesData = questData.getSection("objectives");
+                                for (String objectiveNumber : objectivesData.getKeys()) {
+                                    for (QuestObjective questObjective : unusedQuest.getObjectives()) {
+                                        if (objectiveNumber.equalsIgnoreCase(questObjective.getObjectiveNumber() + "")) {
+                                            questObjective.setCompleted(objectivesData.get(objectiveNumber + "", Boolean.class));
+                                        }
                                     }
                                 }
+                                quests.add(newQuest);
+                                hasQuestData = true;
                             }
-                            quests.add(newQuest);
+                        }
+                        if (hasQuestData == false) {
+                            quests.add(unusedQuest);
+                            shouldSave = true;
                         }
                     }
-                }
-                for (Quest unusedQuest : unusedQuests) {
-                    boolean containsQuest = false;
-                    for (Quest newQuest : quests) {
-                        if (unusedQuest.getQuestID() == newQuest.getQuestID()) {
-                            containsQuest = true;
-                            break;
-                        }
-                    }
-                    if (!containsQuest) {
-                        quests.add(unusedQuest);
+                } else {
+                    for (Quest quest : QuestLoader.getUnusedQuestList()) {
+                        quests.add(quest);
+                        shouldSave = true;
                     }
                 }
                 onCompletion.run();
+                save(quests);
             }
         });
     }
@@ -85,6 +88,7 @@ public class QuestProfile {
                         questsData.set(quest.getQuestID() + ".objectives." + objective.getObjectiveNumber(), objective.isCompleted());
                     }
                 }
+                questsData.saveParent();
             }
         });
     }

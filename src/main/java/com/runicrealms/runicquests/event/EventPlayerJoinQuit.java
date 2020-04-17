@@ -4,18 +4,19 @@ import java.util.*;
 
 import com.runicrealms.runiccharacters.api.events.CharacterLoadEvent;
 import com.runicrealms.runicquests.data.QuestProfile;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
 import com.runicrealms.runiccharacters.api.RunicCharactersApi;
-import com.runicrealms.runiccharacters.api.events.CharacterQuitEvent;
 import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.data.PlayerDataLoader;
 import com.runicrealms.runicquests.quests.Quest;
 import com.runicrealms.runicquests.quests.QuestObjectiveType;
 import com.runicrealms.runicquests.quests.objective.QuestObjective;
 import com.runicrealms.runicquests.quests.objective.QuestObjectiveTalk;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 public class EventPlayerJoinQuit implements Listener {
 
@@ -25,7 +26,7 @@ public class EventPlayerJoinQuit implements Listener {
 	}
 
 	@EventHandler
-	public void onPlayerQuit(CharacterQuitEvent event) {
+	public void onPlayerQuit(PlayerQuitEvent event) { // TODO MUST be changed to CharacterQuitEvent when /alt exists
 		runQuitEvent(event.getPlayer());
 	}
 
@@ -35,12 +36,7 @@ public class EventPlayerJoinQuit implements Listener {
 			cooldowns.put(i, new HashSet<>());
 		}
 		Plugin.getQuestCooldowns().put(player.getUniqueId(), cooldowns); // Add a cooldown to the list of cooldowns
-		PlayerDataLoader.addPlayerQuestData(player.getUniqueId(), characterSlot, new Runnable() {
-			@Override
-			public void run() {
-				Plugin.updatePlayerCachedLocations(player);
-			}
-		}); // Add a quest profile
+		PlayerDataLoader.addPlayerQuestData(player.getUniqueId(), characterSlot, () -> Plugin.updatePlayerCachedLocations(player)); // Add a quest profile
 	}
 
 	public static void runQuitEvent(Player player) {
@@ -60,12 +56,8 @@ public class EventPlayerJoinQuit implements Listener {
 			}
 		}
 		PlayerDataLoader.getAllPlayerData().remove(player.getUniqueId());
-
-		if (PlayerDataLoader.getAllPlayerData().containsKey(player.getUniqueId())) {
-			PlayerDataLoader.getAllPlayerData().remove(player.getUniqueId());
-		}
-		if (Plugin.getCachedLocations().containsKey(player)) {
-			Plugin.getCachedLocations().remove(player);
+		if (Plugin.getCachedLocations().containsKey(player.getUniqueId())) {
+			Plugin.getCachedLocations().remove(player.getUniqueId());
 		}
 	}
 
@@ -93,5 +85,26 @@ public class EventPlayerJoinQuit implements Listener {
 //				}
 //			}
 //		}.runTaskTimer(Plugin.getInstance(), 100L, (DURATION-1)*20L);
+	}
+
+	public static void refreshPlayerData(QuestProfile profile, Player player) {
+		Plugin.getQuestCooldowns().remove(player.getUniqueId());
+		QuestProfile questProfile = PlayerDataLoader.getPlayerQuestData(player.getUniqueId());
+		for (Quest quest : questProfile.getQuests()) {
+			for (QuestObjective objective : quest.getObjectives()) {
+				if (objective.getObjectiveType() == QuestObjectiveType.TALK) {
+					if (Plugin.getNpcTaskQueues().containsKey(((QuestObjectiveTalk) objective).getQuestNpc().getId())) {
+						Plugin.getNpcTaskQueues().remove(((QuestObjectiveTalk) objective).getQuestNpc().getId());
+					}
+				}
+			}
+		}
+		Plugin.getCachedLocations().remove(player.getUniqueId());
+		Map<Integer, Set<Integer>> cooldowns = new HashMap<Integer, Set<Integer>>();
+		for (int i = 1; i <= RunicCharactersApi.getAllCharacters(player.getUniqueId()).size(); i++) {
+			cooldowns.put(i, new HashSet<>());
+		}
+		Plugin.getQuestCooldowns().put(player.getUniqueId(), cooldowns);
+		Plugin.updatePlayerCachedLocations(player);
 	}
 }
