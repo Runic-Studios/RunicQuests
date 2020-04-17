@@ -141,9 +141,9 @@ public class Quest implements Cloneable {
 			List<String> lore = new ArrayList<String>();
 			meta.setDisplayName(ChatColor.YELLOW + this.getQuestName());
 			String[] messageLocation = Plugin.getFirstUncompletedGoalMessageAndLocation(this);
-			lore.add(ChatColor.GOLD + messageLocation[0]);
+			lore.add(ChatColor.YELLOW + ChatColor.translateAlternateColorCodes('&', messageLocation[0]));
 			if (!messageLocation[1].equalsIgnoreCase("")) {
-				lore.add(ChatColor.GOLD + "Location: " + messageLocation[1]);
+				lore.add(ChatColor.YELLOW + "Location: " + ChatColor.translateAlternateColorCodes('&', messageLocation[1]));
 			}
 			lore.add(ChatColor.GRAY + "Level " + this.getRequirements().getClassLvReq());
 			meta.setLore(lore);
@@ -155,9 +155,9 @@ public class Quest implements Cloneable {
 			List<String> lore = new ArrayList<String>();
 			meta.setDisplayName(ChatColor.GOLD + this.getQuestName());
 			String[] messageLocation = Plugin.getFirstUncompletedGoalMessageAndLocation(this);
-			lore.add(ChatColor.YELLOW + messageLocation[0]);
+			lore.add(ChatColor.YELLOW + ChatColor.translateAlternateColorCodes('&', messageLocation[0]));
 			if (!messageLocation[1].equalsIgnoreCase("")) {
-				lore.add(ChatColor.YELLOW + "Location: " + messageLocation[1]);
+				lore.add(ChatColor.YELLOW + "Location: " + ChatColor.translateAlternateColorCodes('&', messageLocation[1]));
 			}
 			lore.add(ChatColor.GRAY + "Level " + this.getRequirements().getClassLvReq());
 			meta.setLore(lore);

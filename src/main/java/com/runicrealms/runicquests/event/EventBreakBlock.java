@@ -89,7 +89,7 @@ public class EventBreakBlock implements Listener {
 								objective.executeCommand(player.getName());
 							}
 							if (objective.getObjectiveNumber() != QuestObjective.getLastObjective(quest.getObjectives()).getObjectiveNumber()) { // If this is not the last objective
-								String goalMessage = QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() + 1).getGoalMessage(); // Get goal message
+								String goalMessage = ChatColor.translateAlternateColorCodes('&', QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() + 1).getGoalMessage()); // Get goal message
 								if (objective.hasCompletedMessage()) { // If the objective has a completed message
 									List<Runnable> runnables = new ArrayList<Runnable>();
 									for (String message : objective.getCompletedMessage()) { // Put the completed message into a task queue

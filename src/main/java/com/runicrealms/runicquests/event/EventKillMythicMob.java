@@ -96,7 +96,7 @@ public class EventKillMythicMob implements Listener {
 									}
 									player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 10, 0); // Play a sound
 									if (objective.getObjectiveNumber() != QuestObjective.getLastObjective(quest.getObjectives()).getObjectiveNumber()) { // Check to see if we have not finished the quest
-										String goalMessage = QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() + 1).getGoalMessage(); // Get the goal message
+										String goalMessage = ChatColor.translateAlternateColorCodes('&', QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() + 1).getGoalMessage()); // Get the goal message
 										if (objective.hasCompletedMessage()) { // If objective has a completed message, create a task queue and add message + new objective message to it
 											List<Runnable> runnables = new ArrayList<Runnable>();
 											for (String message : objective.getCompletedMessage()) {

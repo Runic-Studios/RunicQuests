@@ -50,7 +50,7 @@ public class QuestsCommand implements CommandExecutor {
 		}
 		player.sendMessage(ChatColor.GOLD + "Current Objectives:");
 		for (String questName : goalMessages.keySet()) {
-			player.sendMessage(ChatColor.GOLD + questName + ": " + ChatColor.YELLOW + goalMessages.get(questName));
+			player.sendMessage(ChatColor.GOLD + questName + ": " + ChatColor.YELLOW + ChatColor.translateAlternateColorCodes('&', goalMessages.get(questName)));
 		}
 		return true;
 	}
