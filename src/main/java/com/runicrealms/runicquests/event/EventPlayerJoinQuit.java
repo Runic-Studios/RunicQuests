@@ -3,8 +3,8 @@ package com.runicrealms.runicquests.event;
 import java.util.*;
 
 import com.runicrealms.runiccharacters.api.events.CharacterLoadEvent;
+import com.runicrealms.runiccharacters.api.events.CharacterQuitEvent;
 import com.runicrealms.runicquests.data.QuestProfile;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -16,7 +16,6 @@ import com.runicrealms.runicquests.quests.Quest;
 import com.runicrealms.runicquests.quests.QuestObjectiveType;
 import com.runicrealms.runicquests.quests.objective.QuestObjective;
 import com.runicrealms.runicquests.quests.objective.QuestObjectiveTalk;
-import org.bukkit.event.player.PlayerQuitEvent;
 
 public class EventPlayerJoinQuit implements Listener {
 
@@ -26,7 +25,7 @@ public class EventPlayerJoinQuit implements Listener {
 	}
 
 	@EventHandler
-	public void onPlayerQuit(PlayerQuitEvent event) { // TODO MUST be changed to CharacterQuitEvent when /alt exists
+	public void onPlayerQuit(CharacterQuitEvent event) {
 		runQuitEvent(event.getPlayer());
 	}
 
