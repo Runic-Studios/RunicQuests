@@ -21,7 +21,7 @@ public class EventPlayerJoinQuit implements Listener {
 
 	@EventHandler
 	public void onPlayerJoin(CharacterLoadEvent event) {
-		runJoinEvent(event.getPlayer(), event.getUserConfig().getCharacterSlot());
+		runJoinEvent(event.getPlayer(), event.getCharacterWrapper().getCharacterSlot());
 	}
 
 	@EventHandler
