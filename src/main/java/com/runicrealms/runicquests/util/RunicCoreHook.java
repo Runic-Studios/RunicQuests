@@ -8,10 +8,9 @@ import com.runicrealms.plugin.player.utilities.PlayerLevelUtil;
 import com.runicrealms.plugin.utilities.CurrencyUtil;
 import com.runicrealms.runicquests.data.PlayerDataLoader;
 import com.runicrealms.runicquests.data.QuestProfile;
+import com.runicrealms.runicquests.quests.Quest;
 import org.bukkit.entity.Player;
 
-import com.runicrealms.runiccharacters.api.RunicCharactersApi;
-import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.quests.CraftingProfessionType;
 import com.runicrealms.runicquests.quests.PlayerClassType;
 import com.runicrealms.runicquests.quests.QuestRewards;
@@ -29,18 +28,22 @@ public class RunicCoreHook {
 	}
 
 	public static boolean hasCompletedRequiredQuests(Player player, List<Integer> quests) {
-		int slot = RunicCharactersApi.getCurrentCharacterSlot(player.getUniqueId());
 		QuestProfile profile = PlayerDataLoader.getPlayerQuestData(player.getUniqueId());
-		for (Integer questID : quests) {
-			if (profile.getMongoData().has("character." + slot + ".quests." + questID)) {
-				if (!profile.getMongoData().get("character." + slot + ".quests." + questID + ".completed", Boolean.class)) {
-					return false;
+		Integer completed = 0;
+		for (Quest quest : profile.getQuests()) {
+			if (quest.getQuestState().isCompleted()){
+				if (quests.contains(quest.getQuestID())) {
+					completed++;
+					if (completed == quests.size()) {
+						return true;
+					}
 				}
-			} else {
-				return false;
 			}
 		}
-		return true;
+		if (completed == quests.size()) {
+			return true;
+		}
+		return false;
 	}
 
 	public static boolean isRequiredCraftingLevel(Player player, CraftingProfessionType profession, int level) {

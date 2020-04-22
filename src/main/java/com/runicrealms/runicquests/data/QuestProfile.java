@@ -11,6 +11,8 @@ import com.runicrealms.runicquests.quests.objective.QuestObjective;
 import org.bukkit.Bukkit;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class QuestProfile {
@@ -64,8 +66,22 @@ public class QuestProfile {
                         shouldSave = true;
                     }
                 }
+                Collections.sort(quests, new Comparator<Quest>() {
+                    @Override
+                    public int compare(Quest a, Quest b) {
+                        if (a.getRequirements().getClassLvReq() > b.getRequirements().getClassLvReq()) {
+                            return 1;
+                        } else if (a.getRequirements().getClassLvReq() < b.getRequirements().getClassLvReq()) {
+                            return -1;
+                        } else {
+                            return 0;
+                        }
+                    }
+                });
                 onCompletion.run();
-                save(quests);
+                if (shouldSave) {
+                    save(quests);
+                }
             }
         });
     }
