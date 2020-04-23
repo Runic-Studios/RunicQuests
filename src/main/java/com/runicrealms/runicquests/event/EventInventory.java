@@ -4,6 +4,7 @@ import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.data.PlayerDataLoader;
 import com.runicrealms.runicquests.data.QuestProfile;
 import com.runicrealms.runicquests.quests.Quest;
+import com.runicrealms.runicquests.util.RunicCoreHook;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -28,6 +29,12 @@ public class EventInventory implements Listener {
         List<Quest> quests = getSortedQuests(player);
         for (int i = (page - 1) * 26; i < page * 26; i++) {
             if (i + 1 <= quests.size()) {
+                if (quests.get(i).getRequirements().hasClassTypeRequirement()) {
+                    if (!RunicCoreHook.isRequiredClass(quests.get(i).getRequirements().getClassTypeRequirement(), player)) continue;
+                }
+                if (quests.get(i).getRequirements().hasClassTypeRequirement()) {
+                    if (!RunicCoreHook.hasProfession(player, quests.get(i).getRequirements().getCraftingProfessionType())) continue;
+                }
                 items.put(i - (page - 1) * 26, quests.get(i).generateQuestIcon(player));
             }
         }

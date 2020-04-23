@@ -54,6 +54,16 @@ public class RunicCoreHook {
 		return profession != CraftingProfessionType.ANY && playerProf.equals(profession.getName()) && profLevel >= level;
 	}
 
+	public static boolean hasProfession(Player player, List<CraftingProfessionType> professions) {
+		String playerProf = RunicCore.getCacheManager().getPlayerCache(player.getUniqueId()).getProfName();
+		if (playerProf.equalsIgnoreCase("none") && professions.contains(CraftingProfessionType.ANY)) return false;
+		if (professions.contains(CraftingProfessionType.ANY)) return true;
+		for (CraftingProfessionType profession : professions) {
+			if (playerProf.equalsIgnoreCase(profession.getName())) return true;
+		}
+		return false;
+	}
+
 	public static void giveRewards(Player player, QuestRewards rewards) {
 		// todo: quest points?
 		if (rewards.getExperienceReward() > 0) {
