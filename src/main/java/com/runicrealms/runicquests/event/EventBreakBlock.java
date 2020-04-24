@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 
-import com.runicrealms.runiccharacters.api.RunicCharactersApi;
+import com.runicrealms.plugin.character.api.CharacterApi;
 import com.runicrealms.runicquests.data.PlayerDataLoader;
 import com.runicrealms.runicquests.data.QuestProfile;
 import org.bukkit.Bukkit;
@@ -38,7 +38,7 @@ public class EventBreakBlock implements Listener {
 	public void onBreak(BlockBreakEvent event) {
 		Player player = event.getPlayer();
 		QuestProfile questProfile = PlayerDataLoader.getPlayerQuestData(player.getUniqueId()); // Get player's questing profile
-		int characterSlot = RunicCharactersApi.getCurrentCharacterSlot(player.getUniqueId());
+		int characterSlot = CharacterApi.getCurrentCharacterSlot(player);
 		Map<UUID, Map<Integer, Set<Integer>>> questCooldowns = Plugin.getQuestCooldowns(); // Get the repeatable quest cooldowns
 		for (Quest quest : questProfile.getQuests()) { // Loop through the quests to find a matching objective
 			if ((quest.getQuestState().isCompleted() == false && quest.getQuestState().hasStarted()) // Check that the quest is not completed and has been started

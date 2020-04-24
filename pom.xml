@@ -117,14 +117,6 @@
 			<type>jar</type>
 			<scope>provided</scope>
 		</dependency>
-		<!-- RunicCharacters -->
-		<dependency>
-			<groupId>com.runicrealms.plugin</groupId>
-			<artifactId>RunicCharacters</artifactId>
-			<version>1.15.2</version>
-			<scope>system</scope>
-			<systemPath>${project.basedir}/lib/RunicCharacters-1.15.2.jar</systemPath>
-		</dependency>
 		<!-- RunicCore -->
 		<dependency>
 			<groupId>com.runicrealms.plugin</groupId>

@@ -1,12 +1,12 @@
 package com.runicrealms.runicquests;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 
+import com.runicrealms.plugin.character.api.CharacterApi;
 import com.runicrealms.runicquests.command.CompleteQuestCommand;
 import com.runicrealms.runicquests.command.ResetQuestsCommand;
 import com.runicrealms.runicquests.data.PlayerDataLoader;
@@ -14,7 +14,6 @@ import com.runicrealms.runicquests.data.QuestProfile;
 import com.runicrealms.runicquests.event.*;
 import com.runicrealms.runicquests.listeners.JournalListener;
 import com.runicrealms.runicquests.quests.FirstNpcState;
-import io.lumine.xikage.mythicmobs.players.PlayerData;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandExecutor;
@@ -24,7 +23,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.runicrealms.runiccharacters.api.RunicCharactersApi;
 import com.runicrealms.runicquests.command.QuestsCommand;
 import com.runicrealms.runicquests.config.ConfigLoader;
 import com.runicrealms.runicquests.quests.Quest;
@@ -63,7 +61,9 @@ public class Plugin extends JavaPlugin {
 		this.getServer().getPluginManager().registerEvents(new JournalListener(), this);
 		this.getServer().getPluginManager().registerEvents(new EventInventory(), this);
 		for (Player player : Bukkit.getOnlinePlayers()) { // Loop through online players (fixes bug with /reload)
-			EventPlayerJoinQuit.runJoinEvent(player, RunicCharactersApi.getCurrentCharacterSlot(player.getUniqueId())); // Read PlayerJoinQuitEvent.runJoinEvent
+			if (CharacterApi.getCurrentCharacterSlot(player) != null) {
+				EventPlayerJoinQuit.runJoinEvent(player, CharacterApi.getCurrentCharacterSlot(player)); // Read PlayerJoinQuitEvent.runJoinEvent
+			}
 		}
 		EventPlayerJoinQuit.displayQuestionMarks();
 		registerCommand(new CompleteQuestCommand(), "completequest", "questcomplete", "cq", "qc");

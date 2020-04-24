@@ -8,8 +8,8 @@ import java.util.UUID;
 import java.util.logging.Level;
 
 import com.runicrealms.plugin.RunicCore;
+import com.runicrealms.plugin.character.api.CharacterApi;
 import com.runicrealms.plugin.parties.Party;
-import com.runicrealms.runiccharacters.api.RunicCharactersApi;
 import com.runicrealms.runicquests.data.PlayerDataLoader;
 import com.runicrealms.runicquests.data.QuestProfile;
 import io.lumine.xikage.mythicmobs.api.bukkit.events.MythicMobDeathEvent;
@@ -55,7 +55,7 @@ public class EventKillMythicMob implements Listener {
 
 	public static void runMythicMobsKill(Player player, MythicMob mythicMob) {
 		QuestProfile questProfile = PlayerDataLoader.getPlayerQuestData(player.getUniqueId()); // Get player questing profile
-		int characterSlot = RunicCharactersApi.getCurrentCharacterSlot(player.getUniqueId());
+		int characterSlot = CharacterApi.getCurrentCharacterSlot(player);
 		Map<UUID, Map<Integer, Set<Integer>>> questCooldowns = Plugin.getQuestCooldowns();
 		for (Quest quest : questProfile.getQuests()) { // Loop through quest to find a matching objective to the mob killed
 			if ((quest.getQuestState().isCompleted() == false && quest.getQuestState().hasStarted())

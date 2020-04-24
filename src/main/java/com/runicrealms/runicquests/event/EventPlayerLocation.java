@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 
+import com.runicrealms.plugin.character.api.CharacterApi;
 import com.runicrealms.runicquests.data.PlayerDataLoader;
 import com.runicrealms.runicquests.data.QuestProfile;
 import com.runicrealms.runicquests.quests.FirstNpcState;
@@ -16,7 +17,6 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 
-import com.runicrealms.runiccharacters.api.RunicCharactersApi;
 import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.api.QuestCompleteEvent;
 import com.runicrealms.runicquests.quests.Quest;
@@ -145,12 +145,12 @@ public class EventPlayerLocation implements Listener {
 				}
 				RunicCoreHook.giveRewards(player, quest.getRewards()); // Give the rewards
 				if (quest.isRepeatable() == true) { // If the quest is repeatable, setup cooldown
-					questCooldowns.get(player.getUniqueId()).get(RunicCharactersApi.getCurrentCharacterSlot(player.getUniqueId())).add(quest.getQuestID());
+					questCooldowns.get(player.getUniqueId()).get(CharacterApi.getCurrentCharacterSlot(player)).add(quest.getQuestID());
 					Bukkit.getScheduler().runTaskLater(Plugin.getInstance(), new Runnable() {
 						@Override
 						public void run() {
-							if (questCooldowns.get(player.getUniqueId()).get(RunicCharactersApi.getCurrentCharacterSlot(player.getUniqueId())).contains(quest.getQuestID())) {
-								questCooldowns.get(player.getUniqueId()).get(RunicCharactersApi.getCurrentCharacterSlot(player.getUniqueId())).remove(quest.getQuestID());
+							if (questCooldowns.get(player.getUniqueId()).get(CharacterApi.getCurrentCharacterSlot(player)).contains(quest.getQuestID())) {
+								questCooldowns.get(player.getUniqueId()).get(CharacterApi.getCurrentCharacterSlot(player)).remove(quest.getQuestID());
 							} else {
 								Bukkit.getLogger().log(Level.INFO, "[RunicQuests] ERROR - failed to remove quest cooldown from player \"" + questProfile.getUuid() + "\"!");
 							}

@@ -1,7 +1,7 @@
 package com.runicrealms.runicquests.listeners;
 
 import com.runicrealms.plugin.attributes.AttributeUtil;
-import com.runicrealms.runiccharacters.api.events.CharacterLoadEvent;
+import com.runicrealms.plugin.character.api.CharacterLoadEvent;
 import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.event.EventInventory;
 import org.bukkit.ChatColor;

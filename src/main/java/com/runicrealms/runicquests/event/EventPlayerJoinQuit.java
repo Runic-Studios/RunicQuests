@@ -2,14 +2,14 @@ package com.runicrealms.runicquests.event;
 
 import java.util.*;
 
-import com.runicrealms.runiccharacters.api.events.CharacterLoadEvent;
-import com.runicrealms.runiccharacters.api.events.CharacterQuitEvent;
+import com.runicrealms.plugin.character.api.CharacterApi;
+import com.runicrealms.plugin.character.api.CharacterLoadEvent;
+import com.runicrealms.plugin.character.api.CharacterQuitEvent;
 import com.runicrealms.runicquests.data.QuestProfile;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
-import com.runicrealms.runiccharacters.api.RunicCharactersApi;
 import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.data.PlayerDataLoader;
 import com.runicrealms.runicquests.quests.Quest;
@@ -21,7 +21,7 @@ public class EventPlayerJoinQuit implements Listener {
 
 	@EventHandler
 	public void onPlayerJoin(CharacterLoadEvent event) {
-		runJoinEvent(event.getPlayer(), event.getCharacter().getSlot());
+		runJoinEvent(event.getPlayer(), event.getSlot());
 	}
 
 	@EventHandler
@@ -31,8 +31,8 @@ public class EventPlayerJoinQuit implements Listener {
 
 	public static void runJoinEvent(Player player, Integer characterSlot) {
 		Map<Integer, Set<Integer>> cooldowns = new HashMap<Integer, Set<Integer>>();
-		for (int i = 1; i <= RunicCharactersApi.getAllCharacters(player.getUniqueId()).size(); i++) {
-			cooldowns.put(i, new HashSet<>());
+		for (Integer character : CharacterApi.getAllCharacters(player)) {
+			cooldowns.put(character, new HashSet<>());
 		}
 		Plugin.getQuestCooldowns().put(player.getUniqueId(), cooldowns); // Add a cooldown to the list of cooldowns
 		PlayerDataLoader.addPlayerQuestData(player.getUniqueId(), characterSlot, () -> Plugin.updatePlayerCachedLocations(player)); // Add a quest profile
@@ -100,8 +100,8 @@ public class EventPlayerJoinQuit implements Listener {
 		}
 		Plugin.getCachedLocations().remove(player.getUniqueId());
 		Map<Integer, Set<Integer>> cooldowns = new HashMap<Integer, Set<Integer>>();
-		for (int i = 1; i <= RunicCharactersApi.getAllCharacters(player.getUniqueId()).size(); i++) {
-			cooldowns.put(i, new HashSet<>());
+		for (Integer character : CharacterApi.getAllCharacters(player)) {
+			cooldowns.put(character, new HashSet<>());
 		}
 		Plugin.getQuestCooldowns().put(player.getUniqueId(), cooldowns);
 		Plugin.updatePlayerCachedLocations(player);
