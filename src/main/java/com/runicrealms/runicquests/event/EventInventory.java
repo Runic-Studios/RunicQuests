@@ -27,15 +27,10 @@ public class EventInventory implements Listener {
     public static void openQuestGui(Player player, Integer page) {
         Map<Integer, ItemStack> items = new HashMap<Integer, ItemStack>();
         List<Quest> quests = getSortedQuests(player);
+        int skipped = 0;
         for (int i = (page - 1) * 26; i < page * 26; i++) {
             if (i + 1 <= quests.size()) {
-                if (quests.get(i).getRequirements().hasClassTypeRequirement()) {
-                    if (!RunicCoreHook.isRequiredClass(quests.get(i).getRequirements().getClassTypeRequirement(), player)) continue;
-                }
-                if (quests.get(i).getRequirements().hasClassTypeRequirement()) {
-                    if (!RunicCoreHook.hasProfession(player, quests.get(i).getRequirements().getCraftingProfessionType())) continue;
-                }
-                items.put(i - (page - 1) * 26, quests.get(i).generateQuestIcon(player));
+                items.put((i - (page - 1) * 26) - skipped, quests.get(i).generateQuestIcon(player));
             }
         }
         if (quests.size() - page * 26 > 0) {
@@ -60,6 +55,16 @@ public class EventInventory implements Listener {
         List<Quest> unstartedQuests = new ArrayList<Quest>();
         List<Quest> completedQuests = new ArrayList<Quest>();
         for (Quest quest : profile.getQuests()) {
+            if (quest.getRequirements().hasClassTypeRequirement()) {
+                if (!RunicCoreHook.isRequiredClass(quest.getRequirements().getClassTypeRequirement(), player)) {
+                    continue;
+                }
+            }
+            if (quest.getRequirements().hasClassTypeRequirement()) {
+                if (!RunicCoreHook.hasProfession(player, quest.getRequirements().getCraftingProfessionType())) {
+                    continue;
+                }
+            }
             if (quest.getQuestState().hasStarted() && quest.getQuestState().isCompleted() == false) {
                 startedQuests.add(quest);
             }
