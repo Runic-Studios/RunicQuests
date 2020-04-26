@@ -233,7 +233,7 @@ public class Plugin extends JavaPlugin {
 				if (!lastCharSlash) {
 					lastCharSlash = true;
 				} else {
-					command = outputString.substring(i, outputString.length());
+					command = outputString.substring(i + 1, outputString.length());
 					outputString = outputString.substring(0, i - 2);
 					break;
 				}

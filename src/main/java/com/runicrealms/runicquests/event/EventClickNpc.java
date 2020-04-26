@@ -323,8 +323,8 @@ public class EventClickNpc implements Listener {
 									}
 								}
 								if (idleMessage.getConditions().hasObjectiveStates()) { // Check for objectives completed condition
-									for (int i = 1; i <= idleMessage.getConditions().getObjectiveStates().size(); i++) {
-										if (i < quest.getObjectives().size()) {
+									for (int i = 1; i <= quest.getObjectives().size(); i++) {
+										if (idleMessage.getConditions().getObjectiveStates().size() - 1 >= i) {
 											if (idleMessage.getConditions().getObjectiveStates().get(i) != null) {
 												if (quest.getObjectives().get(i).isCompleted() != idleMessage.getConditions().getObjectiveStates().get(i)) {
 													continue idleMessageLoop;
