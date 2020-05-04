@@ -66,7 +66,7 @@ public class EventPlayerLocation implements Listener {
 					}
 					player.updateInventory();
 				} else {
-					return;
+					continue;
 				}
 			}
 			objective.setCompleted(true);
