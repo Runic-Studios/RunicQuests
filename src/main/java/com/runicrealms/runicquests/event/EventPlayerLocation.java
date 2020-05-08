@@ -108,7 +108,7 @@ public class EventPlayerLocation implements Listener {
 				}
 			} else { // If we have finished the quest
 				quest.getQuestState().setCompleted(true);
-				questProfile.save();
+				questProfile.save(questProfile.getQuestPoints() + quest.getRewards().getQuestPointsReward());
 				if (objective.hasCompletedMessage()) { // If we have a completed message
 					List<Runnable> runnables = new ArrayList<Runnable>();
 					for (String message : objective.getCompletedMessage()) { // Create a task queue with the completed message

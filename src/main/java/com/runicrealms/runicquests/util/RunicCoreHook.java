@@ -65,7 +65,6 @@ public class RunicCoreHook {
 	}
 
 	public static void giveRewards(Player player, QuestRewards rewards) {
-		// todo: quest points?
 		if (rewards.getExperienceReward() > 0) {
 			PlayerLevelUtil.giveExperience(player, rewards.getExperienceReward());
 		}

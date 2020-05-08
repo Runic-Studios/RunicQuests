@@ -21,6 +21,7 @@ public class QuestProfile {
     private String uuid;
     private MongoData mongoData;
     private Integer slot;
+    private int questPoints;
 
     public QuestProfile(String uuid, Integer slot, Runnable onCompletion) {
         this.uuid = uuid;
@@ -78,6 +79,19 @@ public class QuestProfile {
                         }
                     }
                 });
+
+                if (!mongoData.has("character." + slot + ".quest-points")) {
+                    questPoints = 0;
+                    for (Quest quest : quests) {
+                        if (quest.getQuestState().isCompleted()) {
+                            questPoints++;
+                        }
+                    }
+                    mongoData.set("character." + slot + ".quest-points", questPoints);
+                    mongoData.save();
+                } else {
+                    questPoints = mongoData.get("character." + slot + ".quest-points", Integer.class);
+                }
                 onCompletion.run();
                 if (shouldSave) {
                     save(quests);
@@ -88,6 +102,26 @@ public class QuestProfile {
 
     public List<Quest> getQuests() {
         return this.quests;
+    }
+
+    public void save(List<Quest> quests, int points) {
+        this.quests = quests;
+        Bukkit.getScheduler().runTaskAsynchronously(Plugin.getInstance(), new Runnable() {
+            @Override
+            public void run() {
+                MongoDataSection questsData = mongoData.getSection("character." + slot + ".quests");
+                mongoData.set("character." + slot + ".quest-points", points);
+                for (Quest quest : quests) {
+                    questsData.set(quest.getQuestID() + ".completed", quest.getQuestState().isCompleted());
+                    questsData.set(quest.getQuestID() + ".started", quest.getQuestState().hasStarted());
+                    questsData.set(quest.getQuestID() + ".first-npc-state", quest.getFirstNPC().getState().getName());
+                    for (QuestObjective objective : quest.getObjectives()) {
+                        questsData.set(quest.getQuestID() + ".objectives." + objective.getObjectiveNumber(), objective.isCompleted());
+                    }
+                }
+                questsData.saveParent();
+            }
+        });
     }
 
     public void save(List<Quest> quests) {
@@ -109,8 +143,27 @@ public class QuestProfile {
         });
     }
 
+    public int getQuestPoints() {
+        return this.questPoints;
+    }
+
+    public void setQuestPoints(int amount) {
+        this.questPoints = amount;
+        Bukkit.getScheduler().runTaskAsynchronously(Plugin.getInstance(), new Runnable() {
+            @Override
+            public void run() {
+                mongoData.set("character." + slot + ".quest-points", amount);
+                mongoData.save();
+            }
+        });
+    }
+
     public void save() {
         this.save(this.quests);
+    }
+
+    public void save(int points) {
+        this.save(this.quests, points);
     }
 
     public String getUuid() {
