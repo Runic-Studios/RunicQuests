@@ -78,7 +78,7 @@ public class RunicCoreHook {
 	}
 
 	public static boolean isRequiredClass(PlayerClassType classType, Player player) {
-		String className = RunicCore.getCacheManager().getPlayerCache(player.getUniqueId()).getClassName().toLowerCase();
-		return classType.getName().equals(className);
+		String className = RunicCore.getCacheManager().getPlayerCache(player.getUniqueId()).getClassName();
+		return classType.getName().equalsIgnoreCase(className);
 	}
 }

@@ -60,7 +60,7 @@ public class EventInventory implements Listener {
                     continue;
                 }
             }
-            if (quest.getRequirements().hasClassTypeRequirement()) {
+            if (quest.getRequirements().hasCraftingRequirement()) {
                 if (!RunicCoreHook.hasProfession(player, quest.getRequirements().getCraftingProfessionType())) {
                     continue;
                 }
