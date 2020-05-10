@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.runicrealms.runicquests.quests.*;
+import com.runicrealms.runicquests.util.NpcPlugin;
+import net.citizensnpcs.api.CitizensAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -311,13 +313,16 @@ public class QuestLoader {
 	// Loads a quest first NPC
 	public static QuestFirstNpc loadFirstNpc(ConfigurationSection configSec, int objectivesNumber) throws QuestLoadException {
 		try {
+			NpcPlugin plugin = (configSec.contains("plugin") ? NpcPlugin.getFromString(configSec.getString("plugin"), NpcPlugin.CITIZENS) : NpcPlugin.CITIZENS);
 			return new QuestFirstNpc(
 					checkValueNull(configSec.getInt("npc-id"), "npc-id"),
+					(plugin == NpcPlugin.CITIZENS ? CitizensAPI.getNPCRegistry().getById(configSec.getInt("npc-id")).getStoredLocation() : com.runicrealms.runicnpcs.Plugin.getNpcs().get(configSec.getInt("npc-id")).getLocation()),
 					checkValueNull(getStringList(configSec, "speech"), "npc-speech"),
 					(configSec.contains("idle-messages") ? loadIdleMessages(configSec.getConfigurationSection("idle-messages"), objectivesNumber) : null),
 					(configSec.contains("quest-completed-message") ? getStringList(configSec, "quest-completed-message") : null),
 					checkValueNull(configSec.getString("npc-name"), "npc-name"),
-					(configSec.contains("execute") ? getStringList(configSec, "execute") : null));
+					(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
+					plugin);
 		} catch (QuestLoadException exception) {
 			throw exception;
 		} catch (Exception exception) {
@@ -332,7 +337,8 @@ public class QuestLoader {
 					checkValueNull(configSec.getInt("npc-id"), "npc-id"),
 					checkValueNull(getStringList(configSec, "speech"), "npc-speech"),
 					(configSec.contains("idle-messages") ? loadIdleMessages(configSec.getConfigurationSection("idle-messages"), objectivesNumber) : null),
-					checkValueNull(configSec.getString("npc-name"), "npc-name"));
+					checkValueNull(configSec.getString("npc-name"), "npc-name"),
+					(configSec.contains("plugin") ? NpcPlugin.getFromString(configSec.getString("plugin"), NpcPlugin.CITIZENS) : NpcPlugin.CITIZENS));
 		} catch (QuestLoadException exception) {
 			throw exception;
 		} catch (Exception exception) {

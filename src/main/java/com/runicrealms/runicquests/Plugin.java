@@ -12,6 +12,7 @@ import com.runicrealms.runicquests.command.ResetQuestsCommand;
 import com.runicrealms.runicquests.data.PlayerDataLoader;
 import com.runicrealms.runicquests.data.QuestProfile;
 import com.runicrealms.runicquests.event.*;
+import com.runicrealms.runicquests.event.custom.RightClickNpcHandler;
 import com.runicrealms.runicquests.listeners.JournalListener;
 import com.runicrealms.runicquests.quests.FirstNpcState;
 import org.bukkit.Bukkit;
@@ -60,6 +61,7 @@ public class Plugin extends JavaPlugin {
 		this.getServer().getPluginManager().registerEvents(new EventPlayerLocation(), this);
 		this.getServer().getPluginManager().registerEvents(new JournalListener(), this);
 		this.getServer().getPluginManager().registerEvents(new EventInventory(), this);
+		this.getServer().getPluginManager().registerEvents(new RightClickNpcHandler(), this);
 		for (Player player : Bukkit.getOnlinePlayers()) { // Loop through online players (fixes bug with /reload)
 			if (CharacterApi.getCurrentCharacterSlot(player) != null) {
 				EventPlayerJoinQuit.runJoinEvent(player, CharacterApi.getCurrentCharacterSlot(player)); // Read PlayerJoinQuitEvent.runJoinEvent
@@ -167,9 +169,9 @@ public class Plugin extends JavaPlugin {
 	public static String[] getFirstUncompletedGoalMessageAndLocation(Quest quest) {
 		if (quest.getFirstNPC().getState() != FirstNpcState.ACCEPTED) {
 			return new String[] {"Speak with: " + quest.getFirstNPC().getNpcName() + " at " +
-					quest.getFirstNPC().getCitizensNpc().getStoredLocation().getBlockX() + " " +
-					quest.getFirstNPC().getCitizensNpc().getStoredLocation().getBlockY() + " " +
-					quest.getFirstNPC().getCitizensNpc().getStoredLocation().getBlockZ(),
+					quest.getFirstNPC().getLocation().getBlockX() + " " +
+					quest.getFirstNPC().getLocation().getBlockY() + " " +
+					quest.getFirstNPC().getLocation().getBlockZ(),
 					""};
 		}
 		QuestObjective lowest = null;

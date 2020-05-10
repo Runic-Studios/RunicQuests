@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.runicrealms.runicquests.Plugin;
 
+import com.runicrealms.runicquests.util.NpcPlugin;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPC;
 
@@ -14,23 +15,23 @@ public class QuestNpc implements Cloneable {
 	 */
 
 	private Integer npcId;
-	private NPC npc;
 	private List<String> speech;
 	private List<QuestIdleMessage> idleSpeech;
 	private String npcName;
 	private Long id;
+	private NpcPlugin plugin;
 	
-	public QuestNpc(Integer npcId, List<String> speech, List<QuestIdleMessage> idleSpeech, String npcName) {
-		this.npc = CitizensAPI.getNPCRegistry().getById(npcId);
+	public QuestNpc(Integer npcId, List<String> speech, List<QuestIdleMessage> idleSpeech, String npcName, NpcPlugin plugin) {
 		this.npcId = npcId;
 		this.speech = speech;
 		this.idleSpeech = idleSpeech;
 		this.npcName = npcName;
 		this.id = Plugin.getNextId();
+		this.plugin = plugin;
 	}
 
-	public NPC getCitizensNpc() {
-		return npc;
+	public Integer getNpcId() {
+		return this.npcId;
 	}
 
 	public List<String> getSpeech() {
@@ -53,9 +54,13 @@ public class QuestNpc implements Cloneable {
 		return this.idleSpeech != null;
 	}
 
+	public NpcPlugin getPlugin() {
+		return this.plugin;
+	}
+
 	@Override
 	public QuestNpc clone() {
-		return new QuestNpc(this.npcId, this.speech, this.idleSpeech, this.npcName);
+		return new QuestNpc(this.npcId, this.speech, this.idleSpeech, this.npcName, this.plugin);
 	}
 
 }

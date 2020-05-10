@@ -2,6 +2,7 @@ package com.runicrealms.runicquests.quests;
 
 import java.util.List;
 
+import com.runicrealms.runicquests.util.NpcPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
@@ -16,8 +17,8 @@ public class QuestFirstNpc implements Cloneable {
 	 * Represents a quest first NPC
 	 */
 	
-	private NPC npc;
 	private Integer npcId;
+	private Location location;
 	private List<String> speech;
 	private List<QuestIdleMessage> idleSpeech = null;
 	private List<String> questCompletedSpeech;
@@ -25,24 +26,26 @@ public class QuestFirstNpc implements Cloneable {
 	private List<String> execute;
 	private FirstNpcState state = FirstNpcState.NEUTRAL;
 	private Long id;
+	private NpcPlugin plugin;
 	
-	public QuestFirstNpc(Integer npcId, List<String> speech, List<QuestIdleMessage> idleSpeech, List<String> questCompletedSpeech, String npcName, List<String> execute) {
-		this.npc = CitizensAPI.getNPCRegistry().getById(npcId);
+	public QuestFirstNpc(Integer npcId, Location location, List<String> speech, List<QuestIdleMessage> idleSpeech, List<String> questCompletedSpeech, String npcName, List<String> execute, NpcPlugin plugin) {
 		this.npcId = npcId;
+		this.location = location;
 		this.speech = speech;
 		this.idleSpeech = idleSpeech;
 		this.questCompletedSpeech = questCompletedSpeech;
 		this.execute = execute;
 		this.npcName = npcName;
 		this.id = Plugin.getNextId();
-	}
-	
-	public NPC getCitizensNpc() {
-		return npc;
+		this.plugin = plugin;
 	}
 
-	public Location getStoredLocation() {
-		return this.npc.getStoredLocation();
+	public Integer getNpcId() {
+		return this.npcId;
+	}
+
+	public Location getLocation() {
+		return this.location;
 	}
 	
 	public List<String> getSpeech() {
@@ -84,6 +87,10 @@ public class QuestFirstNpc implements Cloneable {
 	public FirstNpcState getState() {
 		return state;
 	}
+
+	public NpcPlugin getPlugin() {
+		return this.plugin;
+	}
 	
 	public void executeCommand(String playerName) {
 		for (String command : this.execute) {
@@ -94,7 +101,7 @@ public class QuestFirstNpc implements Cloneable {
 
 	@Override
 	public QuestFirstNpc clone() {
-		return new QuestFirstNpc(this.npcId, this.speech, this.idleSpeech, this.questCompletedSpeech, this.npcName, this.execute);
+		return new QuestFirstNpc(this.npcId, this.location, this.speech, this.idleSpeech, this.questCompletedSpeech, this.npcName, this.execute, this.plugin);
 	}
 
 }
