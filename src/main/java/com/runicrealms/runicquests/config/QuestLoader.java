@@ -322,7 +322,9 @@ public class QuestLoader {
 					(configSec.contains("quest-completed-message") ? getStringList(configSec, "quest-completed-message") : null),
 					checkValueNull(configSec.getString("npc-name"), "npc-name"),
 					(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
-					plugin);
+					plugin,
+					configSec.contains("goal-message") ? configSec.getString("goal-message") : null,
+					configSec.contains("goal-location") ? configSec.getString("goal-location") : null);
 		} catch (QuestLoadException exception) {
 			throw exception;
 		} catch (Exception exception) {

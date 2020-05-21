@@ -27,8 +27,10 @@ public class QuestFirstNpc implements Cloneable {
 	private FirstNpcState state = FirstNpcState.NEUTRAL;
 	private Long id;
 	private NpcPlugin plugin;
+	private String goalMessage;
+	private String goalLocation;
 	
-	public QuestFirstNpc(Integer npcId, Location location, List<String> speech, List<QuestIdleMessage> idleSpeech, List<String> questCompletedSpeech, String npcName, List<String> execute, NpcPlugin plugin) {
+	public QuestFirstNpc(Integer npcId, Location location, List<String> speech, List<QuestIdleMessage> idleSpeech, List<String> questCompletedSpeech, String npcName, List<String> execute, NpcPlugin plugin, String goalMessage, String goalLocation) {
 		this.npcId = npcId;
 		this.location = location;
 		this.speech = speech;
@@ -38,6 +40,8 @@ public class QuestFirstNpc implements Cloneable {
 		this.npcName = npcName;
 		this.id = Plugin.getNextId();
 		this.plugin = plugin;
+		this.goalMessage = goalMessage;
+		this.goalLocation = goalLocation;
 	}
 
 	public Integer getNpcId() {
@@ -99,9 +103,25 @@ public class QuestFirstNpc implements Cloneable {
 		}
 	}
 
+	public boolean hasGoalMessage() {
+		return this.goalMessage != null;
+	}
+
+	public String getGoalMessage() {
+		return this.goalMessage;
+	}
+
+	public boolean hasGoalLocation() {
+		return this.goalLocation != null;
+	}
+
+	public String getGoalLocation() {
+		return this.goalLocation;
+	}
+
 	@Override
 	public QuestFirstNpc clone() {
-		return new QuestFirstNpc(this.npcId, this.location, this.speech, this.idleSpeech, this.questCompletedSpeech, this.npcName, this.execute, this.plugin);
+		return new QuestFirstNpc(this.npcId, this.location, this.speech, this.idleSpeech, this.questCompletedSpeech, this.npcName, this.execute, this.plugin, this.goalMessage, this.goalLocation);
 	}
 
 }
