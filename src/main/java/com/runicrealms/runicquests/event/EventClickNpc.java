@@ -68,6 +68,25 @@ public class EventClickNpc implements Listener {
 							if (objective.isCompleted() == false) { // Check that the objective isn't completed
 								if (objective.getObjectiveNumber() != 1) { // Check that the previous objective has been completed
 									if (QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() - 1).isCompleted() == false) {
+										if (objective.getObjectiveNumber() != 2) {
+											if (QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() - 2).isCompleted() == false) {
+												continue;
+											}
+										}
+										if (talkObjective.getQuestNpc().hasDeniedMessage()) {
+											if (!talkObjective.requiresQuestItem()) {
+												TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, talkObjective.getQuestNpc().getDeniedMessage(), talkObjective.getQuestNpc().getNpcName()));
+												queue.setCompletedTask(new Runnable() {
+													@Override
+													public void run() {
+														npcs.remove(talkObjective.getQuestNpc().getId());
+													}
+												});
+												npcs.put(talkObjective.getQuestNpc().getId(), queue);
+												queue.startTasks();
+												break questsLoop;
+											}
+										}
 										continue;
 									}
 								}
@@ -81,6 +100,17 @@ public class EventClickNpc implements Listener {
 										}
 										player.updateInventory();
 									} else {
+										if (talkObjective.getQuestNpc().hasDeniedMessage()) {
+											TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, talkObjective.getQuestNpc().getDeniedMessage(), talkObjective.getQuestNpc().getNpcName()));
+											queue.setCompletedTask(new Runnable() {
+												@Override
+												public void run() {
+													npcs.remove(talkObjective.getQuestNpc().getId());
+												}
+											});
+											npcs.put(talkObjective.getQuestNpc().getId(), queue);
+											queue.startTasks();
+										}
 										break questsLoop;
 									}
 								}

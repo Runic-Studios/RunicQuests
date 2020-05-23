@@ -340,7 +340,8 @@ public class QuestLoader {
 					checkValueNull(getStringList(configSec, "speech"), "npc-speech"),
 					(configSec.contains("idle-messages") ? loadIdleMessages(configSec.getConfigurationSection("idle-messages"), objectivesNumber) : null),
 					checkValueNull(configSec.getString("npc-name"), "npc-name"),
-					(configSec.contains("plugin") ? NpcPlugin.getFromString(configSec.getString("plugin"), NpcPlugin.CITIZENS) : NpcPlugin.CITIZENS));
+					(configSec.contains("plugin") ? NpcPlugin.getFromString(configSec.getString("plugin"), NpcPlugin.CITIZENS) : NpcPlugin.CITIZENS),
+					(configSec.contains("denied-message") ? getStringList(configSec, "denied-message") : null));
 		} catch (QuestLoadException exception) {
 			throw exception;
 		} catch (Exception exception) {

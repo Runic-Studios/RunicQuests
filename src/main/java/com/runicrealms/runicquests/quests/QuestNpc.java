@@ -20,14 +20,16 @@ public class QuestNpc implements Cloneable {
 	private String npcName;
 	private Long id;
 	private NpcPlugin plugin;
+	private List<String> deniedMessage;
 	
-	public QuestNpc(Integer npcId, List<String> speech, List<QuestIdleMessage> idleSpeech, String npcName, NpcPlugin plugin) {
+	public QuestNpc(Integer npcId, List<String> speech, List<QuestIdleMessage> idleSpeech, String npcName, NpcPlugin plugin, List<String> deniedMessage) {
 		this.npcId = npcId;
 		this.speech = speech;
 		this.idleSpeech = idleSpeech;
 		this.npcName = npcName;
 		this.id = Plugin.getNextId();
 		this.plugin = plugin;
+		this.deniedMessage = deniedMessage;
 	}
 
 	public Integer getNpcId() {
@@ -58,9 +60,17 @@ public class QuestNpc implements Cloneable {
 		return this.plugin;
 	}
 
+	public boolean hasDeniedMessage() {
+		return this.deniedMessage != null;
+	}
+
+	public List<String> getDeniedMessage() {
+		return this.deniedMessage;
+	}
+
 	@Override
 	public QuestNpc clone() {
-		return new QuestNpc(this.npcId, this.speech, this.idleSpeech, this.npcName, this.plugin);
+		return new QuestNpc(this.npcId, this.speech, this.idleSpeech, this.npcName, this.plugin, this.deniedMessage);
 	}
 
 }
