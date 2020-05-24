@@ -39,7 +39,7 @@ public class EventClickNpc implements Listener {
 		if (questProfile == null) return;
 		questsLoop: for (Quest quest : questProfile.getQuests()) { // Loop through quests to find a match for the NPC
 			if (quest.getQuestState().isCompleted() && !quest.isRepeatable()) { // Check for if the quest is completed
-				if (quest.getFirstNPC().getPlugin() == event.getPlugin() && quest.getFirstNPC().getNpcId() == event.getNpcId()) { // Check for first NPC quest completed speech
+				if (quest.getFirstNPC().getPlugin() == event.getPlugin() && quest.getFirstNPC().getNpcId().equals(event.getNpcId())) { // Check for first NPC quest completed speech
 					if (quest.getFirstNPC().hasQuestCompletedSpeech()) { // Create a task queue for the speech
 						TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getFirstNPC().getQuestCompletedSpeech(), quest.getFirstNPC().getNpcName()));
 						queue.setCompletedTask(() -> npcs.remove(quest.getFirstNPC().getId()));
@@ -53,8 +53,8 @@ public class EventClickNpc implements Listener {
 				for (QuestObjective objective : quest.getObjectives()) { // Loop through the objectives
 					if (objective.getObjectiveType() == QuestObjectiveType.TALK) { // Check the objective type
 						QuestObjectiveTalk talkObjective = (QuestObjectiveTalk) objective;
-						if (talkObjective.getQuestNpc().getPlugin() == event.getPlugin() && talkObjective.getQuestNpc().getNpcId() == event.getNpcId()) { // Check that the NPC id matches the one that has been clicked
-							if (talkObjective.getQuestNpc().getPlugin() == quest.getFirstNPC().getPlugin() && talkObjective.getQuestNpc().getNpcId() == quest.getFirstNPC().getNpcId()) { // Check if the NPC being talked to is the first NPC (same NPC used twice)
+						if (talkObjective.getQuestNpc().getPlugin() == event.getPlugin() && talkObjective.getQuestNpc().getNpcId().equals(event.getNpcId())) { // Check that the NPC id matches the one that has been clicked
+							if (talkObjective.getQuestNpc().getPlugin() == quest.getFirstNPC().getPlugin() && talkObjective.getQuestNpc().getNpcId().equals(quest.getFirstNPC().getNpcId())) { // Check if the NPC being talked to is the first NPC (same NPC used twice)
 								if (npcs.containsKey(quest.getFirstNPC().getId())) { // If you are talking to the first NPC, continue to next objective
 									continue;
 								}
@@ -188,7 +188,7 @@ public class EventClickNpc implements Listener {
 		for (Quest quest : questProfile.getQuests()) {
 			if ((!quest.getQuestState().isCompleted()) ||
 					(quest.isRepeatable() && quest.getQuestState().hasStarted() && quest.getQuestState().isCompleted())) { // Check that the quest is not completed
-				if ((quest.getFirstNPC().getPlugin() == event.getPlugin() && quest.getFirstNPC().getNpcId() == event.getNpcId())
+				if ((quest.getFirstNPC().getPlugin() == event.getPlugin() && quest.getFirstNPC().getNpcId().equals(event.getNpcId()))
 						&& !questCooldowns.get(player.getUniqueId()).get(characterSlot).contains(quest.getQuestID())) { // Check for an NPC id match between the first NPC and the clicked NPC
 					if (!QuestObjective.getObjective(quest.getObjectives(), 1).isCompleted() || quest.isRepeatable()) { // Check that the first objective has not been completed
 						if (!npcs.containsKey(quest.getFirstNPC().getId())) { // Check that the player is not currently talking with the NPC
@@ -322,7 +322,7 @@ public class EventClickNpc implements Listener {
 						}
 					}
 				}
-				if ((quest.getFirstNPC().getPlugin() == event.getPlugin() ? quest.getFirstNPC().getNpcId() == event.getNpcId() : false)
+				if ((quest.getFirstNPC().getPlugin() == event.getPlugin() && quest.getFirstNPC().getNpcId().equals(event.getNpcId()))
 						&& questCooldowns.get(player.getUniqueId()).get(characterSlot).contains(quest.getQuestID())) { // If the player is waiting on a quest cooldown (repeatable quests)
 					int hours = (quest.getCooldown() - (quest.getCooldown() % 3600)) / 3600; // Some very odd code to create a cooldown message
 					int minutes = (quest.getCooldown() - (quest.getCooldown() % 60)) / 60 - (hours * 60);
@@ -339,7 +339,7 @@ public class EventClickNpc implements Listener {
 			for (QuestObjective objective : quest.getObjectives()) { // Loop through objectives
 				if (objective.getObjectiveType() == QuestObjectiveType.TALK) { // Check for objective of type talk
 					QuestObjectiveTalk talkObjective = (QuestObjectiveTalk) objective;
-					if (talkObjective.getQuestNpc().getPlugin() == event.getPlugin() && talkObjective.getQuestNpc().getNpcId() == event.getNpcId()) { // Check that the NPC id matches the one clicked on
+					if (talkObjective.getQuestNpc().getPlugin() == event.getPlugin() && talkObjective.getQuestNpc().getNpcId().equals(event.getNpcId())) { // Check that the NPC id matches the one clicked on
 						if (talkObjective.getQuestNpc().hasIdleSpeech()) { // Check for idle speech
 							idleMessageLoop: for (QuestIdleMessage idleMessage : talkObjective.getQuestNpc().getIdleSpeech()) { // Loop through idle messages
 								if (idleMessage.getConditions().hasQuestCompleted()) { // Check for quest completed condition
