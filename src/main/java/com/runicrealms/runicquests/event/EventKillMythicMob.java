@@ -42,7 +42,7 @@ public class EventKillMythicMob implements Listener {
 		if (event.getKiller() instanceof Player) {
 			Party party = RunicCore.getPartyManager().getPlayerParty(((Player) event.getKiller()));
 			if (party != null) {
-				for (Player player : party.getPlayerMembers()) {
+				for (Player player : party.getMembersWithLeader()) {
 					if (player.getLocation().distanceSquared(event.getKiller().getLocation()) < 250) {
 						runMythicMobsKill(player, event.getMobType());
 					}
