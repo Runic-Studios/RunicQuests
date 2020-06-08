@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.runicrealms.runicquests.Plugin;
+import com.runicrealms.runicquests.data.QuestProfile;
 import com.runicrealms.runicquests.quests.objective.QuestObjective;
 import com.runicrealms.runicquests.quests.objective.QuestObjectiveTalk;
 import com.runicrealms.runicquests.util.RunicCoreHook;
@@ -115,6 +116,7 @@ public class Quest implements Cloneable {
 	}
 
 	public ItemStack generateQuestIcon(Player player) {
+		QuestProfile profile = Plugin.getQuestProfile(player.getUniqueId().toString());
 		if (this.getQuestState().isCompleted()) {
 			ItemStack item = new ItemStack(Material.GREEN_DYE);
 			ItemMeta meta = item.getItemMeta();
@@ -140,7 +142,7 @@ public class Quest implements Cloneable {
 			ItemMeta meta = item.getItemMeta();
 			List<String> lore = new ArrayList<String>();
 			meta.setDisplayName(ChatColor.YELLOW + this.getQuestName());
-			String[] messageLocation = Plugin.getFirstUncompletedGoalMessageAndLocation(this);
+			String[] messageLocation = Plugin.getFirstUncompletedGoalMessageAndLocation(this, profile);
 			lore.add(ChatColor.YELLOW + ChatColor.translateAlternateColorCodes('&', messageLocation[0]));
 			if (!messageLocation[1].equalsIgnoreCase("")) {
 				lore.add(ChatColor.YELLOW + "Location: " + ChatColor.translateAlternateColorCodes('&', messageLocation[1]));
@@ -154,7 +156,7 @@ public class Quest implements Cloneable {
 			ItemMeta meta = item.getItemMeta();
 			List<String> lore = new ArrayList<String>();
 			meta.setDisplayName(ChatColor.GOLD + this.getQuestName());
-			String[] messageLocation = Plugin.getFirstUncompletedGoalMessageAndLocation(this);
+			String[] messageLocation = Plugin.getFirstUncompletedGoalMessageAndLocation(this, profile);
 			lore.add(ChatColor.YELLOW + ChatColor.translateAlternateColorCodes('&', messageLocation[0]));
 			if (!messageLocation[1].equalsIgnoreCase("")) {
 				lore.add(ChatColor.YELLOW + "Location: " + ChatColor.translateAlternateColorCodes('&', messageLocation[1]));

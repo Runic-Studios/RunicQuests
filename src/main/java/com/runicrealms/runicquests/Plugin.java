@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
+import java.util.logging.Level;
 
 import com.runicrealms.plugin.character.api.CharacterApi;
 import com.runicrealms.runicquests.command.CompleteQuestCommand;
@@ -166,7 +167,7 @@ public class Plugin extends JavaPlugin {
 		}
 	}
 
-	public static String[] getFirstUncompletedGoalMessageAndLocation(Quest quest) {
+	public static String[] getFirstUncompletedGoalMessageAndLocation(Quest quest, QuestProfile profile) {
 		if (quest.getFirstNPC().getState() != FirstNpcState.ACCEPTED) {
 			return new String[] {
 					quest.getFirstNPC().hasGoalMessage() ? ChatColor.translateAlternateColorCodes('&', quest.getFirstNPC().getGoalMessage()) :
@@ -183,6 +184,10 @@ public class Plugin extends JavaPlugin {
 					lowest = objective;
 				}
 			}
+		}
+		if (lowest == null) {
+			quest.getQuestState().setCompleted(true);
+			profile.save();
 		}
 		return new String[] {lowest.getGoalMessage(), lowest.getGoalLocation()};
 	}
