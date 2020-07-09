@@ -11,8 +11,8 @@ public class QuestObjectiveSlay extends QuestObjective {
 	 * Slay quest objective
 	 */
 	
-	private List<String> mobNames;
-	private Integer mobAmount;
+	private final List<String> mobNames;
+	private final Integer mobAmount;
 	private Integer mobsKilled = 0;
 	
 	public QuestObjectiveSlay(List<String> mobNames, Integer mobAmount, List<QuestItem> questItems, String goalMessage, List<String> execute, Integer objectiveNumber, List<String> completedMessage, String goalLocation) {

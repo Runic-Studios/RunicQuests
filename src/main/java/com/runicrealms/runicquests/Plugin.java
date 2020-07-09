@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
-import java.util.logging.Level;
 
 import com.runicrealms.plugin.character.api.CharacterApi;
 import com.runicrealms.runicquests.command.CompleteQuestCommand;
@@ -16,6 +15,7 @@ import com.runicrealms.runicquests.event.*;
 import com.runicrealms.runicquests.event.custom.RightClickNpcHandler;
 import com.runicrealms.runicquests.listeners.JournalListener;
 import com.runicrealms.runicquests.quests.FirstNpcState;
+import com.runicrealms.runicquests.quests.hologram.HoloManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandExecutor;
@@ -38,20 +38,22 @@ import com.runicrealms.runicquests.task.TaskQueue;
 public class Plugin extends JavaPlugin {
 
 	private static Plugin plugin; // Used for getInstance()
-	private static volatile HashMap<Long, TaskQueue> npcTaskQueues = new HashMap<Long, TaskQueue>(); // List of NPC task queues
-	private static Map<UUID, Map<Integer, Set<Integer>>> cooldowns = new HashMap<UUID, Map<Integer, Set<Integer>>>(); // List of quest cooldowns
+	private static HoloManager holoManager;
+	private static final HashMap<Long, TaskQueue> npcTaskQueues = new HashMap<>(); // List of NPC task queues
+	private static final Map<UUID, Map<Integer, Set<Integer>>> cooldowns = new HashMap<>(); // List of quest cooldowns
 	private static Long nextId = Long.MIN_VALUE; // This is used to give each NPC a new unique ID.
 	/*
 	 * This Map is meant to help with performance issues with checking the players location. It will just indicate
 	 * when a player has a location objective on one of their quests
 	 */
-	private static volatile Map<Player, Map<Integer, LocationToReach>> cachedLocations = new HashMap<Player, Map<Integer, LocationToReach>>();
+	private static final Map<Player, Map<Integer, LocationToReach>> cachedLocations = new HashMap<>();
 
 	public static double NPC_MESSAGE_DELAY; // Config value
 
 	@Override
 	public void onEnable() {
 		plugin = this; // Used for getInstance()
+		holoManager = new HoloManager();
 		ConfigLoader.initDirs(); // Initialize directories that might not exist
 		ConfigLoader.loadMainConfig(); // Initialize the main config file if it doesn't exist
 		NPC_MESSAGE_DELAY = ConfigLoader.getMainConfig().getDouble("npc-message-delay"); // Get the config value
@@ -63,6 +65,7 @@ public class Plugin extends JavaPlugin {
 		this.getServer().getPluginManager().registerEvents(new JournalListener(), this);
 		this.getServer().getPluginManager().registerEvents(new EventInventory(), this);
 		this.getServer().getPluginManager().registerEvents(new RightClickNpcHandler(), this);
+		this.getServer().getPluginManager().registerEvents(holoManager, this);
 		for (Player player : Bukkit.getOnlinePlayers()) { // Loop through online players (fixes bug with /reload)
 			if (CharacterApi.getCurrentCharacterSlot(player) != null) {
 				EventPlayerJoinQuit.runJoinEvent(player, CharacterApi.getCurrentCharacterSlot(player)); // Read PlayerJoinQuitEvent.runJoinEvent
@@ -78,6 +81,12 @@ public class Plugin extends JavaPlugin {
 		registerMoveTask();
 	}
 
+	@Override
+	public void onDisable() {
+		plugin = null;
+		holoManager = null;
+	}
+
 	private static void registerCommand(CommandExecutor executor, String... aliases) {
 		for (int i = 0; i < aliases.length; i++) {
 			PluginCommand pluginCommand = getInstance().getCommand(aliases[i]);
@@ -89,17 +98,18 @@ public class Plugin extends JavaPlugin {
 		return plugin;
 	}
 
+	public static HoloManager getHoloManager() {
+		return holoManager;
+	}
+
 	private static void registerMoveTask() { // Schedule a task that will run for the cached location objectives
-		Bukkit.getScheduler().scheduleSyncRepeatingTask(getInstance(), new Runnable() {
-			@Override
-			public void run() {
-				for (Entry<Player, Map<Integer, LocationToReach>> entry : cachedLocations.entrySet()) {
-					for (Entry<Integer, LocationToReach> questLocationToReach : entry.getValue().entrySet()) {
-						if (questLocationToReach.getValue().hasReachedLocation(entry.getKey())) {
-							EventPlayerLocation.playerCompleteLocationObjective(entry.getKey(), questLocationToReach.getKey());
-							updatePlayerCachedLocations(entry.getKey());
-							break;
-						}
+		Bukkit.getScheduler().scheduleSyncRepeatingTask(getInstance(), () -> {
+			for (Entry<Player, Map<Integer, LocationToReach>> entry : cachedLocations.entrySet()) {
+				for (Entry<Integer, LocationToReach> questLocationToReach : entry.getValue().entrySet()) {
+					if (questLocationToReach.getValue().hasReachedLocation(entry.getKey())) {
+						EventPlayerLocation.playerCompleteLocationObjective(entry.getKey(), questLocationToReach.getKey());
+						updatePlayerCachedLocations(entry.getKey());
+						break;
 					}
 				}
 			}
@@ -107,7 +117,7 @@ public class Plugin extends JavaPlugin {
 	}
 
 	public static void updatePlayerCachedLocations(Player player) { // Updates the cached location objectives for a player
-		cachedLocations.put(player, new HashMap<Integer, LocationToReach>());
+		cachedLocations.put(player, new HashMap<>());
 		for (Quest quest : PlayerDataLoader.getPlayerQuestData(player.getUniqueId()).getQuests()) {
 			for (QuestObjective objective : quest.getObjectives()) {
 				if (objective.getObjectiveType() != QuestObjectiveType.LOCATION) {
@@ -177,7 +187,7 @@ public class Plugin extends JavaPlugin {
 		}
 		QuestObjective lowest = null;
 		for (QuestObjective objective : quest.getObjectives()) {
-			if (objective.isCompleted() == false) {
+			if (!objective.isCompleted()) {
 				if (lowest == null) {
 					lowest = objective;
 				} else if (objective.getObjectiveNumber() < lowest.getObjectiveNumber()) {
@@ -202,7 +212,7 @@ public class Plugin extends JavaPlugin {
 
 	public static boolean allObjectivesComplete(Quest quest) { // Checks that all the objectives in a quest have been completed
 		for (QuestObjective objective : quest.getObjectives()) {
-			if (objective.isCompleted() == false) {
+			if (!objective.isCompleted()) {
 				return false;
 			}
 		}
@@ -240,7 +250,7 @@ public class Plugin extends JavaPlugin {
 				if (!lastCharSlash) {
 					lastCharSlash = true;
 				} else {
-					command = outputString.substring(i + 1, outputString.length());
+					command = outputString.substring(i + 1);
 					outputString = outputString.substring(0, i - 2);
 					break;
 				}

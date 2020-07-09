@@ -21,16 +21,16 @@ public class Quest implements Cloneable {
 	 * All values except "QuestState state" can be parsed from config
 	 */
 	
-	private String questName;
-	private QuestFirstNpc firstNPC;
-	private List<QuestObjective> objectives = new ArrayList<QuestObjective>();
-	private QuestRewards rewards;
-	private QuestState state;
-	private Integer questID;
-	private QuestRequirements requirements;
-	private boolean sideQuest;
-	private boolean repeatable;
-	private Integer cooldown;
+	private final String questName;
+	private final QuestFirstNpc firstNPC;
+	private final List<QuestObjective> objectives;
+	private final QuestRewards rewards;
+	private final QuestState state;
+	private final Integer questID;
+	private final QuestRequirements requirements;
+	private final boolean sideQuest;
+	private final boolean repeatable;
+	private final Integer cooldown;
 	
 	public Quest(String questName, QuestFirstNpc firstNPC, ArrayList<QuestObjective> objectives, QuestRewards rewards, Integer questID, QuestRequirements requirements, boolean sideQuest, boolean repeatable, Integer cooldown) {
 		this.questName = questName;
@@ -104,7 +104,7 @@ public class Quest implements Cloneable {
 
 	@Override
 	public Quest clone() {
-		ArrayList<QuestObjective> newObjectives = new ArrayList<QuestObjective>() ;
+		ArrayList<QuestObjective> newObjectives = new ArrayList<>() ;
 		for (QuestObjective objective : this.objectives) {
 			if (objective instanceof QuestObjectiveTalk) {
 				newObjectives.add(((QuestObjectiveTalk) objective).clone());

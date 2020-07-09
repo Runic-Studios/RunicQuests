@@ -1,5 +1,8 @@
 package com.runicrealms.runicquests.quests;
 
+import com.runicrealms.plugin.RunicCore;
+import org.bukkit.entity.Player;
+
 import java.util.List;
 
 public class QuestRequirements {
@@ -8,15 +11,15 @@ public class QuestRequirements {
 	 * Contains a quest's requirements. Only level and level-not-met are required here
 	 */
 	
-	private Integer levelReq;
-	private Integer craftingReq;
-	private List<CraftingProfessionType> craftingType;
-	private List<Integer> completedQuestsReq;
-	private List<String> levelMsg;
-	private List<String> craftingMsg;
-	private List<String> completedQuestsMsg;
-	private PlayerClassType classType;
-	private List<String> classTypeNotMet;
+	private final Integer levelReq;
+	private final Integer craftingReq;
+	private final List<CraftingProfessionType> craftingType;
+	private final List<Integer> completedQuestsReq;
+	private final List<String> levelMsg;
+	private final List<String> craftingMsg;
+	private final List<String> completedQuestsMsg;
+	private final PlayerClassType classType;
+	private final List<String> classTypeNotMet;
 	
 	public QuestRequirements(Integer levelReq, Integer craftingReq, List<CraftingProfessionType> craftingType, List<Integer> completedQuestsReq, List<String> levelMsg, List<String> craftingMsg, List<String> completedQuestsMsg, PlayerClassType classType, List<String> classTypeNotMet) {
 		this.levelReq = levelReq;

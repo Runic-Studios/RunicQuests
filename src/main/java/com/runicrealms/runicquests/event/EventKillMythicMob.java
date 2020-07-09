@@ -37,6 +37,8 @@ import net.md_5.bungee.api.chat.TextComponent;
 
 public class EventKillMythicMob implements Listener {
 
+	private static final String PREFIX = "&6[Quest] »";
+
 	@EventHandler
 	public void onKill(MythicMobDeathEvent event) {
 		if (event.getKiller() instanceof Player) {
@@ -60,14 +62,14 @@ public class EventKillMythicMob implements Listener {
 		int characterSlot = CharacterApi.getCurrentCharacterSlot(player);
 		Map<UUID, Map<Integer, Set<Integer>>> questCooldowns = Plugin.getQuestCooldowns();
 		for (Quest quest : questProfile.getQuests()) { // Loop through quest to find a matching objective to the mob killed
-			if ((quest.getQuestState().isCompleted() == false && quest.getQuestState().hasStarted())
+			if ((!quest.getQuestState().isCompleted() && quest.getQuestState().hasStarted())
 					|| (quest.isRepeatable() && quest.getQuestState().isCompleted() && quest.getQuestState().hasStarted())) { // Checks if the quest is "active"
 				for (QuestObjective objective : quest.getObjectives()) { // Loops through the objectives to find a match
 					if (objective.isCompleted()) { // Checks to see that the objective is not completed
 						continue;
 					}
 					if (objective.getObjectiveNumber() != 1) { // Checks that the previous objective is completed (so this objective is the current one)
-						if (QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() - 1).isCompleted() == false) {
+						if (!QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() - 1).isCompleted()) {
 							continue;
 						}
 					}
@@ -79,7 +81,7 @@ public class EventKillMythicMob implements Listener {
 						for (String mob : slayObjective.getMobNames()) { // Checks that the mob in the objective has the correct name
 							if (mythicMob.getInternalName().equalsIgnoreCase(mob)) {
 								slayObjective.setMobsKilled(slayObjective.getMobsKilled() + 1); // Add to the slayed mobs
-								player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7+1 &r" + mythicMob.getInternalName() + "&7 [" + slayObjective.getMobsKilled() + "/" + slayObjective.getMobAmount() + "]"));
+								player.sendMessage(ChatColor.translateAlternateColorCodes('&', PREFIX + " " + mythicMob.getDisplayName() + " &6» &7[&a" + slayObjective.getMobsKilled() + "&7/" + slayObjective.getMobAmount() + "]"));
 								if (slayObjective.getMobsKilled() == slayObjective.getMobAmount()) { // Check if player has killed required amount
 									if (objective.requiresQuestItem()) { // Check for quest item
 										if (Plugin.hasQuestItems(objective, player)) {
@@ -100,24 +102,16 @@ public class EventKillMythicMob implements Listener {
 									if (objective.getObjectiveNumber() != QuestObjective.getLastObjective(quest.getObjectives()).getObjectiveNumber()) { // Check to see if we have not finished the quest
 										String goalMessage = ChatColor.translateAlternateColorCodes('&', QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() + 1).getGoalMessage()); // Get the goal message
 										if (objective.hasCompletedMessage()) { // If objective has a completed message, create a task queue and add message + new objective message to it
-											List<Runnable> runnables = new ArrayList<Runnable>();
+											List<Runnable> runnables = new ArrayList<>();
 											for (String message : objective.getCompletedMessage()) {
-												runnables.add(new Runnable() {
-													@Override
-													public void run() {
-														player.sendMessage(ChatColor.translateAlternateColorCodes('&', Plugin.parseMessage(message, player.getName())));
-													}
-												});
+												runnables.add(() -> player.sendMessage(ChatColor.translateAlternateColorCodes('&', Plugin.parseMessage(message, player.getName()))));
 											}
-											runnables.add(new Runnable() {
-												@Override
-												public void run() {
-													player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&l&6New objective for: &r&l&e") + quest.getQuestName());
-													player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + goalMessage));
-													player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.YELLOW + goalMessage));
-													player.sendTitle(ChatColor.GOLD + "New Objective", ChatColor.YELLOW + goalMessage, 10, 80, 10);  // Display a title on the screen
-													Plugin.updatePlayerCachedLocations(player);
-												}
+											runnables.add(() -> {
+												player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&l&6New objective for: &r&l&e") + quest.getQuestName());
+												player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + goalMessage));
+												player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.YELLOW + goalMessage));
+												player.sendTitle(ChatColor.GOLD + "New Objective", ChatColor.YELLOW + goalMessage, 10, 80, 10);  // Display a title on the screen
+												Plugin.updatePlayerCachedLocations(player);
 											});
 											TaskQueue queue = new TaskQueue(runnables);
 											queue.startTasks();
@@ -132,14 +126,9 @@ public class EventKillMythicMob implements Listener {
 										quest.getQuestState().setCompleted(true);
 										questProfile.save(questProfile.getQuestPoints() + quest.getRewards().getQuestPointsReward());
 										if (objective.hasCompletedMessage()) { // If we have a completed message, create a task queue and add completed message, and rewards to queue
-											List<Runnable> runnables = new ArrayList<Runnable>();
+											List<Runnable> runnables = new ArrayList<>();
 											for (String message : objective.getCompletedMessage()) {
-												runnables.add(new Runnable() {
-													@Override
-													public void run() {
-														player.sendMessage(ChatColor.translateAlternateColorCodes('&', Plugin.parseMessage(message, player.getName())));
-													}
-												});
+												runnables.add(() -> player.sendMessage(ChatColor.translateAlternateColorCodes('&', Plugin.parseMessage(message, player.getName()))));
 											}
 											TaskQueue queue = new TaskQueue(runnables);
 											queue.addTasks(new Runnable() {
@@ -168,16 +157,13 @@ public class EventKillMythicMob implements Listener {
 											quest.getRewards().executeCommand(player.getName());
 										}
 										RunicCoreHook.giveRewards(player, quest.getRewards()); // Give rewards
-										if (quest.isRepeatable() == true) { // If the quest is repeatable, setup cooldown
+										if (quest.isRepeatable()) { // If the quest is repeatable, setup cooldown
 											questCooldowns.get(player.getUniqueId()).get(characterSlot).add(quest.getQuestID());
-											Bukkit.getScheduler().runTaskLater(Plugin.getInstance(), new Runnable() {
-												@Override
-												public void run() {
-													if (questCooldowns.get(player.getUniqueId()).get(characterSlot).contains(quest.getQuestID())) {
-														questCooldowns.get(player.getUniqueId()).get(characterSlot).remove(quest.getQuestID());
-													} else {
-														Bukkit.getLogger().log(Level.INFO, "[RunicQuests] ERROR - failed to remove quest cooldown from player \"" + questProfile.getUuid() + "\"!");
-													}
+											Bukkit.getScheduler().runTaskLater(Plugin.getInstance(), () -> {
+												if (questCooldowns.get(player.getUniqueId()).get(characterSlot).contains(quest.getQuestID())) {
+													questCooldowns.get(player.getUniqueId()).get(characterSlot).remove(quest.getQuestID());
+												} else {
+													Bukkit.getLogger().log(Level.INFO, "[RunicQuests] ERROR - failed to remove quest cooldown from player \"" + questProfile.getUuid() + "\"!");
 												}
 											}, quest.getCooldown() * 20);
 										}
