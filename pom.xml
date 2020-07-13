@@ -145,5 +145,13 @@
 			<scope>system</scope>
 			<systemPath>${project.basedir}/lib/RunicNpcs-1.15.2.jar</systemPath>
 		</dependency>
+		<!-- RunicRestart -->
+		<dependency>
+			<groupId>com.runicrealms.plugin</groupId>
+			<artifactId>RunicRestart</artifactId>
+			<version>1.15.2</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/RunicRestart.jar</systemPath>
+		</dependency>
 	</dependencies>
 </project>

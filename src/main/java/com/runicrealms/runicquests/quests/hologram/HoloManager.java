@@ -9,6 +9,7 @@ import com.runicrealms.runicquests.api.RunicQuestsAPI;
 import com.runicrealms.runicquests.data.QuestProfile;
 import com.runicrealms.runicquests.quests.Quest;
 import com.runicrealms.runicquests.util.RunicCoreHook;
+import com.runicrealms.runicrestart.api.RunicRestartApi;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -71,7 +72,9 @@ public class HoloManager implements Listener {
                 hologramRed.appendItemLine(new ItemStack(Material.RED_DYE));
                 hologramMap.get(q.getQuestID()).put(FirstNpcHoloType.RED, hologramRed);
             }
-        }, 100L); // delay to wait for quests to load // todo: add RunicQuests to the markLoaded
+
+            RunicRestartApi.markPluginLoaded("quests");
+        }, 20L); // delay to wait for quests to load
     }
 
     /**
