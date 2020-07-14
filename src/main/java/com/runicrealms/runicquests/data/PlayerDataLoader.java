@@ -5,7 +5,7 @@ import java.util.UUID;
 
 public class PlayerDataLoader {
 	
-	public static HashMap<UUID, QuestProfile> playerData = new HashMap<UUID, QuestProfile>();
+	public static HashMap<UUID, QuestProfile> playerData = new HashMap<>();
 
 	public static QuestProfile getPlayerQuestData(UUID uuid) {
 		return playerData.get(uuid);

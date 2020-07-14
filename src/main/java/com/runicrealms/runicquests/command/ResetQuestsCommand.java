@@ -18,7 +18,7 @@ public class ResetQuestsCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (sender instanceof Player == false) {
+        if (!(sender instanceof Player)) {
             sender.sendMessage(ChatColor.RED + "Only players can use this!");
             return true;
         }
@@ -34,9 +34,8 @@ public class ResetQuestsCommand implements CommandExecutor {
                     for (Quest quest : profile.getQuests()) {
                         quests.add(quest.clone());
                     }
-                    Integer slot = new Integer(profile.getSlot());
                     profile.save(quests);
-                    EventPlayerJoinQuit.refreshPlayerData(profile, otherPlayer);
+                    EventPlayerJoinQuit.refreshPlayerData(otherPlayer);
                     player.sendMessage(ChatColor.GREEN + "Reset their quest data!");
                 } else {
                     player.sendMessage(ChatColor.RED + "Player \"" + args[0] + "\" is not online.");
@@ -56,9 +55,8 @@ public class ResetQuestsCommand implements CommandExecutor {
                         }
                     }
                     if (reset) {
-                        Integer slot = new Integer(profile.getSlot());
                         profile.save(quests);
-                        EventPlayerJoinQuit.refreshPlayerData(profile, otherPlayer);
+                        EventPlayerJoinQuit.refreshPlayerData(otherPlayer);
                         player.sendMessage(ChatColor.GREEN + "Reset their quest data for quest \"" + combineArgs(args, 1) + "\"!");
                     } else {
                         player.sendMessage(ChatColor.RED + "Quest \"" + combineArgs(args, 1) + "\" does not exist.");

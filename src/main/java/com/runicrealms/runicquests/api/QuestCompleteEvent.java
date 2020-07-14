@@ -11,8 +11,8 @@ import com.runicrealms.runicquests.quests.QuestRewards;
 
 public class QuestCompleteEvent extends Event {
 
-	private Quest quest;
-	private QuestProfile profile;
+	private final Quest quest;
+	private final QuestProfile profile;
 	
 	private static final HandlerList handlers = new HandlerList();
 	

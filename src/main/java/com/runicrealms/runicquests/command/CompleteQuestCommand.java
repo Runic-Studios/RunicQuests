@@ -1,5 +1,6 @@
 package com.runicrealms.runicquests.command;
 
+import com.runicrealms.runicquests.api.QuestCompleteEvent;
 import com.runicrealms.runicquests.data.PlayerDataLoader;
 import com.runicrealms.runicquests.data.QuestProfile;
 import com.runicrealms.runicquests.event.EventPlayerJoinQuit;
@@ -7,6 +8,7 @@ import com.runicrealms.runicquests.quests.FirstNpcState;
 import com.runicrealms.runicquests.quests.Quest;
 import com.runicrealms.runicquests.quests.objective.QuestObjective;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -18,7 +20,7 @@ public class CompleteQuestCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (sender instanceof Player == false) {
+        if (!(sender instanceof Player)) {
             sender.sendMessage(ChatColor.RED + "Only players can use this!");
             return true;
         }
@@ -38,13 +40,13 @@ public class CompleteQuestCommand implements CommandExecutor {
                             objective.setCompleted(true);
                         }
                         completed = true;
+                        Bukkit.getServer().getPluginManager().callEvent(new QuestCompleteEvent(quest, profile)); // Call the quest event
                         break;
                     }
                 }
                 if (completed) {
-                    Integer slot = new Integer(profile.getSlot());
                     PlayerDataLoader.getPlayerQuestData(player.getUniqueId()).save(profile.getQuests());
-                    EventPlayerJoinQuit.refreshPlayerData(profile, player);
+                    EventPlayerJoinQuit.refreshPlayerData(player);
                     player.sendMessage(ChatColor.GREEN + "Completed quest \"" + combineArgs(args, 0) + "\"!");
                 } else {
                     player.sendMessage(ChatColor.RED + "Quest \"" + combineArgs(args, 0) + "\" does not exist.");

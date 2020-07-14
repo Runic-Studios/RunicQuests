@@ -14,6 +14,7 @@ import com.runicrealms.runicquests.data.QuestProfile;
 import com.runicrealms.runicquests.event.*;
 import com.runicrealms.runicquests.event.custom.RightClickNpcHandler;
 import com.runicrealms.runicquests.listeners.JournalListener;
+import com.runicrealms.runicquests.listeners.QuestCompleteListener;
 import com.runicrealms.runicquests.quests.FirstNpcState;
 import com.runicrealms.runicquests.quests.hologram.HoloManager;
 import org.bukkit.Bukkit;
@@ -65,13 +66,13 @@ public class Plugin extends JavaPlugin {
 		this.getServer().getPluginManager().registerEvents(new JournalListener(), this);
 		this.getServer().getPluginManager().registerEvents(new EventInventory(), this);
 		this.getServer().getPluginManager().registerEvents(new RightClickNpcHandler(), this);
+		this.getServer().getPluginManager().registerEvents(new QuestCompleteListener(), this);
 		this.getServer().getPluginManager().registerEvents(holoManager, this);
 		for (Player player : Bukkit.getOnlinePlayers()) { // Loop through online players (fixes bug with /reload)
 			if (CharacterApi.getCurrentCharacterSlot(player) != null) {
 				EventPlayerJoinQuit.runJoinEvent(player, CharacterApi.getCurrentCharacterSlot(player)); // Read PlayerJoinQuitEvent.runJoinEvent
 			}
 		}
-		EventPlayerJoinQuit.displayQuestionMarks();
 		registerCommand(new CompleteQuestCommand(), "completequest", "questcomplete", "cq", "qc");
 		registerCommand(new QuestsCommand(), "quests", "quest", "objectives", "objective");
 		registerCommand(new ResetQuestsCommand(), "resetquests", "questsreset", "resetquest", "questreset", "rq", "qr");
@@ -124,7 +125,7 @@ public class Plugin extends JavaPlugin {
 					continue;
 				}
 				if (objective.getObjectiveNumber() != 1) {
-					if (QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() - 1).isCompleted() == false) {
+					if (!QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() - 1).isCompleted()) {
 						continue;
 					}
 				}

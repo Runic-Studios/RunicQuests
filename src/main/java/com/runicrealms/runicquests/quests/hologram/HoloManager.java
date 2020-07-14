@@ -6,7 +6,6 @@ import com.runicrealms.plugin.character.api.CharacterLoadEvent;
 import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.api.QuestCompleteEvent;
 import com.runicrealms.runicquests.api.RunicQuestsAPI;
-import com.runicrealms.runicquests.data.QuestProfile;
 import com.runicrealms.runicquests.quests.Quest;
 import com.runicrealms.runicquests.util.RunicCoreHook;
 import com.runicrealms.runicrestart.api.RunicRestartApi;
@@ -77,6 +76,22 @@ public class HoloManager implements Listener {
         }, 20L); // delay to wait for quests to load
     }
 
+    @EventHandler
+    public void onLoad(CharacterLoadEvent e) {
+        Bukkit.getScheduler().scheduleSyncDelayedTask(Plugin.getInstance(), () -> refreshHolograms(e.getPlayer()), 20L);
+    }
+
+    @EventHandler
+    public void onLevel(PlayerLevelChangeEvent e) {
+        refreshHolograms(e.getPlayer());
+    }
+
+    @EventHandler
+    public void onQuestComplete(QuestCompleteEvent e) {
+        Bukkit.broadcastMessage("quest completed!");
+        Bukkit.getScheduler().scheduleSyncDelayedTask(Plugin.getInstance(), () -> refreshHolograms(e.getPlayer()), 40L);
+    }
+
     /**
      * This method does determines which color of hologram to activate for each quest in a quest profile
      * @param player The player of the quest profile
@@ -97,33 +112,14 @@ public class HoloManager implements Listener {
         return types.get(FirstNpcHoloType.GOLD);
     }
 
-    @EventHandler
-    public void onLoad(CharacterLoadEvent e) {
-        Bukkit.getScheduler().scheduleSyncDelayedTask(Plugin.getInstance(), () -> {
-            QuestProfile questProfile = RunicQuestsAPI.getQuestProfile(e.getPlayer());
-            for (Quest q : questProfile.getQuests()) {
-                if (hologramMap.get(q.getQuestID()) != null)
-                    determineHoloByStatus(e.getPlayer(), q).getVisibilityManager().showTo(e.getPlayer());
+    private void refreshHolograms(Player player) {
+        for (Quest q : RunicQuestsAPI.getQuestProfile(player).getQuests()) {
+            if (hologramMap.get(q.getQuestID()) != null) {
+                for (Hologram hologram : hologramMap.get(q.getQuestID()).values()) { // reset previous holograms
+                    hologram.getVisibilityManager().hideTo(player);
+                }
+                determineHoloByStatus(player, q).getVisibilityManager().showTo(player);
             }
-        }, 20L);
-    }
-
-    @EventHandler
-    public void onLevel(PlayerLevelChangeEvent e) {
-
-    }
-
-    @EventHandler
-    public void onQuestComplete(QuestCompleteEvent e) {
-        if (hologramMap.get(e.getQuest().getQuestID()).get(FirstNpcHoloType.RED) != null)
-            hologramMap.get(e.getQuest().getQuestID()).get(FirstNpcHoloType.RED).getVisibilityManager().hideTo(e.getPlayer());
-        if (hologramMap.get(e.getQuest().getQuestID()).get(FirstNpcHoloType.GREEN) != null)
-            hologramMap.get(e.getQuest().getQuestID()).get(FirstNpcHoloType.GREEN).getVisibilityManager().showTo(e.getPlayer());
-        if (hologramMap.get(e.getQuest().getQuestID()).get(FirstNpcHoloType.BLUE) != null)
-            hologramMap.get(e.getQuest().getQuestID()).get(FirstNpcHoloType.BLUE).getVisibilityManager().hideTo(e.getPlayer());
-        if (hologramMap.get(e.getQuest().getQuestID()).get(FirstNpcHoloType.YELLOW) != null)
-            hologramMap.get(e.getQuest().getQuestID()).get(FirstNpcHoloType.YELLOW).getVisibilityManager().hideTo(e.getPlayer());
-        if (hologramMap.get(e.getQuest().getQuestID()).get(FirstNpcHoloType.GOLD) != null)
-            hologramMap.get(e.getQuest().getQuestID()).get(FirstNpcHoloType.GOLD).getVisibilityManager().hideTo(e.getPlayer());
+        }
     }
 }
