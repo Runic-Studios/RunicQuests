@@ -6,7 +6,6 @@ import com.runicrealms.runicquests.data.PlayerDataLoader;
 import com.runicrealms.runicquests.data.QuestProfile;
 import org.bukkit.entity.Player;
 
-import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.config.QuestLoader;
 import com.runicrealms.runicquests.quests.Quest;
 

@@ -88,8 +88,7 @@ public class HoloManager implements Listener {
 
     @EventHandler
     public void onQuestComplete(QuestCompleteEvent e) {
-        Bukkit.broadcastMessage("quest completed!");
-        Bukkit.getScheduler().scheduleSyncDelayedTask(Plugin.getInstance(), () -> refreshHolograms(e.getPlayer()), 40L);
+        Bukkit.getScheduler().scheduleSyncDelayedTask(Plugin.getInstance(), () -> refreshHolograms(e.getPlayer()), 20L);
     }
 
     /**
