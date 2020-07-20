@@ -86,7 +86,7 @@ public class EventKillMythicMob implements Listener {
 									if (objective.requiresQuestItem()) { // Check for quest item
 										if (Plugin.hasQuestItems(objective, player)) {
 											for (QuestItem questItem : objective.getQuestItems()) {
-												Plugin.removeItem(player.getInventory(), questItem.getItemName(), questItem.getItemType(), questItem.getAmount());
+												Plugin.removeItem(player, questItem.getItemName(), questItem.getItemType(), questItem.getAmount());
 											}
 											player.updateInventory();
 										} else {

@@ -75,7 +75,7 @@ public class EventBreakBlock implements Listener {
 							if (objective.requiresQuestItem()) { // Check if the objective requires a quest item, remove if there is one
 								if (Plugin.hasQuestItems(objective, player)) {
 									for (QuestItem questItem : objective.getQuestItems()) {
-										Plugin.removeItem(player.getInventory(), questItem.getItemName(), questItem.getItemType(), questItem.getAmount());
+										Plugin.removeItem(player, questItem.getItemName(), questItem.getItemType(), questItem.getAmount());
 									}
 									player.updateInventory();
 								} else {

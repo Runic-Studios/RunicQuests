@@ -22,7 +22,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -157,25 +156,28 @@ public class Plugin extends JavaPlugin {
 		return nextId - 1;
 	}
 
-	public static void removeItem(Inventory inventory, String name, String type, int amount) { // Remove an item from a player's inventory
-		int leftToRemove = amount;
-		for (ItemStack item : inventory.getContents()) {
-			if (item != null) {
-				if (item.getType().name().equalsIgnoreCase(type) &&
-						getItemName(item).equalsIgnoreCase(ChatColor.stripColor(name))) {
-					inventory.remove(item);
-					leftToRemove -= item.getAmount();
-					if (leftToRemove <= 0) {
-						if (leftToRemove < 0) {
-							ItemStack newItem = item.clone();
-							newItem.setAmount(leftToRemove * -1);
-							inventory.addItem(newItem);
-						}
-						return;
+
+	public static void removeItem(Player pl, String name, String type, int amount) {
+		int to_take = amount;
+		for (ItemStack player_item : pl.getInventory().getContents()) {
+			if (player_item != null) {
+				if (player_item.getType().name().equalsIgnoreCase(type) &&
+						getItemName(player_item).equalsIgnoreCase(ChatColor.stripColor(name))) {
+					int take_next = Math.min(to_take, player_item.getAmount());
+					remove(pl, player_item, take_next);
+					to_take -= take_next;
+					if (to_take <= 0) { //Reached amount. Can stop!
+						break;
 					}
 				}
 			}
 		}
+	}
+
+	private static void remove(Player p, ItemStack toR, int amount) {
+		ItemStack i = toR.clone();
+		i.setAmount(amount);
+		p.getInventory().removeItem(i);
 	}
 
 	public static String[] getFirstUncompletedGoalMessageAndLocation(Quest quest, QuestProfile profile) {

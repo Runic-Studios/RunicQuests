@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.logging.Level;
 
 import com.runicrealms.plugin.character.api.CharacterApi;
+import com.runicrealms.plugin.item.util.ItemRemover;
 import com.runicrealms.runicquests.data.PlayerDataLoader;
 import com.runicrealms.runicquests.data.QuestProfile;
 import com.runicrealms.runicquests.event.custom.RightClickNpcEvent;
@@ -94,7 +95,7 @@ public class EventClickNpc implements Listener {
 								if (objective.requiresQuestItem()) { // Check for a required quest item, remove it from inventory
 									if (Plugin.hasQuestItems(objective, player)) {
 										for (QuestItem questItem : objective.getQuestItems()) {
-											Plugin.removeItem(player.getInventory(), questItem.getItemName(), questItem.getItemType(), questItem.getAmount());
+											Plugin.removeItem(player, questItem.getItemName(), questItem.getItemType(), questItem.getAmount());
 										}
 										player.updateInventory();
 									} else {
