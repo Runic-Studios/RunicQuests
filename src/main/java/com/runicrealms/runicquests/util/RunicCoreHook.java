@@ -40,10 +40,7 @@ public class RunicCoreHook {
 				}
 			}
 		}
-		if (completed == quests.size()) {
-			return true;
-		}
-		return false;
+		return completed == quests.size();
 	}
 
 	public static boolean isRequiredCraftingLevel(Player player, CraftingProfessionType profession, int level) {
