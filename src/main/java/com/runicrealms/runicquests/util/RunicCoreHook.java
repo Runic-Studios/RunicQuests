@@ -23,7 +23,7 @@ public class RunicCoreHook {
 	 */
 
 	public static boolean isReqClassLv(Player player, int reqLevel) {
-		int level = RunicCore.getCacheManager().getPlayerCache(player.getUniqueId()).getClassLevel();
+		int level = RunicCore.getCacheManager().getPlayerCaches().get(player).getClassLevel();
 		return level >= reqLevel;
 	}
 
@@ -40,22 +40,19 @@ public class RunicCoreHook {
 				}
 			}
 		}
-		if (completed == quests.size()) {
-			return true;
-		}
-		return false;
+		return completed == quests.size();
 	}
 
 	public static boolean isRequiredCraftingLevel(Player player, CraftingProfessionType profession, int level) {
-		String playerProf = RunicCore.getCacheManager().getPlayerCache(player.getUniqueId()).getProfName().toLowerCase();
+		String playerProf = RunicCore.getCacheManager().getPlayerCaches().get(player).getProfName().toLowerCase();
 		if (playerProf.equalsIgnoreCase("none") && profession == CraftingProfessionType.ANY) return false;
-		int profLevel = RunicCore.getCacheManager().getPlayerCache(player.getUniqueId()).getProfLevel();
+		int profLevel = RunicCore.getCacheManager().getPlayerCaches().get(player).getProfLevel();
 		if (profession == CraftingProfessionType.ANY && profLevel >= level) return true;
 		return profession != CraftingProfessionType.ANY && playerProf.equals(profession.getName()) && profLevel >= level;
 	}
 
 	public static boolean hasProfession(Player player, List<CraftingProfessionType> professions) {
-		String playerProf = RunicCore.getCacheManager().getPlayerCache(player.getUniqueId()).getProfName();
+		String playerProf = RunicCore.getCacheManager().getPlayerCaches().get(player).getProfName();
 		if (playerProf.equalsIgnoreCase("none") && professions.contains(CraftingProfessionType.ANY)) return false;
 		if (professions.contains(CraftingProfessionType.ANY)) return true;
 		for (CraftingProfessionType profession : professions) {
@@ -77,7 +74,7 @@ public class RunicCoreHook {
 	}
 
 	public static boolean isRequiredClass(PlayerClassType classType, Player player) {
-		String className = RunicCore.getCacheManager().getPlayerCache(player.getUniqueId()).getClassName();
+		String className = RunicCore.getCacheManager().getPlayerCaches().get(player).getClassName();
 		return classType.getName().equalsIgnoreCase(className);
 	}
 }
