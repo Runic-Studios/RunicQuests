@@ -1,22 +1,31 @@
 package com.runicrealms.runicquests;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.UUID;
-
 import com.runicrealms.plugin.character.api.CharacterApi;
 import com.runicrealms.runicquests.command.CompleteQuestCommand;
+import com.runicrealms.runicquests.command.QuestTriggerCommand;
+import com.runicrealms.runicquests.command.QuestsCommand;
 import com.runicrealms.runicquests.command.ResetQuestsCommand;
+import com.runicrealms.runicquests.config.ConfigLoader;
 import com.runicrealms.runicquests.data.PlayerDataLoader;
 import com.runicrealms.runicquests.data.QuestProfile;
-import com.runicrealms.runicquests.event.*;
+import com.runicrealms.runicquests.event.EventBreakBlock;
+import com.runicrealms.runicquests.event.EventClickNpc;
+import com.runicrealms.runicquests.event.EventInventory;
+import com.runicrealms.runicquests.event.EventKillMythicMob;
+import com.runicrealms.runicquests.event.EventPlayerJoinQuit;
+import com.runicrealms.runicquests.event.EventPlayerLocation;
 import com.runicrealms.runicquests.event.custom.RightClickNpcHandler;
 import com.runicrealms.runicquests.listeners.JournalListener;
 import com.runicrealms.runicquests.listeners.QuestCompleteListener;
 import com.runicrealms.runicquests.quests.FirstNpcState;
+import com.runicrealms.runicquests.quests.Quest;
+import com.runicrealms.runicquests.quests.QuestItem;
+import com.runicrealms.runicquests.quests.QuestObjectiveType;
 import com.runicrealms.runicquests.quests.hologram.HoloManager;
+import com.runicrealms.runicquests.quests.location.LocationToReach;
+import com.runicrealms.runicquests.quests.objective.QuestObjective;
+import com.runicrealms.runicquests.quests.objective.QuestObjectiveLocation;
+import com.runicrealms.runicquests.task.TaskQueue;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandExecutor;
@@ -25,15 +34,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.runicrealms.runicquests.command.QuestsCommand;
-import com.runicrealms.runicquests.config.ConfigLoader;
-import com.runicrealms.runicquests.quests.Quest;
-import com.runicrealms.runicquests.quests.QuestItem;
-import com.runicrealms.runicquests.quests.QuestObjectiveType;
-import com.runicrealms.runicquests.quests.location.LocationToReach;
-import com.runicrealms.runicquests.quests.objective.QuestObjective;
-import com.runicrealms.runicquests.quests.objective.QuestObjectiveLocation;
-import com.runicrealms.runicquests.task.TaskQueue;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.UUID;
 
 public class Plugin extends JavaPlugin {
 
@@ -75,6 +80,7 @@ public class Plugin extends JavaPlugin {
 		registerCommand(new CompleteQuestCommand(), "completequest", "questcomplete", "cq", "qc");
 		registerCommand(new QuestsCommand(), "quests", "quest", "objectives", "objective");
 		registerCommand(new ResetQuestsCommand(), "resetquests", "questsreset", "resetquest", "questreset", "rq", "qr");
+		registerCommand(new QuestTriggerCommand(), "questtrigger");
 		for (Player player : Bukkit.getOnlinePlayers()) {
 			updatePlayerCachedLocations(player);
 		}
