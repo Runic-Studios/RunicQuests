@@ -1,10 +1,25 @@
 package com.runicrealms.runicquests.config;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
-import com.runicrealms.runicquests.quests.*;
+import com.runicrealms.runicquests.Plugin;
+import com.runicrealms.runicquests.exception.QuestLoadException;
+import com.runicrealms.runicquests.quests.CraftingProfessionType;
+import com.runicrealms.runicquests.quests.PlayerClassType;
+import com.runicrealms.runicquests.quests.Quest;
+import com.runicrealms.runicquests.quests.QuestFirstNpc;
+import com.runicrealms.runicquests.quests.QuestIdleMessage;
+import com.runicrealms.runicquests.quests.QuestIdleMessageConditions;
+import com.runicrealms.runicquests.quests.QuestItem;
+import com.runicrealms.runicquests.quests.QuestNpc;
+import com.runicrealms.runicquests.quests.QuestRequirements;
+import com.runicrealms.runicquests.quests.QuestRewards;
+import com.runicrealms.runicquests.quests.location.BoxLocation;
+import com.runicrealms.runicquests.quests.location.RadiusLocation;
+import com.runicrealms.runicquests.quests.objective.QuestObjective;
+import com.runicrealms.runicquests.quests.objective.QuestObjectiveBreak;
+import com.runicrealms.runicquests.quests.objective.QuestObjectiveLocation;
+import com.runicrealms.runicquests.quests.objective.QuestObjectiveSlay;
+import com.runicrealms.runicquests.quests.objective.QuestObjectiveTalk;
+import com.runicrealms.runicquests.quests.objective.QuestObjectiveTrigger;
 import com.runicrealms.runicquests.util.NpcPlugin;
 import net.citizensnpcs.api.CitizensAPI;
 import org.bukkit.Bukkit;
@@ -14,15 +29,9 @@ import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 
-import com.runicrealms.runicquests.Plugin;
-import com.runicrealms.runicquests.exception.QuestLoadException;
-import com.runicrealms.runicquests.quests.location.BoxLocation;
-import com.runicrealms.runicquests.quests.location.RadiusLocation;
-import com.runicrealms.runicquests.quests.objective.QuestObjective;
-import com.runicrealms.runicquests.quests.objective.QuestObjectiveBreak;
-import com.runicrealms.runicquests.quests.objective.QuestObjectiveLocation;
-import com.runicrealms.runicquests.quests.objective.QuestObjectiveSlay;
-import com.runicrealms.runicquests.quests.objective.QuestObjectiveTalk;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class QuestLoader {
 
@@ -295,6 +304,16 @@ public class QuestLoader {
 						checkValueNull(Material.getMaterial(checkValueNull(configSec.getString("requirement.block-type"), "block-type").toUpperCase()), "block-type -> invalid block type"),
 						(configSec.contains("requirement.amount") ? configSec.getInt("requirement.amount") : null),
 						(configSec.contains("requirement.location") ? parseLocation(configSec.getString("requirement.location")) : null),
+						configSec.contains("requirement.requires") ? loadQuestItems(configSec.getConfigurationSection("requirement.requires")) : null,
+						goalMessage,
+						(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
+						objectiveNumber,
+						(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null),
+						goalLocation);
+			} else if (configSec.getString("requirement.type").equalsIgnoreCase("trigger")) {
+				return new QuestObjectiveTrigger(
+						checkValueNull(configSec.getString("requirement.trigger-id")),
+						checkValueNull(getStringList(configSec, "requirement.speech")),
 						configSec.contains("requirement.requires") ? loadQuestItems(configSec.getConfigurationSection("requirement.requires")) : null,
 						goalMessage,
 						(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
