@@ -151,7 +151,7 @@
 			<artifactId>RunicRestart</artifactId>
 			<version>1.15.2</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/lib/RunicRestart.jar</systemPath>
+			<systemPath>${project.basedir}/lib/RunicRestart-1.15.2.jar</systemPath>
 		</dependency>
 	</dependencies>
 </project>
