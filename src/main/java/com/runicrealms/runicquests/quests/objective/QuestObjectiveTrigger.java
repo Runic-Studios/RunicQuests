@@ -15,7 +15,7 @@ public class QuestObjectiveTrigger extends QuestObjective {
     private List<String> speech;
 
     public QuestObjectiveTrigger(String triggerId, List<String> speech, List<QuestItem> questItems, String goalMessage, List<String> execute, Integer objectiveNumber, List<String> completedMessage, String goalLocation) {
-        super(objectiveNumber, QuestObjectiveType.TALK, completedMessage, questItems, goalMessage, execute, goalLocation);
+        super(objectiveNumber, QuestObjectiveType.TRIGGER, completedMessage, questItems, goalMessage, execute, goalLocation);
         this.triggerId = triggerId;
         this.speech = speech;
     }
