@@ -63,6 +63,11 @@ public class ConfigLoader {
 			folder = new File(Plugin.getInstance().getDataFolder(), "quests");
 			folder.mkdir();
 		}
+		File folderPassive = ConfigLoader.getSubFolder(Plugin.getInstance().getDataFolder(), "passive");
+		if (folderPassive == null) {
+			folderPassive = new File(Plugin.getInstance().getDataFolder(), "passive");
+			folderPassive.mkdir();
+		}
 	}
 	
 	public static FileConfiguration getMainConfig() {
