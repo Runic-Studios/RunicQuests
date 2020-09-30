@@ -341,6 +341,7 @@ public class QuestLoader {
 					checkValueNull(configSec.getInt("npc-id"), "npc-id"),
 					(plugin == NpcPlugin.CITIZENS ? CitizensAPI.getNPCRegistry().getById(configSec.getInt("npc-id")).getStoredLocation() : com.runicrealms.runicnpcs.Plugin.getNpcs().get(configSec.getInt("npc-id")).getLocation()),
 					checkValueNull(getStringList(configSec, "speech"), "npc-speech"),
+					!configSec.contains("add-npc-name") || configSec.getBoolean("add-npc-name"),
 					(configSec.contains("idle-messages") ? loadIdleMessages(configSec.getConfigurationSection("idle-messages"), numberOfObjectives) : null),
 					(configSec.contains("quest-completed-message") ? getStringList(configSec, "quest-completed-message") : null),
 					checkValueNull(configSec.getString("npc-name"), "npc-name"),
@@ -361,6 +362,7 @@ public class QuestLoader {
 			return new QuestNpc(
 					checkValueNull(configSec.getInt("npc-id"), "npc-id"),
 					checkValueNull(getStringList(configSec, "speech"), "npc-speech"),
+					!configSec.contains("add-npc-name") || configSec.getBoolean("add-npc-name"),
 					(configSec.contains("idle-messages") ? loadIdleMessages(configSec.getConfigurationSection("idle-messages"), numberOfObjectives) : null),
 					checkValueNull(configSec.getString("npc-name"), "npc-name"),
 					(configSec.contains("plugin") ? NpcPlugin.getFromString(configSec.getString("plugin"), NpcPlugin.CITIZENS) : NpcPlugin.CITIZENS),

@@ -1,14 +1,25 @@
 package com.runicrealms.runicquests.event;
 
-import java.util.*;
-import java.util.logging.Level;
-
 import com.runicrealms.plugin.character.api.CharacterApi;
-import com.runicrealms.plugin.item.util.ItemRemover;
+import com.runicrealms.runicquests.Plugin;
+import com.runicrealms.runicquests.api.QuestCompleteEvent;
 import com.runicrealms.runicquests.data.PlayerDataLoader;
 import com.runicrealms.runicquests.data.QuestProfile;
 import com.runicrealms.runicquests.event.custom.RightClickNpcEvent;
-import com.runicrealms.runicquests.quests.*;
+import com.runicrealms.runicquests.quests.CraftingProfessionType;
+import com.runicrealms.runicquests.quests.FirstNpcState;
+import com.runicrealms.runicquests.quests.Quest;
+import com.runicrealms.runicquests.quests.QuestIdleMessage;
+import com.runicrealms.runicquests.quests.QuestItem;
+import com.runicrealms.runicquests.quests.QuestObjectiveType;
+import com.runicrealms.runicquests.quests.objective.QuestObjective;
+import com.runicrealms.runicquests.quests.objective.QuestObjectiveBreak;
+import com.runicrealms.runicquests.quests.objective.QuestObjectiveSlay;
+import com.runicrealms.runicquests.quests.objective.QuestObjectiveTalk;
+import com.runicrealms.runicquests.task.TaskQueue;
+import com.runicrealms.runicquests.util.RunicCoreHook;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
@@ -16,17 +27,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
-import com.runicrealms.runicquests.Plugin;
-import com.runicrealms.runicquests.api.QuestCompleteEvent;
-import com.runicrealms.runicquests.quests.objective.QuestObjective;
-import com.runicrealms.runicquests.quests.objective.QuestObjectiveBreak;
-import com.runicrealms.runicquests.quests.objective.QuestObjectiveSlay;
-import com.runicrealms.runicquests.quests.objective.QuestObjectiveTalk;
-import com.runicrealms.runicquests.task.TaskQueue;
-import com.runicrealms.runicquests.util.RunicCoreHook;
-
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.logging.Level;
 
 public class EventClickNpc implements Listener {
 
@@ -42,7 +49,12 @@ public class EventClickNpc implements Listener {
 			if (quest.getQuestState().isCompleted() && !quest.isRepeatable()) { // Check for if the quest is completed
 				if (quest.getFirstNPC().getPlugin() == event.getPlugin() && quest.getFirstNPC().getNpcId().equals(event.getNpcId())) { // Check for first NPC quest completed speech
 					if (quest.getFirstNPC().hasQuestCompletedSpeech()) { // Create a task queue for the speech
-						TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getFirstNPC().getQuestCompletedSpeech(), quest.getFirstNPC().getNpcName()));
+						TaskQueue queue;
+						if (quest.getFirstNPC().addNpcName()) {
+							queue = new TaskQueue(makeSpeechRunnables(player, quest.getFirstNPC().getQuestCompletedSpeech(), quest.getFirstNPC().getNpcName()));
+						} else {
+							queue = new TaskQueue(makeSpeechRunnables(player, quest.getFirstNPC().getQuestCompletedSpeech()));
+						}
 						queue.setCompletedTask(() -> npcs.remove(quest.getFirstNPC().getId()));
 						npcs.put(quest.getFirstNPC().getId(), queue);
 						queue.startTasks();
@@ -66,24 +78,32 @@ public class EventClickNpc implements Listener {
 							}
 							if (!objective.isCompleted()) { // Check that the objective isn't completed
 								if (objective.getObjectiveNumber() != 1) { // Check that the previous objective has been completed
-									if (!QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() - 1).isCompleted()) {
+									QuestObjective previousObjective = QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() - 1);
+									if (!previousObjective.isCompleted()) {
 										if (objective.getObjectiveNumber() != 2) {
 											if (!QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() - 2).isCompleted()) {
 												continue;
 											}
 										}
-										if (talkObjective.getQuestNpc().hasDeniedMessage()) {
-											if (!talkObjective.requiresQuestItem()) {
-												TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, talkObjective.getQuestNpc().getDeniedMessage(), talkObjective.getQuestNpc().getNpcName()));
-												queue.setCompletedTask(new Runnable() {
-													@Override
-													public void run() {
-														npcs.remove(talkObjective.getQuestNpc().getId());
+										if (!(previousObjective instanceof QuestObjectiveTalk)) {
+											if (talkObjective.getQuestNpc().hasDeniedMessage()) {
+												if (!talkObjective.requiresQuestItem()) {
+													TaskQueue queue;
+													if (talkObjective.getQuestNpc().addNpcName()) {
+														queue = new TaskQueue(makeSpeechRunnables(player, talkObjective.getQuestNpc().getDeniedMessage(), talkObjective.getQuestNpc().getNpcName()));
+													} else {
+														queue = new TaskQueue(makeSpeechRunnables(player, talkObjective.getQuestNpc().getDeniedMessage()));
 													}
-												});
-												npcs.put(talkObjective.getQuestNpc().getId(), queue);
-												queue.startTasks();
-												break questsLoop;
+													queue.setCompletedTask(new Runnable() {
+														@Override
+														public void run() {
+															npcs.remove(talkObjective.getQuestNpc().getId());
+														}
+													});
+													npcs.put(talkObjective.getQuestNpc().getId(), queue);
+													queue.startTasks();
+													break questsLoop;
+												}
 											}
 										}
 										continue;
@@ -100,7 +120,12 @@ public class EventClickNpc implements Listener {
 										player.updateInventory();
 									} else {
 										if (talkObjective.getQuestNpc().hasDeniedMessage()) {
-											TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, talkObjective.getQuestNpc().getDeniedMessage(), talkObjective.getQuestNpc().getNpcName()));
+											TaskQueue queue;
+											if (talkObjective.getQuestNpc().addNpcName()) {
+												queue = new TaskQueue(makeSpeechRunnables(player, talkObjective.getQuestNpc().getDeniedMessage(), talkObjective.getQuestNpc().getNpcName()));
+											} else {
+												queue = new TaskQueue(makeSpeechRunnables(player, talkObjective.getQuestNpc().getDeniedMessage()));
+											}
 											queue.setCompletedTask(new Runnable() {
 												@Override
 												public void run() {
@@ -124,7 +149,12 @@ public class EventClickNpc implements Listener {
 										player.sendMessage(ChatColor.translateAlternateColorCodes('&', Plugin.parseMessage(message, player.getName())));
 									}
 								}
-								TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, talkObjective.getQuestNpc().getSpeech(), talkObjective.getQuestNpc().getNpcName())); // Put the NPC speech in a task queue
+								TaskQueue queue;
+								if (talkObjective.getQuestNpc().addNpcName()) {
+									queue = new TaskQueue(makeSpeechRunnables(player, talkObjective.getQuestNpc().getSpeech(), talkObjective.getQuestNpc().getNpcName())); // Put the NPC speech in a task queue
+								} else {
+									queue = new TaskQueue(makeSpeechRunnables(player, talkObjective.getQuestNpc().getSpeech())); // Put the NPC speech in a task queue
+								}
 								queue.setCompletedTask(new Runnable() {
 									@Override
 									public void run() {
@@ -160,7 +190,7 @@ public class EventClickNpc implements Listener {
 												quest.getRewards().executeCommand(player.getName());
 											}
 											RunicCoreHook.giveRewards(player, quest.getRewards()); // Give the rewards
-											if (quest.isRepeatable() == true) { // The the quest is repeatable, then handle the cooldowns
+											if (quest.isRepeatable()) { // The the quest is repeatable, then handle the cooldowns
 												questCooldowns.get(player.getUniqueId()).get(characterSlot).add(quest.getQuestID());
 												Bukkit.getScheduler().runTaskLater(Plugin.getInstance(), new Runnable() {
 													@Override
@@ -214,7 +244,12 @@ public class EventClickNpc implements Listener {
 										player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.5f, 1.0f);
 										meetsRequirements = false;
 										if (quest.getRequirements().hasCompletedQuestsNotMetMsg()) {
-											TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getCompletedQuestsNotMetMsg(), quest.getFirstNPC().getNpcName())); // Create a task queue with the quests completed not met message
+											TaskQueue queue;
+											if (quest.getFirstNPC().addNpcName()) {
+												queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getCompletedQuestsNotMetMsg(), quest.getFirstNPC().getNpcName())); // Create a task queue with the quests completed not met message
+											} else {
+												queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getCompletedQuestsNotMetMsg())); // Create a task queue with the quests completed not met message
+											}
 											queue.setCompletedTask(new Runnable() {
 												@Override
 												public void run() {
@@ -231,7 +266,12 @@ public class EventClickNpc implements Listener {
 										player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.5f, 1.0f);
 										meetsRequirements = false;
 										if (quest.getRequirements().hasLevelNotMetMsg()) {
-											TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getLevelNotMetMsg(), quest.getFirstNPC().getNpcName())); // Create a task queue with the level not met message
+											TaskQueue queue;
+											if (quest.getFirstNPC().addNpcName()) {
+												queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getLevelNotMetMsg(), quest.getFirstNPC().getNpcName())); // Create a task queue with the level not met message
+											} else {
+												queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getLevelNotMetMsg())); // Create a task queue with the level not met message
+											}
 											queue.setCompletedTask(new Runnable() {
 												@Override
 												public void run() {
@@ -250,7 +290,12 @@ public class EventClickNpc implements Listener {
 												player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.5f, 1.0f);
 												meetsRequirements = false;
 												if (quest.getRequirements().hasCraftingLevelNotMetMsg()) {
-													TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getCraftingLevelNotMetMsg(), quest.getFirstNPC().getNpcName())); // Create a task queue with the crafting not met message
+													TaskQueue queue;
+													if (quest.getFirstNPC().addNpcName()) {
+														queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getCraftingLevelNotMetMsg(), quest.getFirstNPC().getNpcName())); // Create a task queue with the crafting not met message
+													} else {
+														queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getCraftingLevelNotMetMsg())); // Create a task queue with the crafting not met message
+													}
 													queue.setCompletedTask(new Runnable() {
 														@Override
 														public void run() {
@@ -270,7 +315,12 @@ public class EventClickNpc implements Listener {
 											player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.5f, 1.0f);
 											meetsRequirements = false;
 											if (quest.getRequirements().hasClassNotMetMsg()) {
-												TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getClassTypeNotMetMsg(), quest.getFirstNPC().getNpcName())); // Create a task queue with the class type not met message
+												TaskQueue queue;
+												if (quest.getFirstNPC().addNpcName()) {
+													queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getClassTypeNotMetMsg(), quest.getFirstNPC().getNpcName())); // Create a task queue with the class type not met message
+												} else {
+													queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getClassTypeNotMetMsg())); // Create a task queue with the class type not met message
+												}
 												queue.setCompletedTask(new Runnable() {
 													@Override
 													public void run() {
@@ -290,7 +340,12 @@ public class EventClickNpc implements Listener {
 									if (quest.getFirstNPC().hasExecute()) { // Execute the first NPC commands
 										quest.getFirstNPC().executeCommand(player.getName());
 									}
-									TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, quest.getFirstNPC().getSpeech(), quest.getFirstNPC().getNpcName())); // Create a task queue with the first NPC speech
+									TaskQueue queue;
+									if (quest.getFirstNPC().addNpcName()) {
+										queue = new TaskQueue(makeSpeechRunnables(player, quest.getFirstNPC().getSpeech(), quest.getFirstNPC().getNpcName())); // Create a task queue with the first NPC speech
+									} else {
+										queue = new TaskQueue(makeSpeechRunnables(player, quest.getFirstNPC().getSpeech())); // Create a task queue with the first NPC speech
+									}
 									queue.setCompletedTask(new Runnable() {
 										@Override
 										public void run() {
@@ -371,7 +426,12 @@ public class EventClickNpc implements Listener {
 										}
 									}
 								}
-								TaskQueue queue = new TaskQueue(makeSpeechRunnables(player, idleMessage.getSpeech(), talkObjective.getQuestNpc().getNpcName())); // Creates a task queue with the idle message
+								TaskQueue queue;
+								if (talkObjective.getQuestNpc().addNpcName()) {
+									queue = new TaskQueue(makeSpeechRunnables(player, idleMessage.getSpeech(), talkObjective.getQuestNpc().getNpcName())); // Creates a task queue with the idle message
+								} else {
+									queue = new TaskQueue(makeSpeechRunnables(player, idleMessage.getSpeech())); // Creates a task queue with the idle message
+								}
 								queue.setCompletedTask(new Runnable() {
 									@Override
 									public void run() {
@@ -396,6 +456,19 @@ public class EventClickNpc implements Listener {
 				@Override
 				public void run() {
 					player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7[" + (messages.indexOf(message) + 1) + "/" + messages.size() + "] &e" + name + ": &6" + Plugin.parseMessage(message, player.getName())));
+				}
+			});
+		}
+		return runnables;
+	}
+
+	private static List<Runnable> makeSpeechRunnables(Player player, List<String> messages) {
+		List<Runnable> runnables = new ArrayList<Runnable>();
+		for (String message : messages) {
+			runnables.add(new Runnable() {
+				@Override
+				public void run() {
+					player.sendMessage(ChatColor.translateAlternateColorCodes('&', Plugin.parseMessage(message, player.getName())));
 				}
 			});
 		}
