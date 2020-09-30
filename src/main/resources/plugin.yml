@@ -15,3 +15,5 @@ commands:
   completequest:
     description: Completes a player's quest
     aliases: [questcomplete, cq, qc]
+  questtrigger:
+    description: Command for quest triggers

@@ -6,7 +6,7 @@ public enum QuestObjectiveType {
 	 * Contains the different types of quest objectives
 	 */
 	
-	SLAY("slay"), TALK("talk"), LOCATION("location"), BREAK("break");
+	SLAY("slay"), TALK("talk"), LOCATION("location"), BREAK("break"), TRIGGER("trigger");
 	
 	private String name;
 	

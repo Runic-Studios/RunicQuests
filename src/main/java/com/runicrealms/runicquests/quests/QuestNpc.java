@@ -1,12 +1,9 @@
 package com.runicrealms.runicquests.quests;
 
-import java.util.List;
-
 import com.runicrealms.runicquests.Plugin;
-
 import com.runicrealms.runicquests.util.NpcPlugin;
-import net.citizensnpcs.api.CitizensAPI;
-import net.citizensnpcs.api.npc.NPC;
+
+import java.util.List;
 
 public class QuestNpc implements Cloneable {
 	
@@ -16,15 +13,17 @@ public class QuestNpc implements Cloneable {
 
 	private Integer npcId;
 	private List<String> speech;
+	private boolean addNpcName;
 	private List<QuestIdleMessage> idleSpeech;
 	private String npcName;
 	private Long id;
 	private NpcPlugin plugin;
 	private List<String> deniedMessage;
 	
-	public QuestNpc(Integer npcId, List<String> speech, List<QuestIdleMessage> idleSpeech, String npcName, NpcPlugin plugin, List<String> deniedMessage) {
+	public QuestNpc(Integer npcId, List<String> speech, boolean addNpcName, List<QuestIdleMessage> idleSpeech, String npcName, NpcPlugin plugin, List<String> deniedMessage) {
 		this.npcId = npcId;
 		this.speech = speech;
+		this.addNpcName = addNpcName;
 		this.idleSpeech = idleSpeech;
 		this.npcName = npcName;
 		this.id = Plugin.getNextId();
@@ -38,6 +37,10 @@ public class QuestNpc implements Cloneable {
 
 	public List<String> getSpeech() {
 		return speech;
+	}
+
+	public boolean addNpcName() {
+		return this.addNpcName;
 	}
 	
 	public Long getId() {
@@ -70,7 +73,7 @@ public class QuestNpc implements Cloneable {
 
 	@Override
 	public QuestNpc clone() {
-		return new QuestNpc(this.npcId, this.speech, this.idleSpeech, this.npcName, this.plugin, this.deniedMessage);
+		return new QuestNpc(this.npcId, this.speech, this.addNpcName, this.idleSpeech, this.npcName, this.plugin, this.deniedMessage);
 	}
 
 }

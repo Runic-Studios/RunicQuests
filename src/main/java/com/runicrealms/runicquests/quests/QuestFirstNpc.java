@@ -1,15 +1,11 @@
 package com.runicrealms.runicquests.quests;
 
-import java.util.List;
-
+import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.util.NpcPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
-import com.runicrealms.runicquests.Plugin;
-
-import net.citizensnpcs.api.CitizensAPI;
-import net.citizensnpcs.api.npc.NPC;
+import java.util.List;
 
 public class QuestFirstNpc implements Cloneable {
 	
@@ -20,7 +16,8 @@ public class QuestFirstNpc implements Cloneable {
 	private Integer npcId;
 	private Location location;
 	private List<String> speech;
-	private List<QuestIdleMessage> idleSpeech = null;
+	private boolean addNpcName;
+	private List<QuestIdleMessage> idleSpeech;
 	private List<String> questCompletedSpeech;
 	private String npcName;
 	private List<String> execute;
@@ -30,10 +27,11 @@ public class QuestFirstNpc implements Cloneable {
 	private String goalMessage;
 	private String goalLocation;
 	
-	public QuestFirstNpc(Integer npcId, Location location, List<String> speech, List<QuestIdleMessage> idleSpeech, List<String> questCompletedSpeech, String npcName, List<String> execute, NpcPlugin plugin, String goalMessage, String goalLocation) {
+	public QuestFirstNpc(Integer npcId, Location location, List<String> speech, boolean addNpcName, List<QuestIdleMessage> idleSpeech, List<String> questCompletedSpeech, String npcName, List<String> execute, NpcPlugin plugin, String goalMessage, String goalLocation) {
 		this.npcId = npcId;
 		this.location = location;
 		this.speech = speech;
+		this.addNpcName = addNpcName;
 		this.idleSpeech = idleSpeech;
 		this.questCompletedSpeech = questCompletedSpeech;
 		this.execute = execute;
@@ -54,6 +52,10 @@ public class QuestFirstNpc implements Cloneable {
 	
 	public List<String> getSpeech() {
 		return speech;
+	}
+
+	public boolean addNpcName() {
+		return this.addNpcName;
 	}
 	
 	public Long getId() {
@@ -121,7 +123,7 @@ public class QuestFirstNpc implements Cloneable {
 
 	@Override
 	public QuestFirstNpc clone() {
-		return new QuestFirstNpc(this.npcId, this.location, this.speech, this.idleSpeech, this.questCompletedSpeech, this.npcName, this.execute, this.plugin, this.goalMessage, this.goalLocation);
+		return new QuestFirstNpc(this.npcId, this.location, this.speech, this.addNpcName, this.idleSpeech, this.questCompletedSpeech, this.npcName, this.execute, this.plugin, this.goalMessage, this.goalLocation);
 	}
 
 }

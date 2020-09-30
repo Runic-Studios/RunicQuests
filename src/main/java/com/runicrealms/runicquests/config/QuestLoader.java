@@ -1,10 +1,27 @@
 package com.runicrealms.runicquests.config;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
-import com.runicrealms.runicquests.quests.*;
+import com.runicrealms.runicquests.Plugin;
+import com.runicrealms.runicquests.exception.QuestLoadException;
+import com.runicrealms.runicquests.quests.CraftingProfessionType;
+import com.runicrealms.runicquests.quests.PlayerClassType;
+import com.runicrealms.runicquests.quests.Quest;
+import com.runicrealms.runicquests.quests.QuestFirstNpc;
+import com.runicrealms.runicquests.quests.QuestIdleMessage;
+import com.runicrealms.runicquests.quests.QuestIdleMessageConditions;
+import com.runicrealms.runicquests.quests.QuestItem;
+import com.runicrealms.runicquests.quests.QuestNpc;
+import com.runicrealms.runicquests.quests.QuestRequirements;
+import com.runicrealms.runicquests.quests.QuestRewards;
+import com.runicrealms.runicquests.quests.location.BoxLocation;
+import com.runicrealms.runicquests.quests.location.RadiusLocation;
+import com.runicrealms.runicquests.quests.objective.QuestObjective;
+import com.runicrealms.runicquests.quests.objective.QuestObjectiveBreak;
+import com.runicrealms.runicquests.quests.objective.QuestObjectiveLocation;
+import com.runicrealms.runicquests.quests.objective.QuestObjectiveSlay;
+import com.runicrealms.runicquests.quests.objective.QuestObjectiveTalk;
+import com.runicrealms.runicquests.quests.objective.QuestObjectiveTrigger;
+import com.runicrealms.runicquests.quests.trigger.Trigger;
+import com.runicrealms.runicquests.quests.trigger.TriggerObjectiveHandler;
 import com.runicrealms.runicquests.util.NpcPlugin;
 import net.citizensnpcs.api.CitizensAPI;
 import org.bukkit.Bukkit;
@@ -14,15 +31,9 @@ import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 
-import com.runicrealms.runicquests.Plugin;
-import com.runicrealms.runicquests.exception.QuestLoadException;
-import com.runicrealms.runicquests.quests.location.BoxLocation;
-import com.runicrealms.runicquests.quests.location.RadiusLocation;
-import com.runicrealms.runicquests.quests.objective.QuestObjective;
-import com.runicrealms.runicquests.quests.objective.QuestObjectiveBreak;
-import com.runicrealms.runicquests.quests.objective.QuestObjectiveLocation;
-import com.runicrealms.runicquests.quests.objective.QuestObjectiveSlay;
-import com.runicrealms.runicquests.quests.objective.QuestObjectiveTalk;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class QuestLoader {
 
@@ -78,12 +89,13 @@ public class QuestLoader {
 	// Uses all methods from this class in order to load a quest from file. Will not have any player info.
 	public static Quest loadQuest(FileConfiguration config) throws QuestLoadException {
 		try {
+			Integer uniqueId = checkValueNull(config.getInt("unique-id"), "unique-id");
 			ArrayList<QuestObjective> objectives = new ArrayList<QuestObjective>();
-			int objectivesNumber = checkValueNull(config.getConfigurationSection("objectives"), "objectives").getKeys(false).size();
-			for (int i = 1; i <= objectivesNumber; i++) {
+			int numberOfObjectives = checkValueNull(config.getConfigurationSection("objectives"), "objectives").getKeys(false).size();
+			for (int i = 1; i <= numberOfObjectives; i++) {
 				QuestObjective objective;
 				try {
-					objective = loadObjective(config.getConfigurationSection("objectives." + i), i, objectivesNumber);
+					objective = loadObjective(config.getConfigurationSection("objectives." + i), i, numberOfObjectives, uniqueId);
 				} catch (QuestLoadException exception) {
 					exception.addMessage(i + "", "objective: " + i);
 					throw exception;
@@ -92,7 +104,7 @@ public class QuestLoader {
 			}
 			QuestFirstNpc firstNPC;
 			try {
-				firstNPC = loadFirstNpc(config.getConfigurationSection("first-npc"), objectivesNumber);
+				firstNPC = loadFirstNpc(config.getConfigurationSection("first-npc"), numberOfObjectives);
 			} catch (QuestLoadException exception) {
 				exception.addMessage("first-npc");
 				throw exception;
@@ -116,7 +128,7 @@ public class QuestLoader {
 					firstNPC,
 					objectives,
 					rewards,
-					checkValueNull(config.getInt("unique-id"), "unique-id"),
+					uniqueId,
 					requirements,
 					checkValueNull(config.getBoolean("side-quest"), "side-quest"),
 					checkValueNull(config.getBoolean("repeatable"), "repeatable"),
@@ -129,14 +141,14 @@ public class QuestLoader {
 	}
 
 	// Loads idle messages.
-	public static List<QuestIdleMessage> loadIdleMessages(ConfigurationSection configSec, int objectivesNumber) throws QuestLoadException {
+	public static List<QuestIdleMessage> loadIdleMessages(ConfigurationSection configSec, int numberOfObjectives) throws QuestLoadException {
 		try {
 			List<QuestIdleMessage> idleMessages = new ArrayList<QuestIdleMessage>();
 			for (String key : configSec.getKeys(false)) {
 				List<Boolean> objectives = null;
 				if (configSec.contains(key + ".condition.objectives")) {
 					objectives = new ArrayList<Boolean>();
-					for (int i = 0; i <= objectivesNumber; i++) {
+					for (int i = 0; i <= numberOfObjectives; i++) {
 						objectives.add(null);
 					}
 					for (String objectiveNumber : configSec.getConfigurationSection(key + ".condition.objectives").getKeys(false)) {
@@ -239,7 +251,7 @@ public class QuestLoader {
 	}
 
 	// Loads a quest objective
-	public static QuestObjective loadObjective(ConfigurationSection configSec, Integer objectiveNumber, int objectivesNumber) throws QuestLoadException {
+	public static QuestObjective loadObjective(ConfigurationSection configSec, Integer objectiveNumber, int numberOfObjectives, int questId) throws QuestLoadException {
 		try {
 			String goalMessage = checkValueNull(configSec.getString("goal-message"), "goal-message");
 			String goalLocation = configSec.contains("goal-location") ? configSec.getString("goal-location") : "";
@@ -256,7 +268,7 @@ public class QuestLoader {
 			} else if (configSec.getString("requirement.type").equalsIgnoreCase("talk")) {
 				QuestNpc npc;
 				try {
-					npc = loadNpc(configSec.getConfigurationSection("requirement.npc"), objectivesNumber);
+					npc = loadNpc(configSec.getConfigurationSection("requirement.npc"), numberOfObjectives);
 				} catch (QuestLoadException exception) {
 					exception.addMessage("npc");
 					throw exception;
@@ -301,6 +313,17 @@ public class QuestLoader {
 						objectiveNumber,
 						(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null),
 						goalLocation);
+			} else if (configSec.getString("requirement.type").equalsIgnoreCase("trigger")) {
+				TriggerObjectiveHandler.addTrigger(new Trigger(questId, objectiveNumber), checkValueNull(configSec.getString("requirement.trigger-id")));
+				return new QuestObjectiveTrigger(
+						checkValueNull(configSec.getString("requirement.trigger-id")),
+						checkValueNull(getStringList(configSec, "requirement.speech")),
+						configSec.contains("requirement.requires") ? loadQuestItems(configSec.getConfigurationSection("requirement.requires")) : null,
+						goalMessage,
+						(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
+						objectiveNumber,
+						(configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null),
+						goalLocation);
 			}
 		} catch (QuestLoadException exception) {
 			throw exception;
@@ -311,14 +334,15 @@ public class QuestLoader {
 	}
 
 	// Loads a quest first NPC
-	public static QuestFirstNpc loadFirstNpc(ConfigurationSection configSec, int objectivesNumber) throws QuestLoadException {
+	public static QuestFirstNpc loadFirstNpc(ConfigurationSection configSec, int numberOfObjectives) throws QuestLoadException {
 		try {
 			NpcPlugin plugin = (configSec.contains("plugin") ? NpcPlugin.getFromString(configSec.getString("plugin"), NpcPlugin.CITIZENS) : NpcPlugin.CITIZENS);
 			return new QuestFirstNpc(
 					checkValueNull(configSec.getInt("npc-id"), "npc-id"),
 					(plugin == NpcPlugin.CITIZENS ? CitizensAPI.getNPCRegistry().getById(configSec.getInt("npc-id")).getStoredLocation() : com.runicrealms.runicnpcs.Plugin.getNpcs().get(configSec.getInt("npc-id")).getLocation()),
 					checkValueNull(getStringList(configSec, "speech"), "npc-speech"),
-					(configSec.contains("idle-messages") ? loadIdleMessages(configSec.getConfigurationSection("idle-messages"), objectivesNumber) : null),
+					!configSec.contains("add-npc-name") || configSec.getBoolean("add-npc-name"),
+					(configSec.contains("idle-messages") ? loadIdleMessages(configSec.getConfigurationSection("idle-messages"), numberOfObjectives) : null),
 					(configSec.contains("quest-completed-message") ? getStringList(configSec, "quest-completed-message") : null),
 					checkValueNull(configSec.getString("npc-name"), "npc-name"),
 					(configSec.contains("execute") ? getStringList(configSec, "execute") : null),
@@ -333,12 +357,13 @@ public class QuestLoader {
 	}
 
 	// Loads a quest objective NPC
-	public static QuestNpc loadNpc(ConfigurationSection configSec, int objectivesNumber) throws QuestLoadException {
+	public static QuestNpc loadNpc(ConfigurationSection configSec, int numberOfObjectives) throws QuestLoadException {
 		try {
 			return new QuestNpc(
 					checkValueNull(configSec.getInt("npc-id"), "npc-id"),
 					checkValueNull(getStringList(configSec, "speech"), "npc-speech"),
-					(configSec.contains("idle-messages") ? loadIdleMessages(configSec.getConfigurationSection("idle-messages"), objectivesNumber) : null),
+					!configSec.contains("add-npc-name") || configSec.getBoolean("add-npc-name"),
+					(configSec.contains("idle-messages") ? loadIdleMessages(configSec.getConfigurationSection("idle-messages"), numberOfObjectives) : null),
 					checkValueNull(configSec.getString("npc-name"), "npc-name"),
 					(configSec.contains("plugin") ? NpcPlugin.getFromString(configSec.getString("plugin"), NpcPlugin.CITIZENS) : NpcPlugin.CITIZENS),
 					(configSec.contains("denied-message") ? getStringList(configSec, "denied-message") : null));
