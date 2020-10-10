@@ -26,7 +26,7 @@ public class PassiveNpcLoader {
                 try {
                     loadedPassiveNpc = PassiveNpcLoader.loadPassiveNpc(ConfigLoader.getYamlConfigFile(passive.getName(), folder));
                 } catch (Exception exception) {
-                  
+
                 }
 
             }
