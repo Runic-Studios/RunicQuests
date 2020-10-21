@@ -128,7 +128,7 @@ public class Quest implements Cloneable {
 			item.setItemMeta(meta);
 			return item;
 		} else if (!RunicCoreHook.isReqClassLv(player, this.getRequirements().getClassLvReq())) {
-			ItemStack item = new ItemStack(Material.RED_DYE);
+			ItemStack item = new ItemStack(Material.BARRIER);
 			ItemMeta meta = item.getItemMeta();
 			List<String> lore = new ArrayList<String>();
 			meta.setDisplayName(ChatColor.RED + this.getQuestName());

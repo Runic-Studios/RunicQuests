@@ -4,7 +4,7 @@ import org.bukkit.Material;
 
 public enum FirstNpcHoloType {
 
-    RED(Material.RED_DYE),
+    RED(Material.BARRIER),
     YELLOW(Material.YELLOW_DYE),
     GOLD(Material.ORANGE_DYE),
     BLUE(Material.BLUE_DYE),
