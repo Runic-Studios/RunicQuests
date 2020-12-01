@@ -114,7 +114,7 @@ public class QuestProfile {
                     questsData.set(quest.getQuestID() + ".objectives." + objective.getObjectiveNumber(), objective.isCompleted());
                 }
             }
-            questsData.saveParent();
+            questsData.save();
         });
     }
 
@@ -132,7 +132,7 @@ public class QuestProfile {
                         questsData.set(quest.getQuestID() + ".objectives." + objective.getObjectiveNumber(), objective.isCompleted());
                     }
                 }
-                questsData.saveParent();
+                questsData.save();
             }
         });
     }
