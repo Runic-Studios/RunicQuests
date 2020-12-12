@@ -133,9 +133,9 @@
 		<dependency>
 			<groupId>com.runicrealms.plugin</groupId>
 			<artifactId>RunicCore</artifactId>
-			<version>1.15.2</version>
+			<version>1.16.4</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/lib/RunicCore-1.15.2.jar</systemPath>
+			<systemPath>${project.basedir}/lib/RunicCore-1.16.4.jar</systemPath>
 		</dependency>
 		<!-- RunicNpcs -->
 		<dependency>
@@ -149,9 +149,9 @@
 		<dependency>
 			<groupId>com.runicrealms.plugin</groupId>
 			<artifactId>RunicRestart</artifactId>
-			<version>1.15.2</version>
+			<version>1.16.4</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/lib/RunicRestart-1.15.2.jar</systemPath>
+			<systemPath>${project.basedir}/lib/RunicRestart-1.16.4.jar</systemPath>
 		</dependency>
 	</dependencies>
 </project>
