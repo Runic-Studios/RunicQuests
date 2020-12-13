@@ -136,6 +136,7 @@ public class QuestLoader {
 		} catch (QuestLoadException exception) {
 			throw exception;
 		} catch (Exception exception) {
+			exception.printStackTrace();
 			throw new QuestLoadException("unknown syntax error").setErrorMessage(exception.getMessage());
 		}
 	}
@@ -164,6 +165,7 @@ public class QuestLoader {
 			}
 			return idleMessages;
 		} catch (Exception exception) {
+			exception.printStackTrace();
 			throw new QuestLoadException("unknown syntax error", "idle-messages");
 		}
 	}
@@ -222,6 +224,7 @@ public class QuestLoader {
 		} catch (QuestLoadException exception) {
 			throw exception;
 		} catch (Exception exception) {
+			exception.printStackTrace();
 			throw new QuestLoadException("unknown syntax error").setErrorMessage(exception.getMessage());
 		}
 	}
@@ -246,6 +249,7 @@ public class QuestLoader {
 		} catch (QuestLoadException exception) {
 			throw exception;
 		} catch (Exception exception) {
+			exception.printStackTrace();
 			throw new QuestLoadException("unknown syntax error").setErrorMessage(exception.getMessage());
 		}
 	}
@@ -328,6 +332,7 @@ public class QuestLoader {
 		} catch (QuestLoadException exception) {
 			throw exception;
 		} catch (Exception exception) {
+			exception.printStackTrace();
 			throw new QuestLoadException("unknown syntax error").setErrorMessage(exception.getMessage());
 		}
 		throw new QuestLoadException("invalid objective type");
@@ -352,6 +357,7 @@ public class QuestLoader {
 		} catch (QuestLoadException exception) {
 			throw exception;
 		} catch (Exception exception) {
+			exception.printStackTrace();
 			throw new QuestLoadException("unknown syntax error").setErrorMessage(exception.getMessage());
 		}
 	}
@@ -370,6 +376,7 @@ public class QuestLoader {
 		} catch (QuestLoadException exception) {
 			throw exception;
 		} catch (Exception exception) {
+			exception.printStackTrace();
 			throw new QuestLoadException("unknown syntax error").setErrorMessage(exception.getMessage());
 		}
 	}
@@ -388,6 +395,7 @@ public class QuestLoader {
 		} catch (QuestLoadException exception) {
 			throw exception;
 		} catch (Exception exception) {
+			exception.printStackTrace();
 			throw new QuestLoadException("unknown syntax error").setErrorMessage(exception.getMessage());
 		}
 	}
