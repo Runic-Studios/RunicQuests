@@ -116,7 +116,7 @@ public class QuestProfile {
                     questsData.set(quest.getQuestID() + ".objectives." + objective.getObjectiveNumber(), objective.isCompleted());
                 }
                 if (!Plugin.canStartRepeatableQuest(uuid, quest.getQuestID())) {
-                    questsData.set(quest.getQuestName() + ".cooldown-end", Plugin.getQuestCooldowns().get(uuid).get(quest.getQuestID()));
+                    questsData.set(quest.getQuestID() + ".cooldown-end", Plugin.getQuestCooldowns().get(uuid).get(quest.getQuestID()));
                 }
             }
             questsData.save();
@@ -136,7 +136,7 @@ public class QuestProfile {
                     questsData.set(quest.getQuestID() + ".objectives." + objective.getObjectiveNumber(), objective.isCompleted());
                 }
                 if (!Plugin.canStartRepeatableQuest(uuid, quest.getQuestID())) {
-                    questsData.set(quest.getQuestName() + ".cooldown-end", Plugin.getQuestCooldowns().get(uuid).get(quest.getQuestID()));
+                    questsData.set(quest.getQuestID() + ".cooldown-end", Plugin.getQuestCooldowns().get(uuid).get(quest.getQuestID()));
                 }
             }
             questsData.save();

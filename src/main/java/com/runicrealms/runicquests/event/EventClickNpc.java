@@ -177,7 +177,13 @@ public class EventClickNpc implements Listener {
 									queue.addTasks(new Runnable() { // Add the quest rewards to the task queue
 										@Override
 										public void run() {
-											quest.getQuestState().setCompleted(true);
+											if (quest.isRepeatable()) { // The the quest is repeatable, then handle the cooldowns
+												questCooldowns.get(player.getUniqueId()).put(quest.getQuestID(), System.currentTimeMillis() + quest.getCooldown() * 1000);
+												quest.getQuestState().setStarted(false);
+												quest.getFirstNPC().setState(FirstNpcState.NEUTRAL);
+											} else {
+												quest.getQuestState().setCompleted(true);
+											}
 											questProfile.save(questProfile.getQuestPoints() + quest.getRewards().getQuestPointsReward());
 											player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 10, 1); // Play sound
 											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&2&lRewards:"));
@@ -190,9 +196,6 @@ public class EventClickNpc implements Listener {
 												quest.getRewards().executeCommand(player.getName());
 											}
 											RunicCoreHook.giveRewards(player, quest.getRewards()); // Give the rewards
-											if (quest.isRepeatable()) { // The the quest is repeatable, then handle the cooldowns
-												questCooldowns.get(player.getUniqueId()).put(quest.getQuestID(), System.currentTimeMillis() + quest.getCooldown() * 1000);
-											}
 											Bukkit.getServer().getPluginManager().callEvent(new QuestCompleteEvent(quest, questProfile)); // Fire the quest completed event
 										}
 									});
@@ -327,6 +330,7 @@ public class EventClickNpc implements Listener {
 									player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 10, 0); // Play sound
 									quest.getQuestState().setStarted(true);
 									questProfile.save();
+									Plugin.updatePlayerCachedLocations(player);
 									if (quest.getFirstNPC().hasExecute()) { // Execute the first NPC commands
 										quest.getFirstNPC().executeCommand(player.getName());
 									}
@@ -370,9 +374,10 @@ public class EventClickNpc implements Listener {
 				}
 				if ((quest.getFirstNPC().getPlugin() == event.getPlugin() && quest.getFirstNPC().getNpcId().equals(event.getNpcId()))
 						&& !Plugin.canStartRepeatableQuest(event.getPlayer().getUniqueId(), quest.getQuestID())) { // If the player is waiting on a quest cooldown (repeatable quests)
-					int hours = (quest.getCooldown() - (quest.getCooldown() % 3600)) / 3600; // Some very odd code to create a cooldown message
-					int minutes = (quest.getCooldown() - (quest.getCooldown() % 60)) / 60 - (hours * 60);
-					int seconds = quest.getCooldown() - (hours * 3600) - (minutes * 60);
+					int cooldownLeft = (int) Math.floor((Plugin.getQuestCooldowns().get(event.getPlayer().getUniqueId()).get(quest.getQuestID()) - System.currentTimeMillis()) / 1000.0);
+					int hours = (cooldownLeft - (cooldownLeft % 3600)) / 3600; // Some very odd code to create a cooldown message
+					int minutes = (cooldownLeft - (cooldownLeft % 60)) / 60 - (hours * 60);
+					int seconds = cooldownLeft - (hours * 3600) - (minutes * 60);
 					StringBuilder time = new StringBuilder();
 					time.append(hours == 0 ? "" : hours + " " + (minutes == 0 && hours == 0 ? (hours == 1 ? "hour" : "hours") : (hours == 1 ? "hour, " : "hours, ")));
 					time.append(minutes == 0 ? "" : minutes + " " + (seconds == 0 ? (minutes == 1 ? "minute" : "minutes") : (minutes == 1 ? "minute, " : "minutes, ")));
