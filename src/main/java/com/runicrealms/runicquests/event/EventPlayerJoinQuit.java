@@ -1,8 +1,5 @@
 package com.runicrealms.runicquests.event;
 
-import java.util.*;
-
-import com.runicrealms.plugin.character.api.CharacterApi;
 import com.runicrealms.plugin.character.api.CharacterLoadEvent;
 import com.runicrealms.plugin.character.api.CharacterQuitEvent;
 import com.runicrealms.runicquests.data.QuestProfile;
@@ -30,11 +27,6 @@ public class EventPlayerJoinQuit implements Listener {
 	}
 
 	public static void runJoinEvent(Player player, Integer characterSlot) {
-		Map<Integer, Set<Integer>> cooldowns = new HashMap<>();
-		for (Integer character : CharacterApi.getAllCharacters(player)) {
-			cooldowns.put(character, new HashSet<>());
-		}
-		Plugin.getQuestCooldowns().put(player.getUniqueId(), cooldowns); // Add a cooldown to the list of cooldowns
 		PlayerDataLoader.addPlayerQuestData(player.getUniqueId(), characterSlot, () -> Plugin.updatePlayerCachedLocations(player)); // Add a quest profile
 	}
 
@@ -67,11 +59,6 @@ public class EventPlayerJoinQuit implements Listener {
 			}
 		}
 		Plugin.getCachedLocations().remove(player.getUniqueId());
-		Map<Integer, Set<Integer>> cooldowns = new HashMap<>();
-		for (Integer character : CharacterApi.getAllCharacters(player)) {
-			cooldowns.put(character, new HashSet<>());
-		}
-		Plugin.getQuestCooldowns().put(player.getUniqueId(), cooldowns);
 		Plugin.updatePlayerCachedLocations(player);
 	}
 }

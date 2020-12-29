@@ -44,7 +44,7 @@ public class Plugin extends JavaPlugin {
 	private static Plugin plugin; // Used for getInstance()
 	private static HoloManager holoManager;
 	private static final HashMap<Long, TaskQueue> npcTaskQueues = new HashMap<>(); // List of NPC task queues
-	private static final Map<UUID, Map<Integer, Set<Integer>>> cooldowns = new HashMap<>(); // List of quest cooldowns
+	private static final Map<UUID,  Map<Integer, Long>> cooldowns = new HashMap<>(); // List of quest cooldowns
 	private static Long nextId = Long.MIN_VALUE; // This is used to give each NPC a new unique ID.
 	/*
 	 * This Map is meant to help with performance issues with checking the players location. It will just indicate
@@ -151,8 +151,19 @@ public class Plugin extends JavaPlugin {
 		return npcTaskQueues;
 	}
 
-	public static Map<UUID, Map<Integer, Set<Integer>>> getQuestCooldowns() { // Get the quest cooldowns
+	public static Map<UUID, Map<Integer, Long>> getQuestCooldowns() { // Get the quest cooldowns
 		return cooldowns;
+	}
+
+	public static boolean canStartRepeatableQuest(UUID uuid, Integer questId) {
+		if (!cooldowns.get(uuid).containsKey(questId)) {
+			return true;
+		}
+		if (cooldowns.get(uuid).get(questId) <= System.currentTimeMillis()) {
+			cooldowns.get(uuid).remove(questId);
+			return true;
+		}
+		return false;
 	}
 
 	public static Long getNextId() { // Get a new unique ID that can be used for NPCs

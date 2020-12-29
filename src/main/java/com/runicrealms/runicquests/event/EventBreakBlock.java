@@ -39,16 +39,16 @@ public class EventBreakBlock implements Listener {
 		Player player = event.getPlayer();
 		QuestProfile questProfile = PlayerDataLoader.getPlayerQuestData(player.getUniqueId()); // Get player's questing profile
 		int characterSlot = CharacterApi.getCurrentCharacterSlot(player);
-		Map<UUID, Map<Integer, Set<Integer>>> questCooldowns = Plugin.getQuestCooldowns(); // Get the repeatable quest cooldowns
+		Map<UUID, Map<Integer, Long>> questCooldowns = Plugin.getQuestCooldowns(); // Get the repeatable quest cooldowns
 		for (Quest quest : questProfile.getQuests()) { // Loop through the quests to find a matching objective
-			if ((quest.getQuestState().isCompleted() == false && quest.getQuestState().hasStarted()) // Check that the quest is not completed and has been started
+			if ((!quest.getQuestState().isCompleted() && quest.getQuestState().hasStarted()) // Check that the quest is not completed and has been started
 					|| (quest.isRepeatable() && quest.getQuestState().isCompleted() && quest.getQuestState().hasStarted())) { // This is a check for repeatable quests
 				for (QuestObjective objective : quest.getObjectives()) { // Loop through the quest objectives
 					if (objective.isCompleted()) { // Check that the objective is not completed
 						continue;
 					}
 					if (objective.getObjectiveNumber() != 1) { // Check that the previous objective has been completed
-						if (QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() - 1).isCompleted() == false) {
+						if (!QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() - 1).isCompleted()) {
 							continue;
 						}
 					}
@@ -159,19 +159,8 @@ public class EventBreakBlock implements Listener {
 									quest.getRewards().executeCommand(player.getName());
 								}
 								RunicCoreHook.giveRewards(player, quest.getRewards()); // Give rewards
-								if (quest.isRepeatable() == true) { // If the quest is repeatable, setup cooldowns
-									questCooldowns.get(player.getUniqueId()).get(characterSlot).add(quest.getQuestID());
-									Integer currentSlot = new Integer(characterSlot);
-									Bukkit.getScheduler().runTaskLater(Plugin.getInstance(), new Runnable() {
-										@Override
-										public void run() {
-											if (questCooldowns.get(player.getUniqueId()).get(currentSlot).contains(new Integer(quest.getQuestID()))) {
-												questCooldowns.get(player.getUniqueId()).get(currentSlot).remove(new Integer(quest.getQuestID()));
-											} else {
-												Bukkit.getLogger().log(Level.INFO, "[RunicQuests] ERROR - failed to remove quest cooldown from player \"" + questProfile.getUuid() + "\"!");
-											}
-										}
-									}, quest.getCooldown() * 20);
+								if (quest.isRepeatable()) { // If the quest is repeatable, setup cooldowns
+									questCooldowns.get(player.getUniqueId()).put(quest.getQuestID(), System.currentTimeMillis() + quest.getCooldown() * 1000);
 								}
 								Bukkit.getServer().getPluginManager().callEvent(new QuestCompleteEvent(quest, questProfile)); // Fire the quest completed event
 							}

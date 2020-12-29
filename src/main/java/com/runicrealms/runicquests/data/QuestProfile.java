@@ -10,10 +10,7 @@ import com.runicrealms.runicquests.quests.Quest;
 import com.runicrealms.runicquests.quests.objective.QuestObjective;
 import org.bukkit.Bukkit;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 public class QuestProfile {
 
@@ -31,6 +28,7 @@ public class QuestProfile {
             boolean shouldSave = false;
             List<Quest> unusedQuests = QuestLoader.getUnusedQuestList();
             quests = new ArrayList<>();
+            Map<Integer, Long> cooldowns = new HashMap<>();
             if (mongoData.has("character." + slot + ".quests")) {
                 MongoDataSection questsData = mongoData.getSection("character." + slot + ".quests");
                 for (Quest unusedQuest : unusedQuests) {
@@ -50,6 +48,11 @@ public class QuestProfile {
                                     }
                                 }
                             }
+                            if (questData.has("cooldown-end")) {
+                                if (questData.get("cooldown-end", Long.class) > System.currentTimeMillis()) {
+                                    cooldowns.put(Integer.parseInt(dataQuestId), questData.get("cooldown-end", Long.class));
+                                }
+                            }
                             quests.add(newQuest);
                             hasQuestData = true;
                         }
@@ -65,16 +68,14 @@ public class QuestProfile {
                     shouldSave = true;
                 }
             }
-            Collections.sort(quests, new Comparator<Quest>() {
-                @Override
-                public int compare(Quest a, Quest b) {
-                    if (a.getRequirements().getClassLvReq() > b.getRequirements().getClassLvReq()) {
-                        return 1;
-                    } else if (a.getRequirements().getClassLvReq() < b.getRequirements().getClassLvReq()) {
-                        return -1;
-                    } else {
-                        return 0;
-                    }
+            Plugin.getQuestCooldowns().put(UUID.fromString(this.uuid), cooldowns);
+            Collections.sort(quests, (a, b) -> {
+                if (a.getRequirements().getClassLvReq() > b.getRequirements().getClassLvReq()) {
+                    return 1;
+                } else if (a.getRequirements().getClassLvReq() < b.getRequirements().getClassLvReq()) {
+                    return -1;
+                } else {
+                    return 0;
                 }
             });
 
@@ -104,6 +105,7 @@ public class QuestProfile {
     public void save(List<Quest> quests, int points) {
         this.quests = quests;
         Bukkit.getScheduler().runTaskAsynchronously(Plugin.getInstance(), () -> {
+            UUID uuid = UUID.fromString(this.uuid);
             MongoDataSection questsData = mongoData.getSection("character." + slot + ".quests");
             mongoData.set("character." + slot + ".quest-points", points);
             for (Quest quest : quests) {
@@ -113,6 +115,9 @@ public class QuestProfile {
                 for (QuestObjective objective : quest.getObjectives()) {
                     questsData.set(quest.getQuestID() + ".objectives." + objective.getObjectiveNumber(), objective.isCompleted());
                 }
+                if (!Plugin.canStartRepeatableQuest(uuid, quest.getQuestID())) {
+                    questsData.set(quest.getQuestName() + ".cooldown-end", Plugin.getQuestCooldowns().get(uuid).get(quest.getQuestID()));
+                }
             }
             questsData.save();
         });
@@ -120,20 +125,21 @@ public class QuestProfile {
 
     public void save(List<Quest> quests) {
         this.quests = quests;
-        Bukkit.getScheduler().runTaskAsynchronously(Plugin.getInstance(), new Runnable() {
-            @Override
-            public void run() {
-                MongoDataSection questsData = mongoData.getSection("character." + slot + ".quests");
-                for (Quest quest : quests) {
-                    questsData.set(quest.getQuestID() + ".completed", quest.getQuestState().isCompleted());
-                    questsData.set(quest.getQuestID() + ".started", quest.getQuestState().hasStarted());
-                    questsData.set(quest.getQuestID() + ".first-npc-state", quest.getFirstNPC().getState().getName());
-                    for (QuestObjective objective : quest.getObjectives()) {
-                        questsData.set(quest.getQuestID() + ".objectives." + objective.getObjectiveNumber(), objective.isCompleted());
-                    }
+        Bukkit.getScheduler().runTaskAsynchronously(Plugin.getInstance(), () -> {
+            UUID uuid = UUID.fromString(this.uuid);
+            MongoDataSection questsData = mongoData.getSection("character." + slot + ".quests");
+            for (Quest quest : quests) {
+                questsData.set(quest.getQuestID() + ".completed", quest.getQuestState().isCompleted());
+                questsData.set(quest.getQuestID() + ".started", quest.getQuestState().hasStarted());
+                questsData.set(quest.getQuestID() + ".first-npc-state", quest.getFirstNPC().getState().getName());
+                for (QuestObjective objective : quest.getObjectives()) {
+                    questsData.set(quest.getQuestID() + ".objectives." + objective.getObjectiveNumber(), objective.isCompleted());
                 }
-                questsData.save();
+                if (!Plugin.canStartRepeatableQuest(uuid, quest.getQuestID())) {
+                    questsData.set(quest.getQuestName() + ".cooldown-end", Plugin.getQuestCooldowns().get(uuid).get(quest.getQuestID()));
+                }
             }
+            questsData.save();
         });
     }
 

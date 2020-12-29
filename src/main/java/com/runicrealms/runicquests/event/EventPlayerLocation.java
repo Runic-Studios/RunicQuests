@@ -33,7 +33,7 @@ public class EventPlayerLocation implements Listener {
 	
 	public static void playerCompleteLocationObjective(Player player, Integer questID) {
 		QuestProfile questProfile = PlayerDataLoader.getPlayerQuestData(player.getUniqueId());
-		Map<UUID, Map<Integer, Set<Integer>>> questCooldowns = Plugin.getQuestCooldowns();
+		Map<UUID, Map<Integer, Long>> questCooldowns = Plugin.getQuestCooldowns();
 		Quest questFound = null;
 		for (Quest otherQuest : questProfile.getQuests()) {
 			if (otherQuest.getQuestID() == questID) {
@@ -144,18 +144,8 @@ public class EventPlayerLocation implements Listener {
 					quest.getRewards().executeCommand(player.getName());
 				}
 				RunicCoreHook.giveRewards(player, quest.getRewards()); // Give the rewards
-				if (quest.isRepeatable() == true) { // If the quest is repeatable, setup cooldown
-					questCooldowns.get(player.getUniqueId()).get(CharacterApi.getCurrentCharacterSlot(player)).add(quest.getQuestID());
-					Bukkit.getScheduler().runTaskLater(Plugin.getInstance(), new Runnable() {
-						@Override
-						public void run() {
-							if (questCooldowns.get(player.getUniqueId()).get(CharacterApi.getCurrentCharacterSlot(player)).contains(quest.getQuestID())) {
-								questCooldowns.get(player.getUniqueId()).get(CharacterApi.getCurrentCharacterSlot(player)).remove(quest.getQuestID());
-							} else {
-								Bukkit.getLogger().log(Level.INFO, "[RunicQuests] ERROR - failed to remove quest cooldown from player \"" + questProfile.getUuid() + "\"!");
-							}
-						}
-					}, quest.getCooldown() * 20);
+				if (quest.isRepeatable()) { // If the quest is repeatable, setup cooldown
+					questCooldowns.get(player.getUniqueId()).put(quest.getQuestID(), System.currentTimeMillis() + quest.getCooldown() * 1000);
 				}
 				Bukkit.getServer().getPluginManager().callEvent(new QuestCompleteEvent(quest, questProfile)); // Fire the quest completed event
 			}
