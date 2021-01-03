@@ -259,27 +259,13 @@ public class Plugin extends JavaPlugin {
 
 	public static String parseMessage(String msg, String playerName) { // Parse an NPC message and replace %player% with player name, and run commands
 		String outputString = msg.replaceAll("%player%", playerName);
-		String command = null;
-		boolean lastCharSlash = false;
-		String[] chars = msg.split("(?!^)");
-		for (int i = 0; i < chars.length; i++) {
-			String character = chars[i];
-			if (character.equalsIgnoreCase("/")) {
-				if (!lastCharSlash) {
-					lastCharSlash = true;
-				} else {
-					command = outputString.substring(i + 1);
-					outputString = outputString.substring(0, i - 2);
-					break;
-				}
-			} else {
-				lastCharSlash = false;
+		String[] parts = msg.split("//");
+		if (parts.length != 1) {
+			for (int i = 1; i < parts.length; i++) {
+				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), parts[i]);
 			}
 		}
-		if (command != null) {
-			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
-		}
-		return outputString;
+		return parts[0];
 	}
 
 	public static QuestProfile getQuestProfile(String uuid) {
