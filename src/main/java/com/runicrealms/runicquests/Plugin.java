@@ -258,8 +258,7 @@ public class Plugin extends JavaPlugin {
 	}
 
 	public static String parseMessage(String msg, String playerName) { // Parse an NPC message and replace %player% with player name, and run commands
-		String outputString = msg.replaceAll("%player%", playerName);
-		String[] parts = msg.split("//");
+		String[] parts = msg.replaceAll("%player%", playerName).split("//");
 		if (parts.length != 1) {
 			for (int i = 1; i < parts.length; i++) {
 				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), parts[i]);
