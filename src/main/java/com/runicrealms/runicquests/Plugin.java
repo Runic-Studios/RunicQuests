@@ -16,6 +16,7 @@ import com.runicrealms.runicquests.event.EventPlayerJoinQuit;
 import com.runicrealms.runicquests.event.EventPlayerLocation;
 import com.runicrealms.runicquests.event.custom.RightClickNpcHandler;
 import com.runicrealms.runicquests.listeners.JournalListener;
+import com.runicrealms.runicquests.passivenpcs.PassiveNpcHandler;
 import com.runicrealms.runicquests.quests.FirstNpcState;
 import com.runicrealms.runicquests.quests.Quest;
 import com.runicrealms.runicquests.quests.QuestItem;
@@ -43,6 +44,7 @@ public class Plugin extends JavaPlugin {
 
 	private static Plugin plugin; // Used for getInstance()
 	private static HoloManager holoManager;
+	private static PassiveNpcHandler passiveNpcHandler;
 	private static final HashMap<Long, TaskQueue> npcTaskQueues = new HashMap<>(); // List of NPC task queues
 	private static final Map<UUID,  Map<Integer, Long>> cooldowns = new HashMap<>(); // List of quest cooldowns
 	private static Long nextId = Long.MIN_VALUE; // This is used to give each NPC a new unique ID.
@@ -58,6 +60,7 @@ public class Plugin extends JavaPlugin {
 	public void onEnable() {
 		plugin = this; // Used for getInstance()
 		holoManager = new HoloManager();
+		passiveNpcHandler = new PassiveNpcHandler();
 		ConfigLoader.initDirs(); // Initialize directories that might not exist
 		ConfigLoader.loadMainConfig(); // Initialize the main config file if it doesn't exist
 		NPC_MESSAGE_DELAY = ConfigLoader.getMainConfig().getDouble("npc-message-delay"); // Get the config value
@@ -104,6 +107,10 @@ public class Plugin extends JavaPlugin {
 
 	public static HoloManager getHoloManager() {
 		return holoManager;
+	}
+
+	public static PassiveNpcHandler getPassiveNpcHandler() {
+		return passiveNpcHandler;
 	}
 
 	private static void registerMoveTask() { // Schedule a task that will run for the cached location objectives
