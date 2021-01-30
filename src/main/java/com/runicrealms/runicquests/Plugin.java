@@ -16,6 +16,7 @@ import com.runicrealms.runicquests.event.EventPlayerJoinQuit;
 import com.runicrealms.runicquests.event.EventPlayerLocation;
 import com.runicrealms.runicquests.event.custom.RightClickNpcHandler;
 import com.runicrealms.runicquests.listeners.JournalListener;
+import com.runicrealms.runicquests.passivenpcs.PassiveNpcClickListener;
 import com.runicrealms.runicquests.passivenpcs.PassiveNpcHandler;
 import com.runicrealms.runicquests.quests.FirstNpcState;
 import com.runicrealms.runicquests.quests.Quest;
@@ -73,6 +74,7 @@ public class Plugin extends JavaPlugin {
 		this.getServer().getPluginManager().registerEvents(new EventInventory(), this);
 		this.getServer().getPluginManager().registerEvents(new RightClickNpcHandler(), this);
 		this.getServer().getPluginManager().registerEvents(holoManager, this);
+		this.getServer().getPluginManager().registerEvents(new PassiveNpcClickListener(), this);
 		for (Player player : Bukkit.getOnlinePlayers()) { // Loop through online players (fixes bug with /reload)
 			if (CharacterApi.getCurrentCharacterSlot(player) != null) {
 				EventPlayerJoinQuit.runJoinEvent(player, CharacterApi.getCurrentCharacterSlot(player)); // Read PlayerJoinQuitEvent.runJoinEvent

@@ -5,8 +5,10 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
-import java.util.*;
-import java.util.logging.Level;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public final class PassiveNpcHandler {
     private final Map<Integer, PassiveNpc> passiveNPCs;
@@ -14,14 +16,13 @@ public final class PassiveNpcHandler {
     public PassiveNpcHandler() {
         this.passiveNPCs = new HashMap<>();
 
-        File passivenpcs = new File(Plugin.getInstance().getDataFolder().getPath() + "/passivenpcs");
+        File passivenpcs = new File(Plugin.getInstance().getDataFolder(), "passivenpcs");
 
-        if (!passivenpcs.isDirectory()) {
-            Plugin.getInstance().getLogger().log(Level.SEVERE, "passivenpcs is not a directory!");
-            return;
+        if (!passivenpcs.exists()) {
+            passivenpcs.mkdir();
         }
 
-        for (File file : Objects.requireNonNull(passivenpcs.listFiles())) {
+        for (File file : passivenpcs.listFiles()) {
             try {
                 this.loadFromYML(file);
             } catch (PassiveNpcException e) {
@@ -34,15 +35,11 @@ public final class PassiveNpcHandler {
         return this.passiveNPCs.get(id);
     }
 
-    private PassiveNpc loadFromYML(File file) throws PassiveNpcException {
+    private void loadFromYML(File file) throws PassiveNpcException {
         FileConfiguration config = YamlConfiguration.loadConfiguration(file);
 
-        if (!config.contains("npc-id") || !config.contains("npc-plugin") || !config.contains("dialogue.1")) {
+        if (!config.contains("npc-id") || !config.contains("npc-plugin") || !config.contains("npc-name") || !config.contains("dialogue.1")) {
             throw new PassiveNpcException("Invalid npc yml: " + config.getName());
-        }
-
-        if (!config.contains("npc-name") && config.contains("add-npc-name")) {
-            throw new PassiveNpcException("Invalid npc name yml: " + config.getName());
         }
 
         int id = config.getInt("npc-id");
@@ -68,11 +65,9 @@ public final class PassiveNpcHandler {
 
         List<List<String>> dialogue = new ArrayList<>();
         for (String section : config.getConfigurationSection("dialogue").getKeys(false)) {
-            dialogue.add(config.getStringList(section));
+            dialogue.add(config.getStringList("dialogue." + section));
         }
 
-        PassiveNpc npc = new PassiveNpc(id, isRunic, name, overrideText, dialogue);
-        this.passiveNPCs.put(id, npc);
-        return npc;
+        this.passiveNPCs.put(id, new PassiveNpc(id, isRunic, name, overrideText, dialogue));
     }
 }

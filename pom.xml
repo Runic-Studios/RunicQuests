@@ -8,11 +8,6 @@
 	<name>RunicQuests</name>
 	<description>Runic Realms Quest Plugin</description>
 
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<fileOutput>${user.home}/Desktop/FTR Server Assets/~ Local Server/plugins</fileOutput>
-	</properties>
-
 	<build>
 		<defaultGoal>clean package</defaultGoal>
 		<plugins>
@@ -28,25 +23,6 @@
 			<plugin>
 				<artifactId>maven-resources-plugin</artifactId>
 				<version>3.1.0</version>
-				<executions>
-					<execution>
-						<id>copy-files-on-build</id>
-						<phase>package</phase>
-						<goals>
-							<goal>copy-resources</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>${fileOutput}</outputDirectory>
-							<resources>
-								<resource>
-									<directory>${project.build.directory}</directory>
-									<include>${project.artifactId}-${project.version}.jar</include>
-									<filtering>false</filtering>
-								</resource>
-							</resources>
-						</configuration>
-					</execution>
-				</executions>
 			</plugin>
 		</plugins>
 		<resources>

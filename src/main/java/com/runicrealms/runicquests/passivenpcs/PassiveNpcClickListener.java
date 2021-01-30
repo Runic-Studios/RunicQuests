@@ -35,6 +35,18 @@ public class PassiveNpcClickListener implements Listener {
     }
 
     private void sendMessage(PassiveNpc npc, Player player) {
+        if (!npc.TALKING.containsKey(player.getUniqueId())) {
+            this.sendFirstMessage(npc, player);
+            return;
+        }
+
+        TaskQueue tasks = npc.TALKING.get(player.getUniqueId());
+
+        tasks.nextTask();
+        tasks.setDelay(Plugin.NPC_MESSAGE_DELAY);
+    }
+
+    private void sendFirstMessage(PassiveNpc npc, Player player) {
         List<String> dialogue = npc.getDialogue();
         List<Runnable> runnables = new ArrayList<>();
         boolean override = npc.isOverrideText();
@@ -43,10 +55,14 @@ public class PassiveNpcClickListener implements Listener {
             if (!override) {
                 runnables.add(() -> player.sendMessage(ColorUtil.format("&7[" + (dialogue.indexOf(message) + 1) + "/" + dialogue.size() + "] &e" + npc.getName() + ": &6" + message)));
             } else {
-                runnables.add(() -> player.sendMessage(ColorUtil.format("&6" + message)));
+                runnables.add(() -> player.sendMessage(ColorUtil.format(message)));
             }
         }
 
-        new TaskQueue(runnables).startTasks();
+        TaskQueue tasks = new TaskQueue(runnables);
+
+        tasks.setCompletedTask(() -> npc.TALKING.remove(player.getUniqueId()));
+        npc.TALKING.put(player.getUniqueId(), tasks);
+        tasks.startTasks();
     }
 }
