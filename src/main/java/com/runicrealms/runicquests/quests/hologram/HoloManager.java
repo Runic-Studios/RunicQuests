@@ -63,7 +63,7 @@ public class HoloManager implements Listener {
 
                 Hologram hologramGreen = HologramsAPI.createHologram(Plugin.getInstance(), loc);
                 hologramGreen.getVisibilityManager().setVisibleByDefault(false);
-                hologramGreen.appendItemLine(new ItemStack(Material.GREEN_DYE));
+                hologramGreen.appendItemLine(new ItemStack(Material.SLIME_BALL));
                 hologramMap.get(q.getQuestID()).put(FirstNpcHoloType.GREEN, hologramGreen);
 
                 Hologram hologramRed = HologramsAPI.createHologram(Plugin.getInstance(), loc);

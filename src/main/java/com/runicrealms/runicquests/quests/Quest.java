@@ -118,7 +118,7 @@ public class Quest implements Cloneable {
     public ItemStack generateQuestIcon(Player player) {
         QuestProfile profile = Plugin.getQuestProfile(player.getUniqueId().toString());
         if (this.getQuestState().isCompleted()) {
-            ItemStack item = new ItemStack(Material.GREEN_DYE);
+            ItemStack item = new ItemStack(Material.SLIME_BALL);
             ItemMeta meta = item.getItemMeta();
             List<String> lore = new ArrayList<String>();
             meta.setDisplayName(ChatColor.GREEN + this.getQuestName());
@@ -138,7 +138,7 @@ public class Quest implements Cloneable {
             item.setItemMeta(meta);
             return item;
         } else if (this.isRepeatable()) {
-            ItemStack item = new ItemStack(Material.BLUE_DYE);
+            ItemStack item = new ItemStack(Material.LIGHT_BLUE_DYE);
             ItemMeta meta = item.getItemMeta();
             List<String> lore = new ArrayList<String>();
             meta.setDisplayName(ChatColor.AQUA + this.getQuestName());

@@ -81,7 +81,7 @@
 			<artifactId>mythicmobs</artifactId>
 			<version>4.11.0</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/../lib/MythicMobs-4.11.0.jar</systemPath>
+			<systemPath>${project.basedir}/lib/MythicMobs-4.11.0.jar</systemPath>
 		</dependency>
 		<!-- Paper API -->
 		<dependency>
@@ -111,7 +111,7 @@
 			<artifactId>RunicCore</artifactId>
 			<version>1.16.4</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/../lib/RunicCore-1.16.4.jar</systemPath>
+			<systemPath>${project.basedir}/lib/RunicCore-1.16.4.jar</systemPath>
 		</dependency>
 		<!-- RunicNpcs -->
 		<dependency>
@@ -119,7 +119,7 @@
 			<artifactId>RunicNpcs</artifactId>
 			<version>1.16.4</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/../lib/RunicNpcs-1.16.4.jar</systemPath>
+			<systemPath>${project.basedir}/lib/RunicNpcs-1.16.4.jar</systemPath>
 		</dependency>
 		<!-- RunicRestart -->
 		<dependency>
@@ -127,7 +127,7 @@
 			<artifactId>RunicRestart</artifactId>
 			<version>1.16.4</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/../lib/RunicRestart-1.16.4.jar</systemPath>
+			<systemPath>${project.basedir}/lib/RunicRestart-1.16.4.jar</systemPath>
 		</dependency>
 	</dependencies>
 </project>
