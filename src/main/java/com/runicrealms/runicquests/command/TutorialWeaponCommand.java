@@ -23,7 +23,7 @@ public class TutorialWeaponCommand implements CommandExecutor {
             sender.sendMessage(ChatColor.RED + "Players cannot execute this command!");
             return true;
         }
-        Player player = Bukkit.getPlayer(args[1]);
+        Player player = Bukkit.getPlayer(args[0]);
         if (player == null) return true;
         player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_USE, 0.5f, 1.0f);
         player.spawnParticle(Particle.REDSTONE, player.getEyeLocation(),
