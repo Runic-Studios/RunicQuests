@@ -1,10 +1,7 @@
 package com.runicrealms.runicquests;
 
 import com.runicrealms.plugin.character.api.CharacterApi;
-import com.runicrealms.runicquests.command.CompleteQuestCommand;
-import com.runicrealms.runicquests.command.QuestTriggerCommand;
-import com.runicrealms.runicquests.command.QuestsCommand;
-import com.runicrealms.runicquests.command.ResetQuestsCommand;
+import com.runicrealms.runicquests.command.*;
 import com.runicrealms.runicquests.config.ConfigLoader;
 import com.runicrealms.runicquests.data.PlayerDataLoader;
 import com.runicrealms.runicquests.data.QuestProfile;
@@ -38,7 +35,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.UUID;
 
 public class Plugin extends JavaPlugin {
@@ -84,6 +80,7 @@ public class Plugin extends JavaPlugin {
 		registerCommand(new QuestsCommand(), "quests", "quest", "objectives", "objective");
 		registerCommand(new ResetQuestsCommand(), "resetquests", "questsreset", "resetquest", "questreset", "rq", "qr");
 		registerCommand(new QuestTriggerCommand(), "questtrigger");
+		registerCommand(new TutorialWeaponCommand(), "tutorialweapon");
 		for (Player player : Bukkit.getOnlinePlayers()) {
 			updatePlayerCachedLocations(player);
 		}

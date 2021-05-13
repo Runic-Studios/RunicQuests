@@ -17,3 +17,5 @@ commands:
     aliases: [questcomplete, cq, qc]
   questtrigger:
     description: Command for quest triggers
+  tutorialweapon:
+    description: Command to get a starter weapon during tutorial
