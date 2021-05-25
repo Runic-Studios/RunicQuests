@@ -8,6 +8,11 @@
 	<name>RunicQuests</name>
 	<description>Runic Realms Quest Plugin</description>
 
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<fileOutput>${user.home}/Desktop/FTR Server Assets/~ Local Server/plugins</fileOutput>
+	</properties>
+
 	<build>
 		<defaultGoal>clean package</defaultGoal>
 		<plugins>
@@ -22,7 +27,26 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-resources-plugin</artifactId>
-				<version>3.1.0</version>
+				<version>3.0.2</version>
+				<executions>
+					<execution>
+						<id>copy-files-on-build</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${fileOutput}</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${project.build.directory}</directory>
+									<include>${project.artifactId}-${project.version}.jar</include>
+									<filtering>false</filtering>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 		<resources>
@@ -57,7 +81,7 @@
 		<!-- Citizens Repo -->
 		<repository>
 			<id>everything</id>
-			<url>https://repo.citizensnpcs.co/</url>
+			<url>http://repo.citizensnpcs.co/</url>
 		</repository>
 	</repositories>
 	<dependencies>
@@ -81,7 +105,7 @@
 			<artifactId>mythicmobs</artifactId>
 			<version>4.11.0</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/lib/MythicMobs-4.11.0.jar</systemPath>
+			<systemPath>${project.basedir}/../lib/MythicMobs-4.11.0.jar</systemPath>
 		</dependency>
 		<!-- Paper API -->
 		<dependency>
@@ -111,15 +135,7 @@
 			<artifactId>RunicCore</artifactId>
 			<version>1.16.4</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/lib/RunicCore-1.16.4.jar</systemPath>
-		</dependency>
-		<!-- RunicItems -->
-		<dependency>
-			<groupId>com.runicrealms.plugin</groupId>
-			<artifactId>RunicItems</artifactId>
-			<version>1.16.4</version>
-			<scope>system</scope>
-			<systemPath>${project.basedir}/../lib/RunicItems-1.16.4.jar</systemPath>
+			<systemPath>${project.basedir}/../lib/RunicCore-1.16.4.jar</systemPath>
 		</dependency>
 		<!-- RunicNpcs -->
 		<dependency>
@@ -127,7 +143,7 @@
 			<artifactId>RunicNpcs</artifactId>
 			<version>1.16.4</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/lib/RunicNpcs-1.16.4.jar</systemPath>
+			<systemPath>${project.basedir}/../lib/RunicNpcs-1.16.4.jar</systemPath>
 		</dependency>
 		<!-- RunicRestart -->
 		<dependency>
@@ -135,7 +151,15 @@
 			<artifactId>RunicRestart</artifactId>
 			<version>1.16.4</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/lib/RunicRestart-1.16.4.jar</systemPath>
+			<systemPath>${project.basedir}/../lib/RunicRestart-1.16.4.jar</systemPath>
+		</dependency>
+		<!-- RunicItems -->
+		<dependency>
+		<groupId>com.runicrealms.runicitems</groupId>
+		<artifactId>RunicItems</artifactId>
+		<version>1.16.4</version>
+		<scope>system</scope>
+		<systemPath>${project.basedir}/../lib/RunicItems-1.16.4.jar</systemPath>
 		</dependency>
 	</dependencies>
 </project>
