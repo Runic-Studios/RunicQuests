@@ -1,7 +1,8 @@
 package com.runicrealms.runicquests.listeners;
 
-import com.runicrealms.plugin.attributes.AttributeUtil;
 import com.runicrealms.plugin.character.api.CharacterLoadEvent;
+import com.runicrealms.runicitems.RunicItemsAPI;
+import com.runicrealms.runicitems.item.RunicItem;
 import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.event.EventInventory;
 import org.bukkit.ChatColor;
@@ -22,10 +23,11 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.ArrayList;
 import java.util.Objects;
 
 public class JournalListener implements Listener {
+
+    private static final RunicItem QUEST_JOURNAL = RunicItemsAPI.generateItemFromTemplate("quest-journal");
 
     /**
      * Give new players the quest journal
@@ -37,7 +39,7 @@ public class JournalListener implements Listener {
         new BukkitRunnable() {
             @Override
             public void run() {
-                pl.getInventory().setItem(7, getQuestJournal());
+                pl.getInventory().setItem(7, getQuestJournal().generateItem());
                 pl.updateInventory();
             }
         }.runTaskLater(Plugin.getInstance(), 2L);
@@ -104,19 +106,7 @@ public class JournalListener implements Listener {
         }
     }
 
-    private ItemStack getQuestJournal() {
-        ItemStack rune = new ItemStack(Material.BOOK);
-        rune = AttributeUtil.addCustomStat(rune, "soulbound", "true");
-        ItemMeta meta = rune.getItemMeta();
-        meta.setDisplayName(ChatColor.GOLD + "Quest Journal");
-        ArrayList<String> lore = new ArrayList<>();
-        lore.add(ChatColor.GRAY + "");
-        lore.add(ChatColor.GOLD + "" + ChatColor.BOLD + "RIGHT CLICK");
-        lore.add(ChatColor.GRAY + "To view your quests!");
-        lore.add(ChatColor.GRAY + "");
-        lore.add(ChatColor.DARK_GRAY + "Soulbound");
-        meta.setLore(lore);
-        rune.setItemMeta(meta);
-        return rune;
+    public static RunicItem getQuestJournal() {
+        return QUEST_JOURNAL;
     }
 }
