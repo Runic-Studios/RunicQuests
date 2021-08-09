@@ -125,7 +125,7 @@ public class EventInventory implements Listener {
         meta.setDisplayName(ChatColor.GOLD + "Quest menu");
         meta.setLore(Arrays.asList
                 (
-                        ChatColor.GRAY + "Here you can view quests available to you!",
+                        ChatColor.GRAY + "Here you can view available quests!",
                         "",
                         ChatColor.GRAY + "" + ChatColor.BOLD + "KEY:",
                         ChatColor.GOLD + "Gold" + ChatColor.GRAY + " quests are main story",
