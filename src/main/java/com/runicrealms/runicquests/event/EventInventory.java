@@ -143,7 +143,7 @@ public class EventInventory implements Listener {
         ItemMeta meta = infoPaper.getItemMeta();
         assert meta != null;
         meta.setDisplayName(ChatColor.GOLD + "Toggle Repeatable Quests");
-        meta.setLore(Collections.singletonList(ChatColor.GRAY + "If toggled, only repeatable quests will be shown!"));
+        meta.setLore(Arrays.asList(ChatColor.GRAY + "If toggled, only repeatable quests", ChatColor.GRAY + "will be shown!"));
         infoPaper.setItemMeta(meta);
         return infoPaper;
     }
