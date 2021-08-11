@@ -2,7 +2,6 @@ package com.runicrealms.runicquests.listeners;
 
 import com.runicrealms.plugin.character.api.CharacterLoadEvent;
 import com.runicrealms.runicitems.RunicItemsAPI;
-import com.runicrealms.runicitems.item.RunicItem;
 import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.event.EventInventory;
 import org.bukkit.ChatColor;
@@ -27,7 +26,11 @@ import java.util.Objects;
 
 public class JournalListener implements Listener {
 
-    private static final RunicItem QUEST_JOURNAL = RunicItemsAPI.generateItemFromTemplate("quest-journal");
+    private static final ItemStack QUEST_JOURNAL = RunicItemsAPI.generateItemFromTemplate("quest-journal").generateItem();
+
+    public static ItemStack getQuestJournal() {
+        return QUEST_JOURNAL;
+    }
 
     /**
      * Give new players the quest journal
@@ -39,7 +42,7 @@ public class JournalListener implements Listener {
         new BukkitRunnable() {
             @Override
             public void run() {
-                pl.getInventory().setItem(7, getQuestJournal().generateItem());
+                pl.getInventory().setItem(7, getQuestJournal());
                 pl.updateInventory();
             }
         }.runTaskLater(Plugin.getInstance(), 2L);
@@ -73,7 +76,7 @@ public class JournalListener implements Listener {
     }
 
     @EventHandler
-    public void onHearthstoneUse(PlayerInteractEvent e) {
+    public void onQuestJournalUse(PlayerInteractEvent e) {
 
         Player pl = e.getPlayer();
 
@@ -104,9 +107,5 @@ public class JournalListener implements Listener {
             pl.playSound(pl.getLocation(), Sound.ENTITY_GENERIC_EXTINGUISH_FIRE, 0.5f, 1);
             pl.sendMessage(ChatColor.GRAY + "You cannot perform this action in this slot.");
         }
-    }
-
-    public static RunicItem getQuestJournal() {
-        return QUEST_JOURNAL;
     }
 }
