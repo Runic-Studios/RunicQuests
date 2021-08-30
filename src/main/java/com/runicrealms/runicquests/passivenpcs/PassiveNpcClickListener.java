@@ -4,7 +4,6 @@ import com.runicrealms.plugin.utilities.ColorUtil;
 import com.runicrealms.runicnpcs.api.NpcClickEvent;
 import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.task.TaskQueue;
-import net.citizensnpcs.api.event.NPCRightClickEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -22,16 +21,6 @@ public class PassiveNpcClickListener implements Listener {
         }
 
         this.sendMessage(npc, event.getPlayer());
-    }
-
-    @EventHandler
-    private void onCitizensNpcClick(NPCRightClickEvent event) {
-        PassiveNpc npc = Plugin.getPassiveNpcHandler().getNPC(event.getNPC().getId());
-        if (npc == null) {
-            return;
-        }
-
-        this.sendMessage(npc, event.getClicker());
     }
 
     private void sendMessage(PassiveNpc npc, Player player) {

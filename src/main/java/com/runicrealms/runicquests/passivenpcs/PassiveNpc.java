@@ -2,7 +2,6 @@ package com.runicrealms.runicquests.passivenpcs;
 
 import com.runicrealms.runicnpcs.api.RunicNpcsAPI;
 import com.runicrealms.runicquests.task.TaskQueue;
-import net.citizensnpcs.api.CitizensAPI;
 
 import java.util.HashMap;
 import java.util.List;
@@ -11,13 +10,12 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class PassiveNpc {
+    public final Map<UUID, TaskQueue> TALKING;
     private final int npcID;
     private final boolean isRunic;
     private final String name;
     private final boolean overrideText;
     private final List<List<String>> dialogue;
-
-    public final Map<UUID, TaskQueue> TALKING;
 
     public PassiveNpc(int npcID, boolean isRunic, String name, boolean overrideText, List<List<String>> dialogue) {
         this.npcID = npcID;
@@ -53,10 +51,6 @@ public class PassiveNpc {
     }
 
     public Object getNpc() {
-        if (this.isRunic) {
-            return RunicNpcsAPI.getNpcById(this.npcID);
-        }
-
-        return CitizensAPI.getNPCRegistry().getById(this.npcID);
+        return RunicNpcsAPI.getNpcById(this.npcID);
     }
 }
