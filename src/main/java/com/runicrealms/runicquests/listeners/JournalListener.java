@@ -48,7 +48,7 @@ public class JournalListener implements Listener {
         }.runTaskLater(Plugin.getInstance(), 2L);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGH)
     public void onInventoryClick(InventoryClickEvent e) {
         if (e.isCancelled()) {
             return;
