@@ -61,10 +61,12 @@ public class JournalListener implements Listener {
 
         // only listen for a player inventory
         if (e.getClickedInventory() == null) return;
+
+        e.setCancelled(true);
+
         if (!(e.getClickedInventory().getType().equals(InventoryType.PLAYER))) return;
 
         EventInventory.openQuestGui(pl, 1);
-        e.setCancelled(true);
     }
 
     @EventHandler
