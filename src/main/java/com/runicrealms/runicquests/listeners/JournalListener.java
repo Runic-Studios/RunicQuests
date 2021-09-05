@@ -1,7 +1,7 @@
 package com.runicrealms.runicquests.listeners;
 
-import com.runicrealms.plugin.attributes.AttributeUtil;
 import com.runicrealms.plugin.character.api.CharacterLoadEvent;
+import com.runicrealms.runicitems.RunicItemsAPI;
 import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.event.EventInventory;
 import org.bukkit.ChatColor;
@@ -10,6 +10,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -21,10 +22,15 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.ArrayList;
 import java.util.Objects;
 
 public class JournalListener implements Listener {
+
+    private static final ItemStack QUEST_JOURNAL = RunicItemsAPI.generateItemFromTemplate("quest-journal").generateItem();
+
+    public static ItemStack getQuestJournal() {
+        return QUEST_JOURNAL;
+    }
 
     /**
      * Give new players the quest journal
@@ -42,9 +48,11 @@ public class JournalListener implements Listener {
         }.runTaskLater(Plugin.getInstance(), 2L);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onInventoryClick(InventoryClickEvent e) {
-
+        if (e.isCancelled()) {
+            return;
+        }
         Player pl = (Player) e.getWhoClicked();
         int itemSlot = e.getSlot();
         if (itemSlot != 7) return;
@@ -70,7 +78,7 @@ public class JournalListener implements Listener {
     }
 
     @EventHandler
-    public void onHearthstoneUse(PlayerInteractEvent e) {
+    public void onQuestJournalUse(PlayerInteractEvent e) {
 
         Player pl = e.getPlayer();
 
@@ -101,21 +109,5 @@ public class JournalListener implements Listener {
             pl.playSound(pl.getLocation(), Sound.ENTITY_GENERIC_EXTINGUISH_FIRE, 0.5f, 1);
             pl.sendMessage(ChatColor.GRAY + "You cannot perform this action in this slot.");
         }
-    }
-
-    private ItemStack getQuestJournal() {
-        ItemStack rune = new ItemStack(Material.BOOK);
-        rune = AttributeUtil.addCustomStat(rune, "soulbound", "true");
-        ItemMeta meta = rune.getItemMeta();
-        meta.setDisplayName(ChatColor.GOLD + "Quest Journal");
-        ArrayList<String> lore = new ArrayList<>();
-        lore.add(ChatColor.GRAY + "");
-        lore.add(ChatColor.GOLD + "" + ChatColor.BOLD + "RIGHT CLICK");
-        lore.add(ChatColor.GRAY + "To view your quests!");
-        lore.add(ChatColor.GRAY + "");
-        lore.add(ChatColor.DARK_GRAY + "Soulbound");
-        meta.setLore(lore);
-        rune.setItemMeta(meta);
-        return rune;
     }
 }

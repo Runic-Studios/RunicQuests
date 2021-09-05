@@ -1,10 +1,7 @@
 package com.runicrealms.runicquests;
 
 import com.runicrealms.plugin.character.api.CharacterApi;
-import com.runicrealms.runicquests.command.CompleteQuestCommand;
-import com.runicrealms.runicquests.command.QuestTriggerCommand;
-import com.runicrealms.runicquests.command.QuestsCommand;
-import com.runicrealms.runicquests.command.ResetQuestsCommand;
+import com.runicrealms.runicquests.command.*;
 import com.runicrealms.runicquests.config.ConfigLoader;
 import com.runicrealms.runicquests.data.PlayerDataLoader;
 import com.runicrealms.runicquests.data.QuestProfile;
@@ -16,6 +13,9 @@ import com.runicrealms.runicquests.event.EventPlayerJoinQuit;
 import com.runicrealms.runicquests.event.EventPlayerLocation;
 import com.runicrealms.runicquests.event.custom.RightClickNpcHandler;
 import com.runicrealms.runicquests.listeners.JournalListener;
+import com.runicrealms.runicquests.listeners.questwriterlisteners.AncientWhalePowderListener;
+import com.runicrealms.runicquests.passivenpcs.PassiveNpcClickListener;
+import com.runicrealms.runicquests.passivenpcs.PassiveNpcHandler;
 import com.runicrealms.runicquests.quests.FirstNpcState;
 import com.runicrealms.runicquests.quests.Quest;
 import com.runicrealms.runicquests.quests.QuestItem;
@@ -36,13 +36,13 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.UUID;
 
 public class Plugin extends JavaPlugin {
 
 	private static Plugin plugin; // Used for getInstance()
 	private static HoloManager holoManager;
+	private static PassiveNpcHandler passiveNpcHandler;
 	private static final HashMap<Long, TaskQueue> npcTaskQueues = new HashMap<>(); // List of NPC task queues
 	private static final Map<UUID,  Map<Integer, Long>> cooldowns = new HashMap<>(); // List of quest cooldowns
 	private static Long nextId = Long.MIN_VALUE; // This is used to give each NPC a new unique ID.
@@ -58,6 +58,7 @@ public class Plugin extends JavaPlugin {
 	public void onEnable() {
 		plugin = this; // Used for getInstance()
 		holoManager = new HoloManager();
+		passiveNpcHandler = new PassiveNpcHandler();
 		ConfigLoader.initDirs(); // Initialize directories that might not exist
 		ConfigLoader.loadMainConfig(); // Initialize the main config file if it doesn't exist
 		NPC_MESSAGE_DELAY = ConfigLoader.getMainConfig().getDouble("npc-message-delay"); // Get the config value
@@ -70,6 +71,11 @@ public class Plugin extends JavaPlugin {
 		this.getServer().getPluginManager().registerEvents(new EventInventory(), this);
 		this.getServer().getPluginManager().registerEvents(new RightClickNpcHandler(), this);
 		this.getServer().getPluginManager().registerEvents(holoManager, this);
+		this.getServer().getPluginManager().registerEvents(new PassiveNpcClickListener(), this);
+
+		//quest writer listeners
+		this.getServer().getPluginManager().registerEvents(new AncientWhalePowderListener(), this);
+
 		for (Player player : Bukkit.getOnlinePlayers()) { // Loop through online players (fixes bug with /reload)
 			if (CharacterApi.getCurrentCharacterSlot(player) != null) {
 				EventPlayerJoinQuit.runJoinEvent(player, CharacterApi.getCurrentCharacterSlot(player)); // Read PlayerJoinQuitEvent.runJoinEvent
@@ -79,6 +85,7 @@ public class Plugin extends JavaPlugin {
 		registerCommand(new QuestsCommand(), "quests", "quest", "objectives", "objective");
 		registerCommand(new ResetQuestsCommand(), "resetquests", "questsreset", "resetquest", "questreset", "rq", "qr");
 		registerCommand(new QuestTriggerCommand(), "questtrigger");
+		registerCommand(new TutorialWeaponCommand(), "tutorialweapon");
 		for (Player player : Bukkit.getOnlinePlayers()) {
 			updatePlayerCachedLocations(player);
 		}
@@ -104,6 +111,10 @@ public class Plugin extends JavaPlugin {
 
 	public static HoloManager getHoloManager() {
 		return holoManager;
+	}
+
+	public static PassiveNpcHandler getPassiveNpcHandler() {
+		return passiveNpcHandler;
 	}
 
 	private static void registerMoveTask() { // Schedule a task that will run for the cached location objectives

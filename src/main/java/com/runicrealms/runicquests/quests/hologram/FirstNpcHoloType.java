@@ -7,8 +7,8 @@ public enum FirstNpcHoloType {
     RED(Material.BARRIER),
     YELLOW(Material.YELLOW_DYE),
     GOLD(Material.ORANGE_DYE),
-    BLUE(Material.BLUE_DYE),
-    GREEN(Material.GREEN_DYE);
+    BLUE(Material.LIGHT_BLUE_DYE),
+    GREEN(Material.SLIME_BALL);
 
     private final Material material;
 
