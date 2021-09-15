@@ -93,22 +93,15 @@ public class EventBreakBlock implements Listener {
 								if (objective.hasCompletedMessage()) { // If the objective has a completed message
 									List<Runnable> runnables = new ArrayList<Runnable>();
 									for (String message : objective.getCompletedMessage()) { // Put the completed message into a task queue
-										runnables.add(new Runnable() {
-											@Override
-											public void run() {
-												player.sendMessage(ChatColor.translateAlternateColorCodes('&', Plugin.parseMessage(message, player.getName())));
-											}
-										});
+										runnables.add(() -> player.sendMessage(ChatColor.translateAlternateColorCodes('&', Plugin.parseMessage(message, player.getName()))));
 									}
-									runnables.add(new Runnable() { // Put the goal message into the task queue
-										@Override
-										public void run() {
-											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&l&6New objective for: &r&l&e") + quest.getQuestName());
-											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + goalMessage));
-											player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.GOLD + goalMessage));
-											player.sendTitle(ChatColor.GOLD + "New Objective", ChatColor.YELLOW + goalMessage, 10, 80, 10); // Display goal message title
-											Plugin.updatePlayerCachedLocations(player);
-										}
+									// Put the goal message into the task queue
+									runnables.add(() -> {
+										player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&l&6New objective for: &r&l&e") + quest.getQuestName());
+										player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + goalMessage));
+										player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.GOLD + goalMessage));
+										if (objective.shouldDisplayNextObjectiveTitle()) player.sendTitle(ChatColor.GOLD + "New Objective", ChatColor.YELLOW + goalMessage, 10, 80, 10); // Display goal message title
+										Plugin.updatePlayerCachedLocations(player);
 									});
 									TaskQueue queue = new TaskQueue(runnables);
 									queue.startTasks();
@@ -116,7 +109,7 @@ public class EventBreakBlock implements Listener {
 									player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&l&6New objective for: &r&l&e") + quest.getQuestName());
 									player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + goalMessage));
 									player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.YELLOW + goalMessage));
-									player.sendTitle(ChatColor.GOLD + "New Objective", ChatColor.YELLOW + goalMessage, 10, 80, 10);  // Display a title on the screen
+									if (objective.shouldDisplayNextObjectiveTitle()) player.sendTitle(ChatColor.GOLD + "New Objective", ChatColor.YELLOW + goalMessage, 10, 80, 10);  // Display a title on the screen
 									Plugin.updatePlayerCachedLocations(player);
 								}
 							} else { // If we have completed the quest...
@@ -125,25 +118,18 @@ public class EventBreakBlock implements Listener {
 								if (objective.hasCompletedMessage()) { // If there is a completed message
 									List<Runnable> runnables = new ArrayList<Runnable>();
 									for (String message : objective.getCompletedMessage()) { // Create a task queue with the completed message
-										runnables.add(new Runnable() {
-											@Override
-											public void run() {
-												player.sendMessage(ChatColor.translateAlternateColorCodes('&', Plugin.parseMessage(message, player.getName())));
-											}
-										});
+										runnables.add(() -> player.sendMessage(ChatColor.translateAlternateColorCodes('&', Plugin.parseMessage(message, player.getName()))));
 									}
 									TaskQueue queue = new TaskQueue(runnables);
-									queue.addTasks(new Runnable() { // Add the quest rewards to the task queue
-										@Override
-										public void run() {
-											player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 10, 1); // Play sound
-											player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&2&lRewards:"));
-											if (quest.getRewards().getQuestPointsReward() != 0) player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getQuestPointsReward() + " &r&aQuest Point" + (quest.getRewards().getQuestPointsReward() == 1 ? "" : "s")));
-											if (quest.getRewards().getMoneyReward() != 0) player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getMoneyReward() + " &r&aCoin" + (quest.getRewards().getMoneyReward() == 1 ? "" : "s")));
-											if (quest.getRewards().getExperienceReward() != 0) player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getExperienceReward() + " &r&aExperience Point" + (quest.getRewards().getExperienceReward() == 1 ? "" : "s")));
-											player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.YELLOW + "Quest Complete!"));
-											player.sendTitle(ChatColor.GOLD + "Quest Complete!", ChatColor.YELLOW + quest.getQuestName(), 10, 80, 10); // Send a goal message title
-										}
+									// Add the quest rewards to the task queue
+									queue.addTasks(() -> {
+										player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 10, 1); // Play sound
+										player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&2&lRewards:"));
+										if (quest.getRewards().getQuestPointsReward() != 0) player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getQuestPointsReward() + " &r&aQuest Point" + (quest.getRewards().getQuestPointsReward() == 1 ? "" : "s")));
+										if (quest.getRewards().getMoneyReward() != 0) player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getMoneyReward() + " &r&aCoin" + (quest.getRewards().getMoneyReward() == 1 ? "" : "s")));
+										if (quest.getRewards().getExperienceReward() != 0) player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getExperienceReward() + " &r&aExperience Point" + (quest.getRewards().getExperienceReward() == 1 ? "" : "s")));
+										player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.YELLOW + "Quest Complete!"));
+										if (objective.shouldDisplayNextObjectiveTitle()) player.sendTitle(ChatColor.GOLD + "Quest Complete!", ChatColor.YELLOW + quest.getQuestName(), 10, 80, 10); // Send a goal message title
 									});
 									queue.startTasks();
 								} else { // If there isn't a completed message, display rewards
@@ -153,7 +139,7 @@ public class EventBreakBlock implements Listener {
 									if (quest.getRewards().getMoneyReward() != 0) player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getMoneyReward() + " &r&aCoin" + (quest.getRewards().getMoneyReward() == 1 ? "" : "s")));
 									if (quest.getRewards().getExperienceReward() != 0) player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getExperienceReward() + " &r&aExperience Point" + (quest.getRewards().getExperienceReward() == 1 ? "" : "s")));
 									player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.YELLOW + "Quest Complete!"));
-									player.sendTitle(ChatColor.GOLD + "Quest Complete!", ChatColor.YELLOW + quest.getQuestName(), 10, 80, 10); // Send a goal message title
+									if (objective.shouldDisplayNextObjectiveTitle()) player.sendTitle(ChatColor.GOLD + "Quest Complete!", ChatColor.YELLOW + quest.getQuestName(), 10, 80, 10); // Send a goal message title
 								}
 								if (quest.getRewards().hasExecute()) { // Execute rewards commands
 									quest.getRewards().executeCommand(player.getName());

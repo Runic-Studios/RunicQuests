@@ -159,7 +159,7 @@ public class EventClickNpc implements Listener {
                                         player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&l&6New objective for: &r&l&e") + quest.getQuestName());
                                         player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + goalMessage));
                                         player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.YELLOW + goalMessage));
-                                        player.sendTitle(ChatColor.GOLD + "New Objective", ChatColor.YELLOW + goalMessage, 10, 80, 10); // Send a goal message title
+                                        if (objective.shouldDisplayNextObjectiveTitle()) player.sendTitle(ChatColor.GOLD + "New Objective", ChatColor.YELLOW + goalMessage, 10, 80, 10); // Send a goal message title
                                         Plugin.updatePlayerCachedLocations(player);
                                     });
                                 } else { // If this is the last objective then...
@@ -182,7 +182,7 @@ public class EventClickNpc implements Listener {
                                         if (quest.getRewards().getExperienceReward() != 0)
                                             player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getExperienceReward() + " &r&aExperience Point" + (quest.getRewards().getExperienceReward() == 1 ? "" : "s")));
                                         player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.YELLOW + "Quest Complete!"));
-                                        player.sendTitle(ChatColor.GOLD + "Quest Complete!", ChatColor.YELLOW + quest.getQuestName(), 10, 80, 10); // Send a goal message title
+                                        if (objective.shouldDisplayNextObjectiveTitle()) player.sendTitle(ChatColor.GOLD + "Quest Complete!", ChatColor.YELLOW + quest.getQuestName(), 10, 80, 10); // Send a goal message title
                                         if (quest.getRewards().hasExecute()) { // Execute the quest rewards commands
                                             quest.getRewards().executeCommand(player.getName());
                                         }

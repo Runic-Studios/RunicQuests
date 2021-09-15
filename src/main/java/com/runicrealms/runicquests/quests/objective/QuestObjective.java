@@ -20,10 +20,11 @@ public abstract class QuestObjective implements Cloneable {
 	protected String goalMessage;
 	protected List<String> execute;
 	protected String goalLocation;
+	protected boolean displayNextTitle;
 	
 	private boolean completed = false;
 	
-	public QuestObjective(Integer objectiveNumber, QuestObjectiveType objectiveType, List<String> completedMessage, List<QuestItem> questItems, String goalMessage, List<String> execute, String goalLocation) {
+	public QuestObjective(Integer objectiveNumber, QuestObjectiveType objectiveType, List<String> completedMessage, List<QuestItem> questItems, String goalMessage, List<String> execute, String goalLocation, boolean displayNextTitle) {
 		this.objectiveNumber = objectiveNumber;
 		this.objectiveType = objectiveType;
 		this.completedMessage = completedMessage;
@@ -31,6 +32,7 @@ public abstract class QuestObjective implements Cloneable {
 		this.goalMessage = goalMessage;
 		this.execute = execute;
 		this.goalLocation = goalLocation;
+		this.displayNextTitle = displayNextTitle;
 	}
 	
 	public List<QuestItem> getQuestItems() {
@@ -75,6 +77,10 @@ public abstract class QuestObjective implements Cloneable {
 
 	public String getGoalLocation() {
 		return this.goalLocation;
+	}
+
+	public boolean shouldDisplayNextObjectiveTitle() {
+		return this.displayNextTitle;
 	}
 	
 	public void executeCommand(String playerName) {

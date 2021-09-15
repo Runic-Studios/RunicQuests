@@ -14,8 +14,8 @@ public class QuestObjectiveLocation extends QuestObjective {
 	
 	private LocationToReach location;
 	
-	public QuestObjectiveLocation(LocationToReach location, List<QuestItem> questItems, String goalMessage, List<String> execute, Integer objectiveNumber, List<String> completedMessage, String goalLocation) {
-		super(objectiveNumber, QuestObjectiveType.LOCATION, completedMessage, questItems, goalMessage, execute, goalLocation);
+	public QuestObjectiveLocation(LocationToReach location, List<QuestItem> questItems, String goalMessage, List<String> execute, Integer objectiveNumber, List<String> completedMessage, String goalLocation, boolean displayNextTitle) {
+		super(objectiveNumber, QuestObjectiveType.LOCATION, completedMessage, questItems, goalMessage, execute, goalLocation, displayNextTitle);
 		this.location = location;
 	}
 	
@@ -25,7 +25,7 @@ public class QuestObjectiveLocation extends QuestObjective {
 
 	@Override
 	public QuestObjectiveLocation clone() {
-		return new QuestObjectiveLocation(this.location, this.questItems, this.goalMessage, this.execute, this.objectiveNumber, this.completedMessage, this.goalLocation);
+		return new QuestObjectiveLocation(this.location, this.questItems, this.goalMessage, this.execute, this.objectiveNumber, this.completedMessage, this.goalLocation, this.displayNextTitle);
 	}
 	
 }

@@ -243,6 +243,7 @@ public class QuestLoader {
         try {
             String goalMessage = checkValueNull(configSec.getString("goal-message"), "goal-message");
             String goalLocation = configSec.contains("goal-location") ? configSec.getString("goal-location") : "";
+            boolean displayNextTitle = !configSec.contains("display-next-title") || configSec.getBoolean("display-next-title");
             if (configSec.getString("requirement.type").equalsIgnoreCase("slay")) {
                 return new QuestObjectiveSlay(
                         checkValueNull(getStringList(configSec, "requirement.mob-names"), "mob-names"),
@@ -252,7 +253,8 @@ public class QuestLoader {
                         (configSec.contains("execute") ? getStringList(configSec, "execute") : null),
                         objectiveNumber,
                         (configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null),
-                        goalLocation);
+                        goalLocation,
+                        displayNextTitle);
             } else if (configSec.getString("requirement.type").equalsIgnoreCase("talk")) {
                 QuestNpc npc;
                 try {
@@ -268,7 +270,8 @@ public class QuestLoader {
                         (configSec.contains("execute") ? getStringList(configSec, "execute") : null),
                         objectiveNumber,
                         (configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null),
-                        goalLocation);
+                        goalLocation,
+                        displayNextTitle);
             } else if (configSec.getString("requirement.type").equalsIgnoreCase("location")) {
                 if (checkValueNull(configSec.getString("requirement.location-type")).equalsIgnoreCase("radius")) {
                     return new QuestObjectiveLocation(
@@ -278,7 +281,8 @@ public class QuestLoader {
                             (configSec.contains("execute") ? getStringList(configSec, "execute") : null),
                             objectiveNumber,
                             (configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null),
-                            goalLocation);
+                            goalLocation,
+                            displayNextTitle);
                 } else {
                     return new QuestObjectiveLocation(
                             new BoxLocation(checkValueNull(parseLocation(configSec.getString("requirement.corner-one"))), checkValueNull(parseLocation(configSec.getString("requirement.corner-two")))),
@@ -287,7 +291,8 @@ public class QuestLoader {
                             (configSec.contains("execute") ? getStringList(configSec, "execute") : null),
                             objectiveNumber,
                             (configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null),
-                            goalLocation);
+                            goalLocation,
+                            displayNextTitle);
 
                 }
             } else if (configSec.getString("requirement.type").equalsIgnoreCase("break")) {
@@ -300,7 +305,8 @@ public class QuestLoader {
                         (configSec.contains("execute") ? getStringList(configSec, "execute") : null),
                         objectiveNumber,
                         (configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null),
-                        goalLocation);
+                        goalLocation,
+                        displayNextTitle);
             } else if (configSec.getString("requirement.type").equalsIgnoreCase("trigger")) {
                 TriggerObjectiveHandler.addTrigger(new Trigger(questId, objectiveNumber), checkValueNull(configSec.getString("requirement.trigger-id")));
                 return new QuestObjectiveTrigger(
@@ -311,7 +317,8 @@ public class QuestLoader {
                         (configSec.contains("execute") ? getStringList(configSec, "execute") : null),
                         objectiveNumber,
                         (configSec.contains("completed-message") ? getStringList(configSec, "completed-message") : null),
-                        goalLocation);
+                        goalLocation,
+                        displayNextTitle);
             }
         } catch (QuestLoadException exception) {
             throw exception;

@@ -14,8 +14,8 @@ public class QuestObjectiveTrigger extends QuestObjective {
     private String triggerId;
     private List<String> speech;
 
-    public QuestObjectiveTrigger(String triggerId, List<String> speech, List<QuestItem> questItems, String goalMessage, List<String> execute, Integer objectiveNumber, List<String> completedMessage, String goalLocation) {
-        super(objectiveNumber, QuestObjectiveType.TRIGGER, completedMessage, questItems, goalMessage, execute, goalLocation);
+    public QuestObjectiveTrigger(String triggerId, List<String> speech, List<QuestItem> questItems, String goalMessage, List<String> execute, Integer objectiveNumber, List<String> completedMessage, String goalLocation, boolean displayNextTitle) {
+        super(objectiveNumber, QuestObjectiveType.TRIGGER, completedMessage, questItems, goalMessage, execute, goalLocation, displayNextTitle);
         this.triggerId = triggerId;
         this.speech = speech;
     }
@@ -30,7 +30,7 @@ public class QuestObjectiveTrigger extends QuestObjective {
 
     @Override
     public QuestObjectiveTrigger clone() {
-        return new QuestObjectiveTrigger(this.triggerId, this.speech, this.questItems, this.goalMessage, this.execute, this.objectiveNumber, this.completedMessage, this.goalLocation);
+        return new QuestObjectiveTrigger(this.triggerId, this.speech, this.questItems, this.goalMessage, this.execute, this.objectiveNumber, this.completedMessage, this.goalLocation, this.displayNextTitle);
     }
 
 }

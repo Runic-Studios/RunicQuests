@@ -15,8 +15,8 @@ public class QuestObjectiveSlay extends QuestObjective {
 	private final Integer mobAmount;
 	private Integer mobsKilled = 0;
 	
-	public QuestObjectiveSlay(List<String> mobNames, Integer mobAmount, List<QuestItem> questItems, String goalMessage, List<String> execute, Integer objectiveNumber, List<String> completedMessage, String goalLocation) {
-		super(objectiveNumber, QuestObjectiveType.SLAY, completedMessage, questItems, goalMessage, execute, goalLocation);
+	public QuestObjectiveSlay(List<String> mobNames, Integer mobAmount, List<QuestItem> questItems, String goalMessage, List<String> execute, Integer objectiveNumber, List<String> completedMessage, String goalLocation, boolean displayNextTitle) {
+		super(objectiveNumber, QuestObjectiveType.SLAY, completedMessage, questItems, goalMessage, execute, goalLocation, displayNextTitle);
 		this.mobNames = mobNames;
 		this.mobAmount = mobAmount;
 	}
@@ -39,7 +39,7 @@ public class QuestObjectiveSlay extends QuestObjective {
 
 	@Override
 	public QuestObjectiveSlay clone() {
-		return new QuestObjectiveSlay(this.mobNames, this.mobAmount, this.questItems, this.goalMessage, this.execute, this.objectiveNumber, this.completedMessage, this.goalLocation);
+		return new QuestObjectiveSlay(this.mobNames, this.mobAmount, this.questItems, this.goalMessage, this.execute, this.objectiveNumber, this.completedMessage, this.goalLocation, this.displayNextTitle);
 	}
 	
 }
