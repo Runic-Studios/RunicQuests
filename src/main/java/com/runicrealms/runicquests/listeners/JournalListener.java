@@ -50,31 +50,27 @@ public class JournalListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onInventoryClick(InventoryClickEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
-        Player pl = (Player) e.getWhoClicked();
+        if (e.isCancelled()) return;
+        if (e.getClickedInventory() == null) return;
+        if (e.getClickedInventory().getType() != InventoryType.PLAYER) return;
+        Player player = (Player) e.getWhoClicked();
         int itemSlot = e.getSlot();
         if (itemSlot != 7) return;
 
         // don't trigger if there's no item in the slot to avoid null issues
-        if (pl.getInventory().getItem(7) == null) return;
-        ItemStack rune = pl.getInventory().getItem(7);
+        if (player.getInventory().getItem(7) == null) return;
+        ItemStack rune = player.getInventory().getItem(7);
 
         ItemMeta meta = Objects.requireNonNull(rune).getItemMeta();
         if (meta == null) return;
 
         // only activate in survival mode to save builders the headache
-        if (pl.getGameMode() != GameMode.SURVIVAL) return;
+        if (player.getGameMode() != GameMode.SURVIVAL) return;
 
         // only listen for a player inventory
         if (e.getClickedInventory() == null) return;
 
         e.setCancelled(true);
-
-        if (!(e.getClickedInventory().getType().equals(InventoryType.PLAYER))) return;
-
-        EventInventory.openQuestGui(pl, 1);
     }
 
     @EventHandler
