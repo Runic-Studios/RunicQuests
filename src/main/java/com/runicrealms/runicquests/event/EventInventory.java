@@ -1,5 +1,6 @@
 package com.runicrealms.runicquests.event;
 
+import com.runicrealms.plugin.utilities.GUIUtil;
 import com.runicrealms.runicquests.data.PlayerDataLoader;
 import com.runicrealms.runicquests.data.QuestProfile;
 import com.runicrealms.runicquests.quests.Quest;
@@ -7,6 +8,7 @@ import com.runicrealms.runicquests.util.RunicCoreHook;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -36,7 +38,10 @@ public class EventInventory implements Listener {
         boolean showRepeatableQuests = playersInQuestGui.get(player.getUniqueId()) != null && playersInQuestGui.get(player.getUniqueId()).isShowingRepeatableQuests();
         Map<Integer, ItemStack> items = new HashMap<>();
         List<Quest> quests = getSortedNonRepeatableQuests(player, showRepeatableQuests);
-        items.put(0, backButton());
+        if (page == 1)
+            items.put(0, GUIUtil.closeButton());
+        else
+            items.put(0, backButton());
         items.put(4, infoPaper());
         items.put(5, toggleShowRepeatableQuestsItem());
         items.put(8, forwardArrow());
@@ -57,7 +62,6 @@ public class EventInventory implements Listener {
         for (Map.Entry<Integer, ItemStack> item : items.entrySet()) {
             inventory.setItem(item.getKey(), item.getValue());
         }
-        player.closeInventory();
         player.openInventory(inventory);
         playersInQuestGui.put(player.getUniqueId(), new QuestMenuWrapper(page, showRepeatableQuests));
     }
@@ -174,8 +178,12 @@ public class EventInventory implements Listener {
         Player player = (Player) event.getWhoClicked();
         UUID uuid = player.getUniqueId();
         event.setCancelled(true);
+        if (event.getCurrentItem() != null && event.getCurrentItem().getType() != Material.AIR)
+            player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1.0f);
         if (event.getCurrentItem() == null) return;
-        if (event.getCurrentItem().equals(backButton())) {
+        if (event.getCurrentItem().equals(GUIUtil.closeButton())) {
+            player.closeInventory();
+        } else if (event.getCurrentItem().equals(backButton())) {
             playersInQuestGui.put(uuid, new QuestMenuWrapper(1, false));
             openQuestGui(player, 1);
         } else if (event.getCurrentItem().equals(forwardArrow())) {
