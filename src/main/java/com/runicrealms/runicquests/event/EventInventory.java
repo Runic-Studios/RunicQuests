@@ -37,12 +37,13 @@ public class EventInventory implements Listener {
     public static void openQuestGui(Player player, Integer page) {
         boolean showRepeatableQuests = playersInQuestGui.get(player.getUniqueId()) != null && playersInQuestGui.get(player.getUniqueId()).isShowingRepeatableQuests();
         Map<Integer, ItemStack> items = new HashMap<>();
-        List<Quest> quests = getSortedNonRepeatableQuests(player, showRepeatableQuests);
+        QuestList questList = getSortedNonRepeatableQuests(player, showRepeatableQuests);
+        List<Quest> quests = questList.getSortedQuests();
         if (page == 1)
             items.put(0, GUIUtil.closeButton());
         else
             items.put(0, backButton());
-        items.put(4, infoPaper());
+        items.put(4, infoPaper(questList.getStartedQuestCount(), questList.getCompletedQuestCount(), quests.size()));
         items.put(5, toggleShowRepeatableQuestsItem());
         items.put(8, forwardArrow());
 
@@ -73,7 +74,7 @@ public class EventInventory implements Listener {
      * @param showRepeatableQuests whether to display repeatable quests or not
      * @return a list of sorted quests
      */
-    private static List<Quest> getSortedNonRepeatableQuests(Player player, boolean showRepeatableQuests) {
+    private static QuestList getSortedNonRepeatableQuests(Player player, boolean showRepeatableQuests) {
         QuestProfile profile = PlayerDataLoader.getPlayerQuestData(player.getUniqueId());
         List<Quest> startedQuests = new ArrayList<>();
         List<Quest> unstartedQuests = new ArrayList<>();
@@ -109,7 +110,7 @@ public class EventInventory implements Listener {
         List<Quest> sorted = new ArrayList<>(startedQuests);
         sorted.addAll(unstartedQuests);
         sorted.addAll(completedQuests);
-        return sorted;
+        return new QuestList(startedQuests.size(), completedQuests.size(), sorted);
     }
 
     private static ItemStack backButton() {
@@ -122,7 +123,7 @@ public class EventInventory implements Listener {
         return back;
     }
 
-    private static ItemStack infoPaper() {
+    private static ItemStack infoPaper(int startedQuests, int completedQuests, int totalQuests) {
         ItemStack infoPaper = new ItemStack(Material.PAPER);
         ItemMeta meta = infoPaper.getItemMeta();
         assert meta != null;
@@ -130,6 +131,9 @@ public class EventInventory implements Listener {
         meta.setLore(Arrays.asList
                 (
                         ChatColor.GRAY + "Here you can view available quests!",
+                        "",
+                        ChatColor.WHITE + "" + startedQuests + " " + ChatColor.YELLOW + "quests in progress",
+                        ChatColor.GREEN + "(" + ChatColor.WHITE + completedQuests + ChatColor.GREEN + "/" + totalQuests + ") Quests Completed",
                         "",
                         ChatColor.GRAY + "" + ChatColor.BOLD + "KEY:",
                         ChatColor.GOLD + "Gold" + ChatColor.GRAY + " quests are main story",
@@ -191,6 +195,31 @@ public class EventInventory implements Listener {
         } else if (event.getCurrentItem().equals(toggleShowRepeatableQuestsItem())) {
             playersInQuestGui.get((uuid)).setShowingRepeatableQuests(!playersInQuestGui.get(uuid).isShowingRepeatableQuests());
             openQuestGui(player, 1);
+        }
+    }
+
+    static class QuestList {
+
+        private final int startedQuestCount;
+        private final int completedQuestCount;
+        private final List<Quest> sortedQuests;
+
+        public QuestList(int startedQuestCount, int completedQuestCount, List<Quest> sortedQuests) {
+            this.startedQuestCount = startedQuestCount;
+            this.completedQuestCount = completedQuestCount;
+            this.sortedQuests = sortedQuests;
+        }
+
+        public int getStartedQuestCount() {
+            return startedQuestCount;
+        }
+
+        public int getCompletedQuestCount() {
+            return completedQuestCount;
+        }
+
+        public List<Quest> getSortedQuests() {
+            return sortedQuests;
         }
     }
 }
