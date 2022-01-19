@@ -43,7 +43,7 @@ public class EventInventory implements Listener {
             items.put(0, GUIUtil.closeButton());
         else
             items.put(0, backButton());
-        items.put(4, infoPaper(questList.getStartedQuestCount(), questList.getCompletedQuestCount(), quests.size()));
+        items.put(4, infoPaper(questList.getStartedQuestCount(), questList.getCompletedQuestCount(), quests.size(), showRepeatableQuests));
         items.put(5, toggleShowRepeatableQuestsItem());
         items.put(8, forwardArrow());
 
@@ -123,7 +123,16 @@ public class EventInventory implements Listener {
         return back;
     }
 
-    private static ItemStack infoPaper(int startedQuests, int completedQuests, int totalQuests) {
+    /**
+     * This...
+     *
+     * @param startedQuests
+     * @param completedQuests
+     * @param totalQuests
+     * @param repeatableMenu
+     * @return
+     */
+    private static ItemStack infoPaper(int startedQuests, int completedQuests, int totalQuests, boolean repeatableMenu) {
         ItemStack infoPaper = new ItemStack(Material.PAPER);
         ItemMeta meta = infoPaper.getItemMeta();
         assert meta != null;

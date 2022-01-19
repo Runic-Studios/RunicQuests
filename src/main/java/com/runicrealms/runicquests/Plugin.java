@@ -190,7 +190,7 @@ public class Plugin extends JavaPlugin {
     }
 
     public static String getItemName(ItemStack item) { // Get the name of an ItemStack
-        if (item.getItemMeta().getDisplayName() == "" || item.getItemMeta().getDisplayName() == null) {
+        if (item.getItemMeta().getDisplayName() == null || item.getItemMeta().getDisplayName().equals("")) {
             return ChatColor.stripColor(item.getType().toString());
         } else {
             return ChatColor.stripColor(item.getItemMeta().getDisplayName());

@@ -1,8 +1,5 @@
 package com.runicrealms.runicquests.quests;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.data.QuestProfile;
 import com.runicrealms.runicquests.quests.objective.QuestObjective;
@@ -13,6 +10,9 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Quest implements Cloneable {
 
@@ -32,7 +32,21 @@ public class Quest implements Cloneable {
     private final boolean repeatable;
     private final Integer cooldown;
 
-    public Quest(String questName, QuestFirstNpc firstNPC, ArrayList<QuestObjective> objectives, QuestRewards rewards, Integer questID, QuestRequirements requirements, boolean sideQuest, boolean repeatable, Integer cooldown) {
+    /**
+     * This...
+     *
+     * @param questName
+     * @param firstNPC
+     * @param objectives
+     * @param rewards
+     * @param questID
+     * @param requirements
+     * @param sideQuest
+     * @param repeatable
+     * @param cooldown
+     */
+    public Quest(String questName, QuestFirstNpc firstNPC, ArrayList<QuestObjective> objectives, QuestRewards rewards,
+                 Integer questID, QuestRequirements requirements, boolean sideQuest, boolean repeatable, Integer cooldown) {
         this.questName = questName;
         this.firstNPC = firstNPC;
         this.objectives = objectives;
@@ -115,12 +129,17 @@ public class Quest implements Cloneable {
         return new Quest(this.questName, this.firstNPC.clone(), newObjectives, this.rewards, this.questID, this.requirements, this.sideQuest, this.repeatable, this.cooldown);
     }
 
+    /**
+     * @param player
+     * @return
+     */
     public ItemStack generateQuestIcon(Player player) {
         QuestProfile profile = Plugin.getQuestProfile(player.getUniqueId().toString());
         if (this.getQuestState().isCompleted()) {
             ItemStack item = new ItemStack(Material.SLIME_BALL);
             ItemMeta meta = item.getItemMeta();
-            List<String> lore = new ArrayList<String>();
+            assert meta != null;
+            List<String> lore = new ArrayList<>();
             meta.setDisplayName(ChatColor.GREEN + this.getQuestName());
             lore.add(ChatColor.DARK_GREEN + "Completed");
             lore.add(ChatColor.GRAY + "Level " + this.getRequirements().getClassLvReq());
@@ -130,7 +149,8 @@ public class Quest implements Cloneable {
         } else if (!RunicCoreHook.isReqClassLv(player, this.getRequirements().getClassLvReq())) {
             ItemStack item = new ItemStack(Material.BARRIER);
             ItemMeta meta = item.getItemMeta();
-            List<String> lore = new ArrayList<String>();
+            assert meta != null;
+            List<String> lore = new ArrayList<>();
             meta.setDisplayName(ChatColor.RED + this.getQuestName());
             lore.add(ChatColor.DARK_RED + "You do not meet the level requirements!");
             lore.add(ChatColor.GRAY + "Level " + this.getRequirements().getClassLvReq());
@@ -138,9 +158,11 @@ public class Quest implements Cloneable {
             item.setItemMeta(meta);
             return item;
         } else if (this.isRepeatable()) {
-            ItemStack item = new ItemStack(Material.LIGHT_BLUE_DYE);
+            boolean canStart = Plugin.canStartRepeatableQuest(player.getUniqueId(), this.getQuestID());
+            ItemStack item = new ItemStack(canStart ? Material.LIGHT_BLUE_DYE : Material.SLIME_BALL);
             ItemMeta meta = item.getItemMeta();
-            List<String> lore = new ArrayList<String>();
+            assert meta != null;
+            List<String> lore = new ArrayList<>();
             meta.setDisplayName(ChatColor.AQUA + this.getQuestName());
             String[] messageLocation = Plugin.getFirstUncompletedGoalMessageAndLocation(this, profile);
             lore.add(ChatColor.YELLOW + ChatColor.translateAlternateColorCodes('&', messageLocation[0]));
@@ -155,7 +177,8 @@ public class Quest implements Cloneable {
         } else if (this.isSideQuest()) {
             ItemStack item = new ItemStack(Material.YELLOW_DYE);
             ItemMeta meta = item.getItemMeta();
-            List<String> lore = new ArrayList<String>();
+            assert meta != null;
+            List<String> lore = new ArrayList<>();
             meta.setDisplayName(ChatColor.YELLOW + this.getQuestName());
             String[] messageLocation = Plugin.getFirstUncompletedGoalMessageAndLocation(this, profile);
             lore.add(ChatColor.YELLOW + ChatColor.translateAlternateColorCodes('&', messageLocation[0]));
@@ -169,7 +192,8 @@ public class Quest implements Cloneable {
         } else {
             ItemStack item = new ItemStack(Material.ORANGE_DYE);
             ItemMeta meta = item.getItemMeta();
-            List<String> lore = new ArrayList<String>();
+            assert meta != null;
+            List<String> lore = new ArrayList<>();
             meta.setDisplayName(ChatColor.GOLD + this.getQuestName());
             String[] messageLocation = Plugin.getFirstUncompletedGoalMessageAndLocation(this, profile);
             lore.add(ChatColor.YELLOW + ChatColor.translateAlternateColorCodes('&', messageLocation[0]));
