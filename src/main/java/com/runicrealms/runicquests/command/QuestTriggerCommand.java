@@ -29,10 +29,7 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
-import java.util.logging.Level;
 
 public class QuestTriggerCommand implements CommandExecutor {
 
@@ -110,7 +107,6 @@ public class QuestTriggerCommand implements CommandExecutor {
                     if (trigger != null) {
                         for (Player player : players) {
                             QuestProfile profile = PlayerDataLoader.getPlayerQuestData(player.getUniqueId());
-                            Map<UUID, Map<Integer, Long>> questCooldowns = Plugin.getQuestCooldowns(); // Get the repeatable quest cooldowns
                             int characterSlot = CharacterApi.getCurrentCharacterSlot(player);
                             for (Quest quest : profile.getQuests()) {
                                 if (quest.getQuestID() == trigger.getQuestId()) {
@@ -146,24 +142,17 @@ public class QuestTriggerCommand implements CommandExecutor {
                                         if (objective.getObjectiveNumber() != QuestObjective.getLastObjective(quest.getObjectives()).getObjectiveNumber()) { // If this is not the last objective
                                             String goalMessage = ChatColor.translateAlternateColorCodes('&', QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() + 1).getGoalMessage()); // Get goal message
                                             if (objective.hasCompletedMessage()) { // If the objective has a completed message
-                                                List<Runnable> runnables = new ArrayList<Runnable>();
+                                                List<Runnable> runnables = new ArrayList<>();
                                                 for (String message : objective.getCompletedMessage()) { // Put the completed message into a task queue
-                                                    runnables.add(new Runnable() {
-                                                        @Override
-                                                        public void run() {
-                                                            player.sendMessage(ChatColor.translateAlternateColorCodes('&', Plugin.parseMessage(message, player.getName())));
-                                                        }
-                                                    });
+                                                    runnables.add(() -> player.sendMessage(ChatColor.translateAlternateColorCodes('&', Plugin.parseMessage(message, player.getName()))));
                                                 }
-                                                runnables.add(new Runnable() { // Put the goal message into the task queue
-                                                    @Override
-                                                    public void run() {
-                                                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&l&6New objective for: &r&l&e") + quest.getQuestName());
-                                                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + goalMessage));
-                                                        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.GOLD + goalMessage));
-                                                        player.sendTitle(ChatColor.GOLD + "New Objective", ChatColor.YELLOW + goalMessage, 10, 80, 10); // Display goal message title
-                                                        Plugin.updatePlayerCachedLocations(player);
-                                                    }
+                                                // Put the goal message into the task queue
+                                                runnables.add(() -> {
+                                                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&l&6New objective for: &r&l&e") + quest.getQuestName());
+                                                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + goalMessage));
+                                                    player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.GOLD + goalMessage));
+                                                    player.sendTitle(ChatColor.GOLD + "New Objective", ChatColor.YELLOW + goalMessage, 10, 80, 10); // Display goal message title
+                                                    Plugin.updatePlayerCachedLocations(player);
                                                 });
                                                 TaskQueue queue = new TaskQueue(runnables);
                                                 queue.startTasks();
@@ -177,36 +166,34 @@ public class QuestTriggerCommand implements CommandExecutor {
                                         } else { // If we have completed the quest...
                                             quest.getQuestState().setCompleted(true);
                                             profile.save(profile.getQuestPoints() + quest.getRewards().getQuestPointsReward());
-                                                List<Runnable> runnables = new ArrayList<Runnable>();
-                                                for (String message : objective.getSpeech()) { // Create a task queue with the completed message
-                                                    runnables.add(new Runnable() {
-                                                        @Override
-                                                        public void run() {
-                                                            player.sendMessage(ChatColor.translateAlternateColorCodes('&', Plugin.parseMessage(message, player.getName())));
-                                                        }
-                                                    });
-                                                }
-                                                TaskQueue queue = new TaskQueue(runnables);
-                                                queue.addTasks(new Runnable() { // Add the quest rewards to the task queue
+                                            List<Runnable> runnables = new ArrayList<Runnable>();
+                                            for (String message : objective.getSpeech()) { // Create a task queue with the completed message
+                                                runnables.add(new Runnable() {
                                                     @Override
                                                     public void run() {
-                                                        player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 10, 1); // Play sound
-                                                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&2&lRewards:"));
-                                                        if (quest.getRewards().getQuestPointsReward() != 0) player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getQuestPointsReward() + " &r&aQuest Point" + (quest.getRewards().getQuestPointsReward() == 1 ? "" : "s")));
-                                                        if (quest.getRewards().getMoneyReward() != 0) player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getMoneyReward() + " &r&aCoin" + (quest.getRewards().getMoneyReward() == 1 ? "" : "s")));
-                                                        if (quest.getRewards().getExperienceReward() != 0) player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getExperienceReward() + " &r&aExperience Point" + (quest.getRewards().getExperienceReward() == 1 ? "" : "s")));
-                                                        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.YELLOW + "Quest Complete!"));
-                                                        player.sendTitle(ChatColor.GOLD + "Quest Complete!", ChatColor.YELLOW + quest.getQuestName(), 10, 80, 10); // Send a goal message title
+                                                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', Plugin.parseMessage(message, player.getName())));
                                                     }
                                                 });
-                                                queue.startTasks();
+                                            }
+                                            TaskQueue queue = new TaskQueue(runnables);
+                                            // Add the quest rewards to the task queue
+                                            queue.addTasks(() -> {
+                                                player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 10, 1); // Play sound
+                                                player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&2&lRewards:"));
+                                                if (quest.getRewards().getQuestPointsReward() != 0)
+                                                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getQuestPointsReward() + " &r&aQuest Point" + (quest.getRewards().getQuestPointsReward() == 1 ? "" : "s")));
+                                                if (quest.getRewards().getMoneyReward() != 0)
+                                                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getMoneyReward() + " &r&aCoin" + (quest.getRewards().getMoneyReward() == 1 ? "" : "s")));
+                                                if (quest.getRewards().getExperienceReward() != 0)
+                                                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getExperienceReward() + " &r&aExperience Point" + (quest.getRewards().getExperienceReward() == 1 ? "" : "s")));
+                                                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.YELLOW + "Quest Complete!"));
+                                                player.sendTitle(ChatColor.GOLD + "Quest Complete!", ChatColor.YELLOW + quest.getQuestName(), 10, 80, 10); // Send a goal message title
+                                            });
+                                            queue.startTasks();
                                             if (quest.getRewards().hasExecute()) { // Execute rewards commands
                                                 quest.getRewards().executeCommand(player.getName());
                                             }
                                             RunicCoreHook.giveRewards(player, quest.getRewards()); // Give rewards
-                                            if (quest.isRepeatable()) { // If the quest is repeatable, setup cooldowns
-                                                questCooldowns.get(player.getUniqueId()).put(quest.getQuestID(), System.currentTimeMillis() + quest.getCooldown() * 1000);
-                                            }
                                             Bukkit.getServer().getPluginManager().callEvent(new QuestCompleteEvent(quest, profile)); // Fire the quest completed event
                                         }
                                     }

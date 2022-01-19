@@ -8,6 +8,7 @@ import com.runicrealms.runicquests.data.QuestProfile;
 import com.runicrealms.runicquests.event.*;
 import com.runicrealms.runicquests.event.custom.RightClickNpcHandler;
 import com.runicrealms.runicquests.listeners.JournalListener;
+import com.runicrealms.runicquests.listeners.QuestCompleteListener;
 import com.runicrealms.runicquests.listeners.QuestItemListener;
 import com.runicrealms.runicquests.listeners.questwriterlisteners.AncientWhalePowderListener;
 import com.runicrealms.runicquests.passivenpcs.PassiveNpcClickListener;
@@ -39,7 +40,7 @@ public class Plugin extends JavaPlugin {
     private static final HashMap<Long, TaskQueue> npcTaskQueues = new HashMap<>(); // List of NPC task queues
     private static final Map<UUID, Map<Integer, Long>> cooldowns = new HashMap<>(); // List of quest cooldowns
     /*
-     * This Map is meant to help with performance issues with checking the players location. It will just indicate
+     * This Map is meant to help with performance issues with checking the player's location. It will just indicate
      * when a player has a location objective on one of their quests
      */
     private static final Map<Player, Map<Integer, LocationToReach>> cachedLocations = new HashMap<>();
@@ -50,8 +51,8 @@ public class Plugin extends JavaPlugin {
     private static Long nextId = Long.MIN_VALUE; // This is used to give each NPC a new unique ID.
 
     private static void registerCommand(CommandExecutor executor, String... aliases) {
-        for (int i = 0; i < aliases.length; i++) {
-            PluginCommand pluginCommand = getInstance().getCommand(aliases[i]);
+        for (String alias : aliases) {
+            PluginCommand pluginCommand = getInstance().getCommand(alias);
             pluginCommand.setExecutor(executor);
         }
     }
@@ -117,6 +118,13 @@ public class Plugin extends JavaPlugin {
         return cooldowns;
     }
 
+    /**
+     * Utility method to check if a player can start a repeatable quest
+     *
+     * @param uuid    of the given player
+     * @param questId of the given quest
+     * @return true if the player can start the repeatable quest
+     */
     public static boolean canStartRepeatableQuest(UUID uuid, Integer questId) {
         if (!cooldowns.get(uuid).containsKey(questId)) {
             return true;
@@ -251,6 +259,7 @@ public class Plugin extends JavaPlugin {
         this.getServer().getPluginManager().registerEvents(holoManager, this);
         this.getServer().getPluginManager().registerEvents(new PassiveNpcClickListener(), this);
         this.getServer().getPluginManager().registerEvents(new QuestItemListener(), this);
+        this.getServer().getPluginManager().registerEvents(new QuestCompleteListener(), this);
 
         //quest writer listeners
         this.getServer().getPluginManager().registerEvents(new AncientWhalePowderListener(), this);
