@@ -1,6 +1,7 @@
 package com.runicrealms.runicquests.quests;
 
 import com.runicrealms.runicquests.Plugin;
+import com.runicrealms.runicquests.api.RunicQuestsAPI;
 import com.runicrealms.runicquests.data.QuestProfile;
 import com.runicrealms.runicquests.quests.objective.QuestObjective;
 import com.runicrealms.runicquests.quests.objective.QuestObjectiveTalk;
@@ -130,6 +131,8 @@ public class Quest implements Cloneable {
     }
 
     /**
+     * This...
+     *
      * @param player
      * @return
      */
@@ -169,7 +172,7 @@ public class Quest implements Cloneable {
             if (!messageLocation[1].equalsIgnoreCase("")) {
                 lore.add(ChatColor.YELLOW + "Location: " + ChatColor.translateAlternateColorCodes('&', messageLocation[1]));
             }
-            lore.add(ChatColor.BLUE + "Repeatable!");
+            lore.add(canStart ? ChatColor.BLUE + "Can complete!" : ChatColor.GRAY + "On cooldown: " + ChatColor.WHITE + RunicQuestsAPI.repeatableQuestTimeRemaining(player, this.getQuestID()));
             lore.add(ChatColor.GRAY + "Level " + this.getRequirements().getClassLvReq());
             meta.setLore(lore);
             item.setItemMeta(meta);

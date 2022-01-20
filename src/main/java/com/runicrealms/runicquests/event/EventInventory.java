@@ -1,6 +1,7 @@
 package com.runicrealms.runicquests.event;
 
 import com.runicrealms.plugin.utilities.GUIUtil;
+import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.data.PlayerDataLoader;
 import com.runicrealms.runicquests.data.QuestProfile;
 import com.runicrealms.runicquests.quests.Quest;
@@ -97,10 +98,13 @@ public class EventInventory implements Listener {
             if (quest.getQuestState().hasStarted() && !quest.getQuestState().isCompleted()) {
                 startedQuests.add(quest);
             }
-            if (!quest.getQuestState().hasStarted() && !quest.getQuestState().isCompleted()) {
+            if (!quest.getQuestState().hasStarted()
+                    && !quest.getQuestState().isCompleted()
+                    && (!quest.isRepeatable()
+                    || (quest.isRepeatable() && Plugin.canStartRepeatableQuest(player.getUniqueId(), quest.getQuestID())))) {
                 unstartedQuests.add(quest);
             }
-            if (quest.getQuestState().isCompleted()) {
+            if (quest.getQuestState().isCompleted() || (quest.isRepeatable() && !Plugin.canStartRepeatableQuest(player.getUniqueId(), quest.getQuestID()))) {
                 completedQuests.add(quest);
             }
         }

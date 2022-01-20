@@ -3,6 +3,7 @@ package com.runicrealms.runicquests.event;
 import com.runicrealms.plugin.character.api.CharacterApi;
 import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.api.QuestCompleteEvent;
+import com.runicrealms.runicquests.api.RunicQuestsAPI;
 import com.runicrealms.runicquests.data.PlayerDataLoader;
 import com.runicrealms.runicquests.data.QuestProfile;
 import com.runicrealms.runicquests.event.custom.RightClickNpcEvent;
@@ -22,7 +23,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
 
 public class EventClickNpc implements Listener {
 
@@ -48,7 +52,6 @@ public class EventClickNpc implements Listener {
         QuestProfile questProfile = PlayerDataLoader.getPlayerQuestData(player.getUniqueId());
         int characterSlot = CharacterApi.getCurrentCharacterSlot(player);
         HashMap<Long, TaskQueue> npcs = Plugin.getNpcTaskQueues();
-        Map<UUID, Map<Integer, Long>> questCooldowns = Plugin.getQuestCooldowns();
         if (questProfile == null) return;
         questsLoop:
         for (Quest quest : questProfile.getQuests()) { // Loop through quests to find a match for the NPC
@@ -339,15 +342,8 @@ public class EventClickNpc implements Listener {
                 }
                 if ((quest.getFirstNPC().getNpcId().equals(event.getNpcId()))
                         && !Plugin.canStartRepeatableQuest(event.getPlayer().getUniqueId(), quest.getQuestID())) { // If the player is waiting on a quest cooldown (repeatable quests)
-                    int cooldownLeft = (int) Math.floor((Plugin.getQuestCooldowns().get(event.getPlayer().getUniqueId()).get(quest.getQuestID()) - System.currentTimeMillis()) / 1000.0);
-                    int hours = (cooldownLeft - (cooldownLeft % 3600)) / 3600; // Some very odd code to create a cooldown message
-                    int minutes = (cooldownLeft - (cooldownLeft % 60)) / 60 - (hours * 60);
-                    int seconds = cooldownLeft - (hours * 3600) - (minutes * 60);
-                    StringBuilder time = new StringBuilder();
-                    time.append(hours == 0 ? "" : hours + " " + (minutes == 0 && hours == 0 ? (hours == 1 ? "hour" : "hours") : (hours == 1 ? "hour, " : "hours, ")));
-                    time.append(minutes == 0 ? "" : minutes + " " + (seconds == 0 ? (minutes == 1 ? "minute" : "minutes") : (minutes == 1 ? "minute, " : "minutes, ")));
-                    time.append(seconds == 0 ? "" : seconds + " " + (seconds == 1 ? "second" : "seconds"));
-                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7You must wait " + time.toString() + " before completing this quest again!"));
+                    String time = RunicQuestsAPI.repeatableQuestTimeRemaining(player, quest.getQuestID());
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7You must wait " + time + " before completing this quest again!"));
                 }
             }
         }
