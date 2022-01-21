@@ -34,17 +34,17 @@ public class Quest implements Cloneable {
     private final Integer cooldown;
 
     /**
-     * This...
+     * Creates a quest object with the following fields
      *
-     * @param questName
-     * @param firstNPC
-     * @param objectives
-     * @param rewards
-     * @param questID
-     * @param requirements
-     * @param sideQuest
-     * @param repeatable
-     * @param cooldown
+     * @param questName    the name of the quest
+     * @param firstNPC     the first NPC (quest giver)
+     * @param objectives   a list of objectives inside the quest
+     * @param rewards      the rewards of the quest
+     * @param questID      the UNIQUE quest id
+     * @param requirements the requirements to start the quest
+     * @param sideQuest    whether the quest is a main story or side quest
+     * @param repeatable   whether the quest is a repeatable quest
+     * @param cooldown     the cooldown of the quest (if repeatable)
      */
     public Quest(String questName, QuestFirstNpc firstNPC, ArrayList<QuestObjective> objectives, QuestRewards rewards,
                  Integer questID, QuestRequirements requirements, boolean sideQuest, boolean repeatable, Integer cooldown) {
@@ -131,10 +131,10 @@ public class Quest implements Cloneable {
     }
 
     /**
-     * This...
+     * Generates a dynamic quest icon for a player's quest
      *
-     * @param player
-     * @return
+     * @param player to populate info from
+     * @return a menu item representing a quest with dynamic values
      */
     public ItemStack generateQuestIcon(Player player) {
         QuestProfile profile = Plugin.getQuestProfile(player.getUniqueId().toString());

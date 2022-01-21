@@ -14,8 +14,6 @@ import com.runicrealms.runicquests.quests.objective.QuestObjectiveSlay;
 import com.runicrealms.runicquests.quests.objective.QuestObjectiveTalk;
 import com.runicrealms.runicquests.task.TaskQueue;
 import com.runicrealms.runicquests.util.RunicCoreHook;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
@@ -23,10 +21,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class EventClickNpc implements Listener {
 
@@ -161,7 +156,6 @@ public class EventClickNpc implements Listener {
                                         String goalMessage = ChatColor.translateAlternateColorCodes('&', QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() + 1).getGoalMessage());
                                         player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&l&6New objective for: &r&l&e") + quest.getQuestName());
                                         player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + goalMessage));
-                                        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.YELLOW + goalMessage));
                                         if (objective.shouldDisplayNextObjectiveTitle())
                                             player.sendTitle(ChatColor.GOLD + "New Objective", ChatColor.YELLOW + goalMessage, 10, 80, 10); // Send a goal message title
                                         Plugin.updatePlayerCachedLocations(player);
@@ -184,7 +178,6 @@ public class EventClickNpc implements Listener {
                                             player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getMoneyReward() + " &r&aCoin" + (quest.getRewards().getMoneyReward() == 1 ? "" : "s")));
                                         if (quest.getRewards().getExperienceReward() != 0)
                                             player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a- &r" + quest.getRewards().getExperienceReward() + " &r&aExperience Point" + (quest.getRewards().getExperienceReward() == 1 ? "" : "s")));
-                                        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.YELLOW + "Quest Complete!"));
                                         if (objective.shouldDisplayNextObjectiveTitle())
                                             player.sendTitle(ChatColor.GOLD + "Quest Complete!", ChatColor.YELLOW + quest.getQuestName(), 10, 80, 10); // Send a goal message title
                                         if (quest.getRewards().hasExecute()) { // Execute the quest rewards commands
@@ -323,7 +316,6 @@ public class EventClickNpc implements Listener {
                                         String goalMessage = ChatColor.translateAlternateColorCodes('&', QuestObjective.getObjective(quest.getObjectives(), 1).getGoalMessage());
                                         player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&l&6New objective for: &r&l&e") + quest.getQuestName());
                                         player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + goalMessage));
-                                        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.YELLOW + goalMessage));
                                         player.sendTitle(ChatColor.GOLD + "New Objective", ChatColor.YELLOW + goalMessage, 10, 80, 10); // Send a goal message title
                                         Plugin.updatePlayerCachedLocations(player);
                                     });
@@ -354,22 +346,25 @@ public class EventClickNpc implements Listener {
                     if (talkObjective.getQuestNpc().getNpcId().equals(event.getNpcId())) { // Check that the NPC id matches the one clicked on
                         if (talkObjective.getQuestNpc().hasIdleSpeech()) { // Check for idle speech
                             idleMessageLoop:
+                            // outer loop label
                             for (QuestIdleMessage idleMessage : talkObjective.getQuestNpc().getIdleSpeech()) { // Loop through idle messages
                                 if (idleMessage.getConditions().hasQuestCompleted()) { // Check for quest completed condition
                                     if (quest.getQuestState().isCompleted() != idleMessage.getConditions().getQuestCompleted()) {
-                                        continue idleMessageLoop;
+                                        continue;
                                     }
                                 }
                                 if (idleMessage.getConditions().hasQuestStarted()) { // Check for quest started condition
                                     if (quest.getQuestState().hasStarted() != idleMessage.getConditions().getQuestStarted()) {
-                                        continue idleMessageLoop;
+                                        continue;
                                     }
                                 }
                                 if (idleMessage.getConditions().hasObjectiveStates()) { // Check for objectives completed condition
-                                    for (int i = 1; i <= quest.getObjectives().size(); i++) {
+                                    for (int i = 1; i <= quest.getObjectives().size(); i++) { // for every quest objective
                                         if (idleMessage.getConditions().getObjectiveStates().size() - 1 >= i) {
                                             if (idleMessage.getConditions().getObjectiveStates().get(i) != null) {
-                                                if (quest.getObjectives().get(i).isCompleted() != idleMessage.getConditions().getObjectiveStates().get(i)) {
+                                                int finalI = i;
+                                                Optional<QuestObjective> questObjective = quest.getObjectives().stream().filter(obj -> obj.getObjectiveNumber() == finalI).findFirst();
+                                                if (questObjective.isPresent() && questObjective.get().isCompleted() != idleMessage.getConditions().getObjectiveStates().get(i)) {
                                                     continue idleMessageLoop;
                                                 }
                                             }
@@ -379,7 +374,7 @@ public class EventClickNpc implements Listener {
                                 if (objective.requiresQuestItem()) {
                                     if (idleMessage.getConditions().hasRequiresQuestItems()) { // Check for requires quest items condition
                                         if (Plugin.hasQuestItems(objective, player) != idleMessage.getConditions().requiresQuestItems()) {
-                                            continue idleMessageLoop;
+                                            continue;
                                         }
                                     }
                                 }
