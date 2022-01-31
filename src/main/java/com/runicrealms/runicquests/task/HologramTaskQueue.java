@@ -21,6 +21,7 @@ public class HologramTaskQueue extends TaskQueue {
     private static final double HOLOGRAM_HEIGHT = 3.5;
     private final QuestResponse questResponse;
     private final Hologram hologram;
+    private final Location npcLocation;
     private final Player player;
     private final SpeechParser speechParser;
     private final List<String> messages;
@@ -36,8 +37,8 @@ public class HologramTaskQueue extends TaskQueue {
     public HologramTaskQueue(QuestResponse questResponse, Location npcLocation, Player player, List<String> messages) {
         super();
         this.questResponse = questResponse;
-        Location hologramSpawnLocation = npcLocation.clone().add(0, HOLOGRAM_HEIGHT, 0);
-        this.hologram = HologramsAPI.createHologram(Plugin.getInstance(), hologramSpawnLocation);
+        this.npcLocation = npcLocation;
+        this.hologram = HologramsAPI.createHologram(Plugin.getInstance(), npcLocation);
         this.hologram.getVisibilityManager().setVisibleByDefault(false);
         this.player = player;
         this.speechParser = new SpeechParser(player);
@@ -66,6 +67,7 @@ public class HologramTaskQueue extends TaskQueue {
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', questResponse.getChatColor() + speechParser.getParsedMessage()));
                 } else {
                     List<String> formatted = ChatUtils.formattedText(speechParser.getParsedMessage(), 35);
+                    hologram.teleport(this.npcLocation.clone().add(0, 2 + (0.5 * formatted.size()), 0)); // needs to sit 3 above ? 2.5 + 0.5 (
                     for (String s : formatted) {
                         hologram.appendTextLine(ChatColor.translateAlternateColorCodes('&', questResponse.getChatColor() + s));
                     }

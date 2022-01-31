@@ -5,8 +5,8 @@ import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.data.PlayerDataLoader;
 import com.runicrealms.runicquests.data.QuestProfile;
 import com.runicrealms.runicquests.quests.Quest;
-import com.runicrealms.runicquests.util.QuestionMarkUtil;
 import com.runicrealms.runicquests.util.RunicCoreHook;
+import com.runicrealms.runicquests.util.StatusItemUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -133,39 +133,53 @@ public class EventInventory implements Listener {
     }
 
     /**
-     * This...
+     * Creates the informational ItemStack used in the quest GUI
      *
-     * @param startedQuests
-     * @param completedQuests
-     * @param totalQuests
-     * @param repeatableMenu
-     * @return
+     * @param startedQuests   the number of quests the player has which are in-progress
+     * @param completedQuests the number of quests the player has completed
+     * @param totalQuests     the total number of quests in the category
+     * @param repeatableMenu  toggle the category (e.g., non-repeatable or repeatable quests)
+     * @return an ItemStack to use in a GUI
      */
     private static ItemStack infoPaper(int startedQuests, int completedQuests, int totalQuests, boolean repeatableMenu) {
         ItemStack infoPaper = new ItemStack(Material.PAPER);
         ItemMeta meta = infoPaper.getItemMeta();
         assert meta != null;
         meta.setDisplayName(ChatColor.GOLD + "Quest menu");
-        meta.setLore(Arrays.asList
-                (
-                        ChatColor.GRAY + "Here you can view available quests!",
-                        "",
-                        ChatColor.WHITE + "" + startedQuests + " " + ChatColor.YELLOW + "quests in progress",
-                        ChatColor.GREEN + "(" + ChatColor.WHITE + completedQuests + ChatColor.GREEN + "/" + totalQuests + ") Quests Completed",
-                        "",
-                        ChatColor.GRAY + "" + ChatColor.BOLD + "KEY:",
-                        ChatColor.GOLD + "Gold" + ChatColor.GRAY + " quests are main story",
-                        ChatColor.YELLOW + "Yellow" + ChatColor.GRAY + " quests are side quests",
-                        ChatColor.AQUA + "Blue" + ChatColor.GRAY + " quests are repeatable",
-                        ChatColor.RED + "Red" + ChatColor.GRAY + " quests are missing requirements",
-                        ChatColor.GREEN + "Green" + ChatColor.GRAY + " quests are complete"
-                ));
+        if (!repeatableMenu) {
+            meta.setLore(Arrays.asList
+                    (
+                            ChatColor.GRAY + "Here you can view available quests!",
+                            "",
+                            ChatColor.WHITE + "" + startedQuests + " " + ChatColor.YELLOW + "quest(s) in progress",
+                            ChatColor.GREEN + "(" + ChatColor.WHITE + completedQuests + ChatColor.GREEN + "/" + totalQuests + ") Quests Completed",
+                            "",
+                            ChatColor.GRAY + "" + ChatColor.BOLD + "KEY:",
+                            ChatColor.GOLD + "● Gold" + ChatColor.GRAY + " quests are " + ChatColor.GOLD + "main story",
+                            ChatColor.YELLOW + "● Yellow" + ChatColor.GRAY + " quests are " + ChatColor.YELLOW + "side quests",
+                            ChatColor.AQUA + "● Blue" + ChatColor.GRAY + " quests are " + ChatColor.AQUA + "repeatable",
+                            ChatColor.RED + "● Red" + ChatColor.GRAY + " quests are " + ChatColor.RED + "missing requirements",
+                            ChatColor.GREEN + "● Green" + ChatColor.GRAY + " quests are " + ChatColor.GREEN + "complete!"
+                    ));
+        } else {
+            meta.setLore(Arrays.asList
+                    (
+                            ChatColor.GRAY + "Here you can view repeatable quests!",
+                            "",
+                            ChatColor.WHITE + "" + startedQuests + " " + ChatColor.YELLOW + "quest(s) in progress",
+                            ChatColor.GREEN + "(" + ChatColor.WHITE + completedQuests + ChatColor.GREEN + "/" + totalQuests + ") Quests Completed",
+                            "",
+                            ChatColor.GRAY + "" + ChatColor.BOLD + "KEY:",
+                            ChatColor.AQUA + "● Blue" + ChatColor.GRAY + " quests are " + ChatColor.AQUA + "repeatable",
+                            ChatColor.GREEN + "● Green" + ChatColor.GRAY + " quests are " + ChatColor.GREEN + "on cooldown"
+                    ));
+        }
         infoPaper.setItemMeta(meta);
         return infoPaper;
     }
 
     private static ItemStack toggleShowRepeatableQuestsItem() {
-        ItemStack infoPaper = QuestionMarkUtil.blueQuestionMark().clone();
+        ItemStack infoPaper = StatusItemUtil.blueStatusItem().clone();
         ItemMeta meta = infoPaper.getItemMeta();
         assert meta != null;
         meta.setDisplayName(ChatColor.AQUA + "Toggle Repeatable Quests");

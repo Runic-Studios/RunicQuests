@@ -7,8 +7,8 @@ import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.api.QuestCompleteEvent;
 import com.runicrealms.runicquests.api.RunicQuestsAPI;
 import com.runicrealms.runicquests.quests.Quest;
-import com.runicrealms.runicquests.util.QuestionMarkUtil;
 import com.runicrealms.runicquests.util.RunicCoreHook;
+import com.runicrealms.runicquests.util.StatusItemUtil;
 import com.runicrealms.runicrestart.api.RunicRestartApi;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -59,12 +59,12 @@ public class HoloManager implements Listener {
 
                 Hologram hologramGreen = HologramsAPI.createHologram(Plugin.getInstance(), loc);
                 hologramGreen.getVisibilityManager().setVisibleByDefault(false);
-                hologramGreen.appendItemLine(QuestionMarkUtil.greenQuestionMark());
+                hologramGreen.appendItemLine(StatusItemUtil.greenStatusItem());
                 hologramMap.get(q.getQuestID()).put(FirstNpcHoloType.GREEN, hologramGreen);
 
                 Hologram hologramRed = HologramsAPI.createHologram(Plugin.getInstance(), loc);
                 hologramRed.getVisibilityManager().setVisibleByDefault(false);
-                hologramRed.appendItemLine(QuestionMarkUtil.redQuestionMark());
+                hologramRed.appendItemLine(StatusItemUtil.redStatusItem());
                 hologramMap.get(q.getQuestID()).put(FirstNpcHoloType.RED, hologramRed);
             }
 
@@ -114,6 +114,7 @@ public class HoloManager implements Listener {
                 for (Hologram hologram : hologramMap.get(q.getQuestID()).values()) { // reset previous holograms
                     hologram.getVisibilityManager().hideTo(player);
                 }
+//                if (!q.getQuestState().hasStarted()) // no holograms for in-progress quests
                 determineHoloByStatus(player, q).getVisibilityManager().showTo(player);
             }
         }

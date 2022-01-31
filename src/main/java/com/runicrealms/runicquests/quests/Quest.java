@@ -5,8 +5,8 @@ import com.runicrealms.runicquests.api.RunicQuestsAPI;
 import com.runicrealms.runicquests.data.QuestProfile;
 import com.runicrealms.runicquests.quests.objective.QuestObjective;
 import com.runicrealms.runicquests.quests.objective.QuestObjectiveTalk;
-import com.runicrealms.runicquests.util.QuestionMarkUtil;
 import com.runicrealms.runicquests.util.RunicCoreHook;
+import com.runicrealms.runicquests.util.StatusItemUtil;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -139,7 +139,7 @@ public class Quest implements Cloneable {
     public ItemStack generateQuestIcon(Player player) {
         QuestProfile profile = Plugin.getQuestProfile(player.getUniqueId().toString());
         if (this.getQuestState().isCompleted()) {
-            ItemStack item = QuestionMarkUtil.greenQuestionMark().clone();
+            ItemStack item = StatusItemUtil.greenStatusItem().clone();
             ItemMeta meta = item.getItemMeta();
             assert meta != null;
             List<String> lore = new ArrayList<>();
@@ -150,7 +150,7 @@ public class Quest implements Cloneable {
             item.setItemMeta(meta);
             return item;
         } else if (!RunicCoreHook.isReqClassLv(player, this.getRequirements().getClassLvReq())) {
-            ItemStack item = QuestionMarkUtil.redQuestionMark().clone();
+            ItemStack item = StatusItemUtil.redStatusItem().clone();
             ItemMeta meta = item.getItemMeta();
             assert meta != null;
             List<String> lore = new ArrayList<>();
@@ -162,7 +162,7 @@ public class Quest implements Cloneable {
             return item;
         } else if (this.isRepeatable()) {
             boolean canStart = Plugin.canStartRepeatableQuest(player.getUniqueId(), this.getQuestID());
-            ItemStack item = canStart ? QuestionMarkUtil.blueQuestionMark().clone() : QuestionMarkUtil.greenQuestionMark().clone();
+            ItemStack item = canStart ? StatusItemUtil.blueStatusItem().clone() : StatusItemUtil.greenStatusItem().clone();
             ItemMeta meta = item.getItemMeta();
             assert meta != null;
             List<String> lore = new ArrayList<>();
@@ -178,7 +178,7 @@ public class Quest implements Cloneable {
             item.setItemMeta(meta);
             return item;
         } else if (this.isSideQuest()) {
-            ItemStack item = QuestionMarkUtil.yellowQuestionMark().clone();
+            ItemStack item = StatusItemUtil.yellowStatusItem().clone();
             ItemMeta meta = item.getItemMeta();
             assert meta != null;
             List<String> lore = new ArrayList<>();
@@ -193,7 +193,7 @@ public class Quest implements Cloneable {
             item.setItemMeta(meta);
             return item;
         } else {
-            ItemStack item = QuestionMarkUtil.goldQuestionMark().clone();
+            ItemStack item = StatusItemUtil.orangeStatusItem().clone();
             ItemMeta meta = item.getItemMeta();
             assert meta != null;
             List<String> lore = new ArrayList<>();
