@@ -1,14 +1,15 @@
 package com.runicrealms.runicquests.quests;
 
+import com.runicrealms.runicnpcs.api.RunicNpcsAPI;
 import com.runicrealms.runicquests.Plugin;
+import org.bukkit.Location;
 
 import java.util.List;
 
+/**
+ * Represents an objective's quest NPC
+ */
 public class QuestNpc implements Cloneable {
-
-    /*
-     * Represents an objective's quest NPC
-     */
 
     private final Integer npcId;
     private final List<String> speech;
@@ -26,6 +27,16 @@ public class QuestNpc implements Cloneable {
         this.npcName = npcName;
         this.id = Plugin.getNextId();
         this.deniedMessage = deniedMessage;
+    }
+
+    /**
+     * Static method to get the corresponding RunicNpc location for the given quest npc
+     *
+     * @param questNpc the questNpc wrapper object
+     * @return a Location object
+     */
+    public static Location getQuestNpcLocation(QuestNpc questNpc) {
+        return RunicNpcsAPI.getNpcById(questNpc.getNpcId()).getLocation();
     }
 
     public Integer getNpcId() {

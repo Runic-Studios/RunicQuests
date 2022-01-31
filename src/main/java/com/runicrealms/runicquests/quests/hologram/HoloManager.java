@@ -7,16 +7,15 @@ import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.api.QuestCompleteEvent;
 import com.runicrealms.runicquests.api.RunicQuestsAPI;
 import com.runicrealms.runicquests.quests.Quest;
+import com.runicrealms.runicquests.util.QuestionMarkUtil;
 import com.runicrealms.runicquests.util.RunicCoreHook;
 import com.runicrealms.runicrestart.api.RunicRestartApi;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerLevelChangeEvent;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -47,28 +46,25 @@ public class HoloManager implements Listener {
 
                 // main hologram based on quest type
                 FirstNpcHoloType firstNpcHoloType;
-                if (q.isRepeatable()) {
+                if (q.isRepeatable())
                     firstNpcHoloType = FirstNpcHoloType.BLUE;
-                    hologram.appendItemLine(new ItemStack(firstNpcHoloType.getMaterial()));
-                } else if (q.isSideQuest()) {
+                else if (q.isSideQuest())
                     firstNpcHoloType = FirstNpcHoloType.YELLOW;
-                    hologram.appendItemLine(new ItemStack(firstNpcHoloType.getMaterial()));
-                } else {
+                else
                     firstNpcHoloType = FirstNpcHoloType.GOLD;
-                    hologram.appendItemLine(new ItemStack(firstNpcHoloType.getMaterial()));
-                }
 
+                hologram.appendItemLine(firstNpcHoloType.getItemStack());
                 hologramMap.put(q.getQuestID(), new HashMap<>());
                 hologramMap.get(q.getQuestID()).put(firstNpcHoloType, hologram);
 
                 Hologram hologramGreen = HologramsAPI.createHologram(Plugin.getInstance(), loc);
                 hologramGreen.getVisibilityManager().setVisibleByDefault(false);
-                hologramGreen.appendItemLine(new ItemStack(Material.SLIME_BALL));
+                hologramGreen.appendItemLine(QuestionMarkUtil.greenQuestionMark());
                 hologramMap.get(q.getQuestID()).put(FirstNpcHoloType.GREEN, hologramGreen);
 
                 Hologram hologramRed = HologramsAPI.createHologram(Plugin.getInstance(), loc);
                 hologramRed.getVisibilityManager().setVisibleByDefault(false);
-                hologramRed.appendItemLine(new ItemStack(Material.BARRIER));
+                hologramRed.appendItemLine(QuestionMarkUtil.redQuestionMark());
                 hologramMap.get(q.getQuestID()).put(FirstNpcHoloType.RED, hologramRed);
             }
 
@@ -92,9 +88,10 @@ public class HoloManager implements Listener {
     }
 
     /**
-     * This method does determines which color of hologram to activate for each quest in a quest profile
+     * This method determines which color of hologram to activate for each quest in a quest profile
+     *
      * @param player The player of the quest profile
-     * @param quest A quest in the player's quest profile
+     * @param quest  A quest in the player's quest profile
      * @return A hologram to activate
      */
     private Hologram determineHoloByStatus(Player player, Quest quest) {

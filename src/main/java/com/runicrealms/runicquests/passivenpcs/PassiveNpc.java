@@ -2,6 +2,7 @@ package com.runicrealms.runicquests.passivenpcs;
 
 import com.runicrealms.runicnpcs.api.RunicNpcsAPI;
 import com.runicrealms.runicquests.task.TaskQueue;
+import org.bukkit.Location;
 
 import java.util.HashMap;
 import java.util.List;
@@ -24,6 +25,16 @@ public class PassiveNpc {
         this.overrideText = overrideText;
         this.dialogue = dialogue;
         this.TALKING = new HashMap<>();
+    }
+
+    /**
+     * Static method to get the corresponding RunicNpc location for the given quest npc
+     *
+     * @param passiveNpc the questNpc wrapper object
+     * @return a Location object
+     */
+    public static Location getPassiveNpcLocation(PassiveNpc passiveNpc) {
+        return RunicNpcsAPI.getNpcById(passiveNpc.getNpcID()).getLocation();
     }
 
     public int getNpcID() {

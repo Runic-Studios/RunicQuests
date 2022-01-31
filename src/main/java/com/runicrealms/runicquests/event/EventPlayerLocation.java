@@ -11,6 +11,7 @@ import com.runicrealms.runicquests.quests.QuestObjectiveType;
 import com.runicrealms.runicquests.quests.objective.QuestObjective;
 import com.runicrealms.runicquests.task.TaskQueue;
 import com.runicrealms.runicquests.util.RunicCoreHook;
+import com.runicrealms.runicquests.util.SpeechParser;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
@@ -29,7 +30,7 @@ public class EventPlayerLocation implements Listener {
         Map<UUID, Map<Integer, Long>> questCooldowns = Plugin.getQuestCooldowns();
         Quest questFound = null;
         for (Quest otherQuest : questProfile.getQuests()) {
-            if (otherQuest.getQuestID() == questID) {
+            if (otherQuest.getQuestID().equals(questID)) {
                 questFound = otherQuest;
             }
         }
@@ -72,8 +73,13 @@ public class EventPlayerLocation implements Listener {
                 String goalMessage = ChatColor.translateAlternateColorCodes('&', QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() + 1).getGoalMessage()); // Get the goal message
                 if (objective.hasCompletedMessage()) { // Check for a completed message
                     List<Runnable> runnables = new ArrayList<Runnable>();
+                    SpeechParser speechParser = new SpeechParser(player);
                     for (String message : objective.getCompletedMessage()) { // Create a task queue with the completed message
-                        runnables.add(() -> player.sendMessage(ChatColor.translateAlternateColorCodes('&', Plugin.parseMessage(message, player.getName()))));
+                        speechParser.updateParsedMessage(message);
+                        runnables.add(() -> {
+                            player.sendMessage(ChatColor.translateAlternateColorCodes('&', speechParser.getParsedMessage()));
+                            speechParser.executeCommands();
+                        });
                     }
                     // Add the new objective message to the task queue
                     runnables.add(() -> {
@@ -98,7 +104,7 @@ public class EventPlayerLocation implements Listener {
                 if (objective.hasCompletedMessage()) { // If we have a completed message
                     List<Runnable> runnables = new ArrayList<Runnable>();
                     for (String message : objective.getCompletedMessage()) { // Create a task queue with the completed message
-                        runnables.add(() -> player.sendMessage(ChatColor.translateAlternateColorCodes('&', Plugin.parseMessage(message, player.getName()))));
+                        runnables.add(() -> player.sendMessage(ChatColor.translateAlternateColorCodes('&', new SpeechParser(message, player).getParsedMessage())));
                     }
                     TaskQueue queue = new TaskQueue(runnables);
                     // Add the quest rewards to the task queue

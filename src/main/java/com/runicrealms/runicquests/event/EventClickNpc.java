@@ -1,6 +1,5 @@
 package com.runicrealms.runicquests.event;
 
-import com.runicrealms.plugin.character.api.CharacterApi;
 import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.api.QuestCompleteEvent;
 import com.runicrealms.runicquests.api.RunicQuestsAPI;
@@ -12,8 +11,10 @@ import com.runicrealms.runicquests.quests.objective.QuestObjective;
 import com.runicrealms.runicquests.quests.objective.QuestObjectiveBreak;
 import com.runicrealms.runicquests.quests.objective.QuestObjectiveSlay;
 import com.runicrealms.runicquests.quests.objective.QuestObjectiveTalk;
+import com.runicrealms.runicquests.task.HologramTaskQueue;
 import com.runicrealms.runicquests.task.TaskQueue;
 import com.runicrealms.runicquests.util.RunicCoreHook;
+import com.runicrealms.runicquests.util.SpeechParser;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
@@ -21,46 +22,26 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Objects;
+import java.util.Optional;
 
 public class EventClickNpc implements Listener {
-
-    private static List<Runnable> makeSpeechRunnables(Player player, List<String> messages, String name) { // Formats the text to look like an NPC message. Creates List<Runnable> for a task queue.
-        List<Runnable> runnables = new ArrayList<>();
-        for (String message : messages) {
-            runnables.add(() -> player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7[" + (messages.indexOf(message) + 1) + "/" + messages.size() + "] &e" + name + ": &6" + Plugin.parseMessage(message, player.getName()))));
-        }
-        return runnables;
-    }
-
-    private static List<Runnable> makeSpeechRunnables(Player player, List<String> messages) {
-        List<Runnable> runnables = new ArrayList<>();
-        for (String message : messages) {
-            runnables.add(() -> player.sendMessage(ChatColor.translateAlternateColorCodes('&', Plugin.parseMessage(message, player.getName()))));
-        }
-        return runnables;
-    }
 
     @EventHandler
     public void onNpcRightClick(RightClickNpcEvent event) {
         Player player = event.getPlayer();
         QuestProfile questProfile = PlayerDataLoader.getPlayerQuestData(player.getUniqueId());
-        int characterSlot = CharacterApi.getCurrentCharacterSlot(player);
-        HashMap<Long, TaskQueue> npcs = Plugin.getNpcTaskQueues();
+        HashMap<Long, TaskQueue> npcTaskQueues = Plugin.getNpcTaskQueues();
         if (questProfile == null) return;
         questsLoop:
         for (Quest quest : questProfile.getQuests()) { // Loop through quests to find a match for the NPC
             if (quest.getQuestState().isCompleted() && !quest.isRepeatable()) { // Check for if the quest is completed
                 if (quest.getFirstNPC().getNpcId().equals(event.getNpcId())) { // Check for first NPC quest completed speech
                     if (quest.getFirstNPC().hasQuestCompletedSpeech()) { // Create a task queue for the speech
-                        TaskQueue queue;
-                        if (quest.getFirstNPC().addNpcName()) {
-                            queue = new TaskQueue(makeSpeechRunnables(player, quest.getFirstNPC().getQuestCompletedSpeech(), quest.getFirstNPC().getNpcName()));
-                        } else {
-                            queue = new TaskQueue(makeSpeechRunnables(player, quest.getFirstNPC().getQuestCompletedSpeech()));
-                        }
-                        queue.setCompletedTask(() -> npcs.remove(quest.getFirstNPC().getId()));
-                        npcs.put(quest.getFirstNPC().getId(), queue);
+                        HologramTaskQueue queue = new HologramTaskQueue(HologramTaskQueue.QuestResponse.COMPLETED, quest.getFirstNPC().getLocation(), player, quest.getFirstNPC().getQuestCompletedSpeech());
+                        queue.setCompletedTask(() -> npcTaskQueues.remove(quest.getFirstNPC().getId()));
+                        npcTaskQueues.put(quest.getFirstNPC().getId(), queue);
                         queue.startTasks();
                         continue;
                     }
@@ -72,12 +53,12 @@ public class EventClickNpc implements Listener {
                         QuestObjectiveTalk talkObjective = (QuestObjectiveTalk) objective;
                         if (talkObjective.getQuestNpc().getNpcId().equals(event.getNpcId())) { // Check that the NPC id matches the one that has been clicked
                             if (talkObjective.getQuestNpc().getNpcId().equals(quest.getFirstNPC().getNpcId())) { // Check if the NPC being talked to is the first NPC (same NPC used twice)
-                                if (npcs.containsKey(quest.getFirstNPC().getId())) { // If you are talking to the first NPC, continue to next objective
+                                if (npcTaskQueues.containsKey(quest.getFirstNPC().getId())) { // If you are talking to the first NPC, continue to next objective
                                     continue;
                                 }
                             }
-                            if (npcs.containsKey(talkObjective.getQuestNpc().getId())) { // If you are talking to the NPC...
-                                npcs.get(talkObjective.getQuestNpc().getId()).nextTask(); // Move to next speech line
+                            if (npcTaskQueues.containsKey(talkObjective.getQuestNpc().getId())) { // If you are talking to the NPC...
+                                npcTaskQueues.get(talkObjective.getQuestNpc().getId()).nextTask(); // Move to next speech line
                                 return;
                             }
                             if (!objective.isCompleted()) { // Check that the objective isn't completed
@@ -92,14 +73,9 @@ public class EventClickNpc implements Listener {
                                         if (!(previousObjective instanceof QuestObjectiveTalk)) {
                                             if (talkObjective.getQuestNpc().hasDeniedMessage()) {
                                                 if (!talkObjective.requiresQuestItem()) {
-                                                    TaskQueue queue;
-                                                    if (talkObjective.getQuestNpc().addNpcName()) {
-                                                        queue = new TaskQueue(makeSpeechRunnables(player, talkObjective.getQuestNpc().getDeniedMessage(), talkObjective.getQuestNpc().getNpcName()));
-                                                    } else {
-                                                        queue = new TaskQueue(makeSpeechRunnables(player, talkObjective.getQuestNpc().getDeniedMessage()));
-                                                    }
-                                                    queue.setCompletedTask(() -> npcs.remove(talkObjective.getQuestNpc().getId()));
-                                                    npcs.put(talkObjective.getQuestNpc().getId(), queue);
+                                                    HologramTaskQueue queue = new HologramTaskQueue(HologramTaskQueue.QuestResponse.REQUIREMENTS_NOT_MET, QuestNpc.getQuestNpcLocation(talkObjective.getQuestNpc()), player, talkObjective.getQuestNpc().getDeniedMessage());
+                                                    queue.setCompletedTask(() -> npcTaskQueues.remove(talkObjective.getQuestNpc().getId()));
+                                                    npcTaskQueues.put(talkObjective.getQuestNpc().getId(), queue);
                                                     queue.startTasks();
                                                     break questsLoop;
                                                 }
@@ -119,14 +95,9 @@ public class EventClickNpc implements Listener {
                                         player.updateInventory();
                                     } else {
                                         if (talkObjective.getQuestNpc().hasDeniedMessage()) {
-                                            TaskQueue queue;
-                                            if (talkObjective.getQuestNpc().addNpcName()) {
-                                                queue = new TaskQueue(makeSpeechRunnables(player, talkObjective.getQuestNpc().getDeniedMessage(), talkObjective.getQuestNpc().getNpcName()));
-                                            } else {
-                                                queue = new TaskQueue(makeSpeechRunnables(player, talkObjective.getQuestNpc().getDeniedMessage()));
-                                            }
-                                            queue.setCompletedTask(() -> npcs.remove(talkObjective.getQuestNpc().getId()));
-                                            npcs.put(talkObjective.getQuestNpc().getId(), queue);
+                                            HologramTaskQueue queue = new HologramTaskQueue(HologramTaskQueue.QuestResponse.REQUIREMENTS_NOT_MET, QuestNpc.getQuestNpcLocation(talkObjective.getQuestNpc()), player, talkObjective.getQuestNpc().getDeniedMessage());
+                                            queue.setCompletedTask(() -> npcTaskQueues.remove(talkObjective.getQuestNpc().getId()));
+                                            npcTaskQueues.put(talkObjective.getQuestNpc().getId(), queue);
                                             queue.startTasks();
                                         }
                                         break questsLoop;
@@ -139,20 +110,17 @@ public class EventClickNpc implements Listener {
                                     objective.executeCommand(player.getName());
                                 }
                                 if (objective.hasCompletedMessage()) { // Display completed message if there is one
+                                    // todo: holotaskqueue somewhere here? cuz this needs a hologram? idk
                                     for (String message : objective.getCompletedMessage()) {
-                                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', Plugin.parseMessage(message, player.getName())));
+                                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', new SpeechParser(message, player).getParsedMessage()));
                                     }
                                 }
-                                TaskQueue queue;
-                                if (talkObjective.getQuestNpc().addNpcName()) {
-                                    queue = new TaskQueue(makeSpeechRunnables(player, talkObjective.getQuestNpc().getSpeech(), talkObjective.getQuestNpc().getNpcName())); // Put the NPC speech in a task queue
-                                } else {
-                                    queue = new TaskQueue(makeSpeechRunnables(player, talkObjective.getQuestNpc().getSpeech())); // Put the NPC speech in a task queue
-                                }
-                                queue.setCompletedTask(() -> npcs.remove(talkObjective.getQuestNpc().getId()));
+                                HologramTaskQueue queue = new HologramTaskQueue(HologramTaskQueue.QuestResponse.STARTED, QuestNpc.getQuestNpcLocation(talkObjective.getQuestNpc()), player, talkObjective.getQuestNpc().getSpeech());
+                                queue.setCompletedTask(() -> npcTaskQueues.remove(talkObjective.getQuestNpc().getId()));
                                 if (!Objects.equals(objective.getObjectiveNumber(), QuestObjective.getLastObjective(quest.getObjectives()).getObjectiveNumber())) { // Check that this is not the last objective
                                     // Add the new objective message to the task queue
                                     queue.addTasks(() -> {
+                                        queue.getHologram().delete();
                                         String goalMessage = ChatColor.translateAlternateColorCodes('&', QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() + 1).getGoalMessage());
                                         player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&l&6New objective for: &r&l&e") + quest.getQuestName());
                                         player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + goalMessage));
@@ -163,6 +131,7 @@ public class EventClickNpc implements Listener {
                                 } else { // If this is the last objective then...
                                     // Add the quest rewards to the task queue
                                     queue.addTasks(() -> {
+                                        queue.getHologram().delete();
                                         if (quest.isRepeatable()) { // If the quest is repeatable, then handle the state management (cooldowns handled in CompleteListener)
                                             quest.getQuestState().setStarted(false);
                                             quest.getFirstNPC().setState(FirstNpcState.NEUTRAL);
@@ -187,7 +156,7 @@ public class EventClickNpc implements Listener {
                                         Bukkit.getServer().getPluginManager().callEvent(new QuestCompleteEvent(quest, questProfile)); // Fire the quest completed event
                                     });
                                 }
-                                npcs.put(talkObjective.getQuestNpc().getId(), queue); // Add the queue to the NPCs that are being talked to
+                                npcTaskQueues.put(talkObjective.getQuestNpc().getId(), queue); // Add the queue to the NPCs that are being talked to
                                 queue.startTasks();
                                 return;
                             }
@@ -202,7 +171,7 @@ public class EventClickNpc implements Listener {
                 if ((quest.getFirstNPC().getNpcId().equals(event.getNpcId()))
                         && Plugin.canStartRepeatableQuest(event.getPlayer().getUniqueId(), quest.getQuestID())) { // Check for an NPC id match between the first NPC and the clicked NPC
                     if (!QuestObjective.getObjective(quest.getObjectives(), 1).isCompleted() || quest.isRepeatable()) { // Check that the first objective has not been completed
-                        if (!npcs.containsKey(quest.getFirstNPC().getId())) { // Check that the player is not currently talking with the NPC
+                        if (!npcTaskQueues.containsKey(quest.getFirstNPC().getId())) { // Check that the player is not currently talking with the NPC
                             if (quest.getFirstNPC().getState() != FirstNpcState.ACCEPTED || (quest.isRepeatable() && Plugin.allObjectivesComplete(quest))) { // Check that the player has not yet accepted the quest
                                 if (quest.isRepeatable()) { // Check if the quest is repeatable
                                     for (QuestObjective qobjective : quest.getObjectives()) { // Reset all the objective stats (mobs killed and blocks broken)
@@ -224,14 +193,9 @@ public class EventClickNpc implements Listener {
                                         player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.5f, 1.0f);
                                         meetsRequirements = false;
                                         if (quest.getRequirements().hasCompletedQuestsNotMetMsg()) {
-                                            TaskQueue queue;
-                                            if (quest.getFirstNPC().addNpcName()) {
-                                                queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getCompletedQuestsNotMetMsg(), quest.getFirstNPC().getNpcName())); // Create a task queue with the quests completed not met message
-                                            } else {
-                                                queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getCompletedQuestsNotMetMsg())); // Create a task queue with the quests completed not met message
-                                            }
-                                            queue.setCompletedTask(() -> npcs.remove(quest.getFirstNPC().getId()));
-                                            npcs.put(quest.getFirstNPC().getId(), queue);
+                                            HologramTaskQueue queue = new HologramTaskQueue(HologramTaskQueue.QuestResponse.REQUIREMENTS_NOT_MET, quest.getFirstNPC().getLocation(), player, quest.getRequirements().getCompletedQuestsNotMetMsg()); // Create a task queue with the quests completed not met message
+                                            queue.setCompletedTask(() -> npcTaskQueues.remove(quest.getFirstNPC().getId()));
+                                            npcTaskQueues.put(quest.getFirstNPC().getId(), queue);
                                             queue.startTasks();
                                         }
                                     }
@@ -241,14 +205,9 @@ public class EventClickNpc implements Listener {
                                         player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.5f, 1.0f);
                                         meetsRequirements = false;
                                         if (quest.getRequirements().hasLevelNotMetMsg()) {
-                                            TaskQueue queue;
-                                            if (quest.getFirstNPC().addNpcName()) {
-                                                queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getLevelNotMetMsg(), quest.getFirstNPC().getNpcName())); // Create a task queue with the level not met message
-                                            } else {
-                                                queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getLevelNotMetMsg())); // Create a task queue with the level not met message
-                                            }
-                                            queue.setCompletedTask(() -> npcs.remove(quest.getFirstNPC().getId()));
-                                            npcs.put(quest.getFirstNPC().getId(), queue);
+                                            HologramTaskQueue queue = new HologramTaskQueue(HologramTaskQueue.QuestResponse.REQUIREMENTS_NOT_MET, quest.getFirstNPC().getLocation(), player, quest.getRequirements().getLevelNotMetMsg()); // Create a task queue with the level not met message
+                                            queue.setCompletedTask(() -> npcTaskQueues.remove(quest.getFirstNPC().getId()));
+                                            npcTaskQueues.put(quest.getFirstNPC().getId(), queue);
                                             queue.startTasks();
                                         }
                                     }
@@ -260,14 +219,9 @@ public class EventClickNpc implements Listener {
                                                 player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.5f, 1.0f);
                                                 meetsRequirements = false;
                                                 if (quest.getRequirements().hasCraftingLevelNotMetMsg()) {
-                                                    TaskQueue queue;
-                                                    if (quest.getFirstNPC().addNpcName()) {
-                                                        queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getCraftingLevelNotMetMsg(), quest.getFirstNPC().getNpcName())); // Create a task queue with the crafting not met message
-                                                    } else {
-                                                        queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getCraftingLevelNotMetMsg())); // Create a task queue with the crafting not met message
-                                                    }
-                                                    queue.setCompletedTask(() -> npcs.remove(quest.getFirstNPC().getId()));
-                                                    npcs.put(quest.getFirstNPC().getId(), queue);
+                                                    HologramTaskQueue queue = new HologramTaskQueue(HologramTaskQueue.QuestResponse.REQUIREMENTS_NOT_MET, quest.getFirstNPC().getLocation(), player, quest.getRequirements().getCraftingLevelNotMetMsg());
+                                                    queue.setCompletedTask(() -> npcTaskQueues.remove(quest.getFirstNPC().getId()));
+                                                    npcTaskQueues.put(quest.getFirstNPC().getId(), queue);
                                                     queue.startTasks();
                                                 }
                                             }
@@ -280,14 +234,9 @@ public class EventClickNpc implements Listener {
                                             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 0.5f, 1.0f);
                                             meetsRequirements = false;
                                             if (quest.getRequirements().hasClassNotMetMsg()) {
-                                                TaskQueue queue;
-                                                if (quest.getFirstNPC().addNpcName()) {
-                                                    queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getClassTypeNotMetMsg(), quest.getFirstNPC().getNpcName())); // Create a task queue with the class type not met message
-                                                } else {
-                                                    queue = new TaskQueue(makeSpeechRunnables(player, quest.getRequirements().getClassTypeNotMetMsg())); // Create a task queue with the class type not met message
-                                                }
-                                                queue.setCompletedTask(() -> npcs.remove(quest.getFirstNPC().getId()));
-                                                npcs.put(quest.getFirstNPC().getId(), queue);
+                                                HologramTaskQueue queue = new HologramTaskQueue(HologramTaskQueue.QuestResponse.REQUIREMENTS_NOT_MET, quest.getFirstNPC().getLocation(), player, quest.getRequirements().getClassTypeNotMetMsg());
+                                                queue.setCompletedTask(() -> npcTaskQueues.remove(quest.getFirstNPC().getId()));
+                                                npcTaskQueues.put(quest.getFirstNPC().getId(), queue);
                                                 queue.startTasks();
                                             }
                                         }
@@ -301,25 +250,21 @@ public class EventClickNpc implements Listener {
                                     if (quest.getFirstNPC().hasExecute()) { // Execute the first NPC commands
                                         quest.getFirstNPC().executeCommand(player.getName());
                                     }
-                                    TaskQueue queue;
-                                    if (quest.getFirstNPC().addNpcName()) {
-                                        queue = new TaskQueue(makeSpeechRunnables(player, quest.getFirstNPC().getSpeech(), quest.getFirstNPC().getNpcName())); // Create a task queue with the first NPC speech
-                                    } else {
-                                        queue = new TaskQueue(makeSpeechRunnables(player, quest.getFirstNPC().getSpeech())); // Create a task queue with the first NPC speech
-                                    }
+                                    HologramTaskQueue queue = new HologramTaskQueue(HologramTaskQueue.QuestResponse.STARTED, quest.getFirstNPC().getLocation(), player, quest.getFirstNPC().getSpeech()); // Create a task queue with the first NPC speech
                                     queue.setCompletedTask(() -> {
-                                        npcs.remove(quest.getFirstNPC().getId());
+                                        npcTaskQueues.remove(quest.getFirstNPC().getId());
                                         quest.getFirstNPC().setState(FirstNpcState.ACCEPTED);
                                         questProfile.save();
                                     });
                                     queue.addTasks(() -> {
+                                        queue.getHologram().delete();
                                         String goalMessage = ChatColor.translateAlternateColorCodes('&', QuestObjective.getObjective(quest.getObjectives(), 1).getGoalMessage());
                                         player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&l&6New objective for: &r&l&e") + quest.getQuestName());
                                         player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + goalMessage));
                                         player.sendTitle(ChatColor.GOLD + "New Objective", ChatColor.YELLOW + goalMessage, 10, 80, 10); // Send a goal message title
                                         Plugin.updatePlayerCachedLocations(player);
                                     });
-                                    npcs.put(quest.getFirstNPC().getId(), queue);
+                                    npcTaskQueues.put(quest.getFirstNPC().getId(), queue);
                                     queue.startTasks();
                                     return;
                                 } else {
@@ -327,7 +272,7 @@ public class EventClickNpc implements Listener {
                                 }
                             }
                         } else { // If the player IS talking to this NPC currently, then...
-                            npcs.get(quest.getFirstNPC().getId()).nextTask(); // Move to next speech line
+                            npcTaskQueues.get(quest.getFirstNPC().getId()).nextTask(); // Move to next speech line
                             return;
                         }
                     }
@@ -378,14 +323,9 @@ public class EventClickNpc implements Listener {
                                         }
                                     }
                                 }
-                                TaskQueue queue;
-                                if (talkObjective.getQuestNpc().addNpcName()) {
-                                    queue = new TaskQueue(makeSpeechRunnables(player, idleMessage.getSpeech(), talkObjective.getQuestNpc().getNpcName())); // Creates a task queue with the idle message
-                                } else {
-                                    queue = new TaskQueue(makeSpeechRunnables(player, idleMessage.getSpeech())); // Creates a task queue with the idle message
-                                }
-                                queue.setCompletedTask(() -> npcs.remove(talkObjective.getQuestNpc().getId()));
-                                npcs.put(talkObjective.getQuestNpc().getId(), queue);
+                                HologramTaskQueue queue = new HologramTaskQueue(HologramTaskQueue.QuestResponse.STARTED, QuestNpc.getQuestNpcLocation(talkObjective.getQuestNpc()), player, idleMessage.getSpeech());
+                                queue.setCompletedTask(() -> npcTaskQueues.remove(talkObjective.getQuestNpc().getId()));
+                                npcTaskQueues.put(talkObjective.getQuestNpc().getId(), queue);
                                 queue.startTasks();
                                 return;
                             }

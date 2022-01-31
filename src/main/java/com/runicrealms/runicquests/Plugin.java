@@ -1,7 +1,10 @@
 package com.runicrealms.runicquests;
 
 import com.runicrealms.plugin.character.api.CharacterApi;
-import com.runicrealms.runicquests.command.*;
+import com.runicrealms.runicquests.command.CompleteQuestCommand;
+import com.runicrealms.runicquests.command.QuestsCommand;
+import com.runicrealms.runicquests.command.ResetQuestsCommand;
+import com.runicrealms.runicquests.command.TutorialWeaponCommand;
 import com.runicrealms.runicquests.config.ConfigLoader;
 import com.runicrealms.runicquests.data.PlayerDataLoader;
 import com.runicrealms.runicquests.data.QuestProfile;
@@ -226,16 +229,6 @@ public class Plugin extends JavaPlugin {
         return aquiredQuestItems == objective.getQuestItems().size();
     }
 
-    public static String parseMessage(String msg, String playerName) { // Parse an NPC message and replace %player% with player name, and run commands
-        String[] parts = msg.replaceAll("%player%", playerName).split("//");
-        if (parts.length != 1) {
-            for (int i = 1; i < parts.length; i++) {
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), parts[i]);
-            }
-        }
-        return parts[0];
-    }
-
     public static QuestProfile getQuestProfile(String uuid) {
         return PlayerDataLoader.getPlayerQuestData(UUID.fromString(uuid));
     }
@@ -272,7 +265,7 @@ public class Plugin extends JavaPlugin {
         registerCommand(new CompleteQuestCommand(), "completequest", "questcomplete", "cq", "qc");
         registerCommand(new QuestsCommand(), "quests", "quest", "objectives", "objective");
         registerCommand(new ResetQuestsCommand(), "resetquests", "questsreset", "resetquest", "questreset", "rq", "qr");
-        registerCommand(new QuestTriggerCommand(), "questtrigger");
+//        registerCommand(new QuestTriggerCommand(), "questtrigger");
         registerCommand(new TutorialWeaponCommand(), "tutorialweapon");
         for (Player player : Bukkit.getOnlinePlayers()) {
             updatePlayerCachedLocations(player);

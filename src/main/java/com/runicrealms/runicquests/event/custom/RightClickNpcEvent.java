@@ -3,7 +3,11 @@ package com.runicrealms.runicquests.event.custom;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
+/**
+ * Handles interaction with client-side (packet-based) npcs
+ */
 public class RightClickNpcEvent extends Event {
 
     private static final HandlerList handlers = new HandlerList();
@@ -19,6 +23,7 @@ public class RightClickNpcEvent extends Event {
         return handlers;
     }
 
+    @NotNull
     public HandlerList getHandlers() {
         return handlers;
     }

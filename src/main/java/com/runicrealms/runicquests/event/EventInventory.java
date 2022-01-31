@@ -5,6 +5,7 @@ import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.data.PlayerDataLoader;
 import com.runicrealms.runicquests.data.QuestProfile;
 import com.runicrealms.runicquests.quests.Quest;
+import com.runicrealms.runicquests.util.QuestionMarkUtil;
 import com.runicrealms.runicquests.util.RunicCoreHook;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -40,6 +41,10 @@ public class EventInventory implements Listener {
         Map<Integer, ItemStack> items = new HashMap<>();
         QuestList questList = getSortedNonRepeatableQuests(player, showRepeatableQuests);
         List<Quest> quests = questList.getSortedQuests();
+        int[] slots = new int[]{1, 2, 3, 6, 7};
+        for (int slot : slots) {
+            items.put(slot, GUIUtil.borderItem());
+        }
         if (page == 1)
             items.put(0, GUIUtil.closeButton());
         else
@@ -160,10 +165,10 @@ public class EventInventory implements Listener {
     }
 
     private static ItemStack toggleShowRepeatableQuestsItem() {
-        ItemStack infoPaper = new ItemStack(Material.LIGHT_BLUE_DYE);
+        ItemStack infoPaper = QuestionMarkUtil.blueQuestionMark().clone();
         ItemMeta meta = infoPaper.getItemMeta();
         assert meta != null;
-        meta.setDisplayName(ChatColor.GOLD + "Toggle Repeatable Quests");
+        meta.setDisplayName(ChatColor.AQUA + "Toggle Repeatable Quests");
         meta.setLore(Arrays.asList(ChatColor.GRAY + "If toggled, only repeatable quests", ChatColor.GRAY + "will be shown!"));
         infoPaper.setItemMeta(meta);
         return infoPaper;

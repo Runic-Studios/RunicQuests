@@ -13,6 +13,7 @@ import com.runicrealms.runicquests.quests.objective.QuestObjective;
 import com.runicrealms.runicquests.quests.objective.QuestObjectiveBreak;
 import com.runicrealms.runicquests.task.TaskQueue;
 import com.runicrealms.runicquests.util.RunicCoreHook;
+import com.runicrealms.runicquests.util.SpeechParser;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
@@ -87,7 +88,7 @@ public class EventBreakBlock implements Listener {
                                 if (objective.hasCompletedMessage()) { // If the objective has a completed message
                                     List<Runnable> runnables = new ArrayList<Runnable>();
                                     for (String message : objective.getCompletedMessage()) { // Put the completed message into a task queue
-                                        runnables.add(() -> player.sendMessage(ChatColor.translateAlternateColorCodes('&', Plugin.parseMessage(message, player.getName()))));
+                                        runnables.add(() -> player.sendMessage(ChatColor.translateAlternateColorCodes('&', new SpeechParser(message, player).getParsedMessage())));
                                     }
                                     // Put the goal message into the task queue
                                     runnables.add(() -> {
@@ -112,7 +113,7 @@ public class EventBreakBlock implements Listener {
                                 if (objective.hasCompletedMessage()) { // If there is a completed message
                                     List<Runnable> runnables = new ArrayList<Runnable>();
                                     for (String message : objective.getCompletedMessage()) { // Create a task queue with the completed message
-                                        runnables.add(() -> player.sendMessage(ChatColor.translateAlternateColorCodes('&', Plugin.parseMessage(message, player.getName()))));
+                                        runnables.add(() -> player.sendMessage(ChatColor.translateAlternateColorCodes('&', new SpeechParser(message, player).getParsedMessage())));
                                     }
                                     TaskQueue queue = new TaskQueue(runnables);
                                     // Add the quest rewards to the task queue
