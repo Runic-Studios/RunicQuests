@@ -72,11 +72,11 @@ public class EventPlayerLocation implements Listener {
             if (!objective.getObjectiveNumber().equals(QuestObjective.getLastObjective(quest.getObjectives()).getObjectiveNumber())) { // Check that we haven't completed the quest
                 String goalMessage = ChatColor.translateAlternateColorCodes('&', QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() + 1).getGoalMessage()); // Get the goal message
                 if (objective.hasCompletedMessage()) { // Check for a completed message
-                    List<Runnable> runnables = new ArrayList<Runnable>();
+                    List<Runnable> runnables = new ArrayList<>();
                     SpeechParser speechParser = new SpeechParser(player);
                     for (String message : objective.getCompletedMessage()) { // Create a task queue with the completed message
-                        speechParser.updateParsedMessage(message);
                         runnables.add(() -> {
+                            speechParser.updateParsedMessage(message);
                             player.sendMessage(ChatColor.translateAlternateColorCodes('&', speechParser.getParsedMessage()));
                             speechParser.executeCommands();
                         });

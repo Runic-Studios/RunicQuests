@@ -80,8 +80,8 @@ public class EventKillMythicMob implements Listener {
                                             List<Runnable> runnables = new ArrayList<>();
                                             SpeechParser speechParser = new SpeechParser(player);
                                             for (String message : objective.getCompletedMessage()) {
-                                                speechParser.updateParsedMessage(ChatColor.translateAlternateColorCodes('&', (message)));
                                                 runnables.add(() -> {
+                                                    speechParser.updateParsedMessage(ChatColor.translateAlternateColorCodes('&', (message)));
                                                     player.sendMessage(speechParser.getParsedMessage());
                                                     speechParser.executeCommands();
                                                 });
@@ -109,12 +109,9 @@ public class EventKillMythicMob implements Listener {
                                             List<Runnable> runnables = new ArrayList<>();
                                             SpeechParser speechParser = new SpeechParser(player);
                                             for (String message : objective.getCompletedMessage()) {
-//                                                Bukkit.broadcastMessage(ChatColor.LIGHT_PURPLE + message);
-
                                                 runnables.add(() -> {
                                                     speechParser.updateParsedMessage(message);
                                                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', speechParser.getParsedMessage()));
-                                                    player.sendMessage(message);
                                                     speechParser.executeCommands();
                                                 });
                                             }

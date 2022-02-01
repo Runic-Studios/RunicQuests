@@ -67,7 +67,7 @@ public class HologramTaskQueue extends TaskQueue {
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', questResponse.getChatColor() + speechParser.getParsedMessage()));
                 } else {
                     List<String> formatted = ChatUtils.formattedText(speechParser.getParsedMessage(), 35);
-                    hologram.teleport(this.npcLocation.clone().add(0, 2 + (0.5 * formatted.size()), 0)); // needs to sit 3 above ? 2.5 + 0.5 (
+                    hologram.teleport(this.npcLocation.clone().add(0, 2.5 + (0.25 * formatted.size()), 0)); // needs to sit 3 above ? 2.5 + 0.5 (
                     for (String s : formatted) {
                         hologram.appendTextLine(ChatColor.translateAlternateColorCodes('&', questResponse.getChatColor() + s));
                     }
