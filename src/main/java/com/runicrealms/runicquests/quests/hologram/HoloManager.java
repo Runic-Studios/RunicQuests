@@ -119,4 +119,8 @@ public class HoloManager implements Listener {
             }
         }
     }
+
+    public Map<Integer, Map<FirstNpcHoloType, Hologram>> getHologramMap() {
+        return hologramMap;
+    }
 }

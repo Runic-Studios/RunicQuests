@@ -36,17 +36,7 @@ public class PassiveNpcClickListener implements Listener {
 
     private void sendFirstMessage(PassiveNpc passiveNpc, Player player) {
         List<String> dialogue = passiveNpc.getDialogue();
-//        List<Runnable> runnables = new ArrayList<>();
-//        boolean override = passiveNpc.isOverrideText();
-
-//        for (String message : dialogue) {
-//            if (!override) {
-//                runnables.add(() -> player.sendMessage(ColorUtil.format("&7[" + (dialogue.indexOf(message) + 1) + "/" + dialogue.size() + "] &e" + passiveNpc.getName() + ": &6" + message)));
-//            } else {
-//                runnables.add(() -> player.sendMessage(ColorUtil.format(message)));
-//            }
-//        }
-        HologramTaskQueue hologramTaskQueue = new HologramTaskQueue(HologramTaskQueue.QuestResponse.STARTED, PassiveNpc.getPassiveNpcLocation(passiveNpc), player, dialogue);
+        HologramTaskQueue hologramTaskQueue = new HologramTaskQueue(HologramTaskQueue.QuestResponse.STARTED, null, PassiveNpc.getPassiveNpcLocation(passiveNpc), player, dialogue);
         hologramTaskQueue.setCompletedTask(() -> {
             passiveNpc.TALKING.remove(player.getUniqueId());
             hologramTaskQueue.getHologram().delete();
