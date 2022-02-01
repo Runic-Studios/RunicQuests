@@ -193,7 +193,7 @@ public class Quest implements Cloneable {
             item.setItemMeta(meta);
             return item;
         } else {
-            ItemStack item = StatusItemUtil.orangeStatusItem().clone();
+            ItemStack item = StatusItemUtil.goldStatusItem().clone();
             ItemMeta meta = item.getItemMeta();
             assert meta != null;
             List<String> lore = new ArrayList<>();

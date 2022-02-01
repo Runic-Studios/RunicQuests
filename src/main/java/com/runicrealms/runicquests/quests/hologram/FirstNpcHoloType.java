@@ -7,7 +7,7 @@ public enum FirstNpcHoloType {
 
     RED(StatusItemUtil.redStatusItem()),
     YELLOW(StatusItemUtil.yellowStatusItem()),
-    GOLD(StatusItemUtil.orangeStatusItem()),
+    GOLD(StatusItemUtil.goldStatusItem()),
     BLUE(StatusItemUtil.blueStatusItem()),
     GREEN(StatusItemUtil.greenStatusItem());
 
