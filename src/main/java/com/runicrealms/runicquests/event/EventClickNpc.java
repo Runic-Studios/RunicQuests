@@ -110,9 +110,8 @@ public class EventClickNpc implements Listener {
                                     objective.executeCommand(player.getName());
                                 }
                                 if (objective.hasCompletedMessage()) { // Display completed message if there is one
-                                    // todo: holotaskqueue somewhere here? cuz this needs a hologram? idk
                                     for (String message : objective.getCompletedMessage()) {
-                                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', new SpeechParser(message, player).getParsedMessage()));
+                                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', new SpeechParser(player, message).getParsedMessage()));
                                     }
                                 }
                                 HologramTaskQueue queue = new HologramTaskQueue(HologramTaskQueue.QuestResponse.STARTED, quest, QuestNpc.getQuestNpcLocation(talkObjective.getQuestNpc()), player, talkObjective.getQuestNpc().getSpeech());

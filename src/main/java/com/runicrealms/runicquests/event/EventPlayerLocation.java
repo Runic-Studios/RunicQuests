@@ -104,7 +104,7 @@ public class EventPlayerLocation implements Listener {
                 if (objective.hasCompletedMessage()) { // If we have a completed message
                     List<Runnable> runnables = new ArrayList<Runnable>();
                     for (String message : objective.getCompletedMessage()) { // Create a task queue with the completed message
-                        runnables.add(() -> player.sendMessage(ChatColor.translateAlternateColorCodes('&', new SpeechParser(message, player).getParsedMessage())));
+                        runnables.add(() -> player.sendMessage(ChatColor.translateAlternateColorCodes('&', new SpeechParser(player, message).getParsedMessage())));
                     }
                     TaskQueue queue = new TaskQueue(runnables);
                     // Add the quest rewards to the task queue

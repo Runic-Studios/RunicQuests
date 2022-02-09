@@ -37,12 +37,12 @@ public class SpeechParser {
     /**
      * Construct a speech parser with the given message
      *
-     * @param message to parse
      * @param player  to display message to
+     * @param message to parse
      */
-    public SpeechParser(String message, Player player) {
-        this.parsedMessage = parseMessage(message);
+    public SpeechParser(Player player, String message) {
         this.player = player;
+        this.parsedMessage = parseMessage(message);
     }
 
     public boolean isChatMessage() {
