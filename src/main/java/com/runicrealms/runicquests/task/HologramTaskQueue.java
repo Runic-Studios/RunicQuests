@@ -9,6 +9,7 @@ import com.runicrealms.runicquests.quests.hologram.FirstNpcHoloType;
 import com.runicrealms.runicquests.util.SpeechParser;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
@@ -83,6 +84,8 @@ public class HologramTaskQueue extends TaskQueue {
                 if (speechParser.isChatMessage()) {
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', questResponse.getChatColor() + speechParser.getParsedMessage()));
                 } else {
+                    if (!message.equals(messagesCloned.get(0))) // don't play sound on first click
+                        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.25f, 1.5f);
                     List<String> formatted = ChatUtils.formattedText(speechParser.getParsedMessage(), 35);
                     hologram.teleport(this.npcLocation.clone().add(0, 2.5 + (0.25 * formatted.size()), 0)); // needs to sit 3 above ? 2.5 + 0.5 (
                     for (String s : formatted) {
