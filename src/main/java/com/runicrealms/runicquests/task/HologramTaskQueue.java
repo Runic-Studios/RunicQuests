@@ -4,6 +4,7 @@ import com.gmail.filoghost.holographicdisplays.api.Hologram;
 import com.gmail.filoghost.holographicdisplays.api.HologramsAPI;
 import com.runicrealms.plugin.utilities.ChatUtils;
 import com.runicrealms.runicquests.Plugin;
+import com.runicrealms.runicquests.api.RunicQuestsAPI;
 import com.runicrealms.runicquests.quests.Quest;
 import com.runicrealms.runicquests.quests.hologram.FirstNpcHoloType;
 import com.runicrealms.runicquests.util.SpeechParser;
@@ -26,6 +27,7 @@ public class HologramTaskQueue extends TaskQueue {
     private final QuestResponse questResponse;
     private final Quest quest;
     private final Hologram hologram;
+    private final Integer npcId;
     private final Location npcLocation;
     private final Player player;
     private final SpeechParser speechParser;
@@ -39,10 +41,12 @@ public class HologramTaskQueue extends TaskQueue {
      * @param messages      the list of speech messages to display
      * @param questResponse determines the color of the hologram / text based on the state of the quest
      */
-    public HologramTaskQueue(QuestResponse questResponse, @Nullable Quest quest, Location npcLocation, Player player, List<String> messages) {
+    public HologramTaskQueue(QuestResponse questResponse, @Nullable Quest quest, @Nullable Integer npcId,
+                             Location npcLocation, Player player, List<String> messages) {
         super();
         this.questResponse = questResponse;
         this.quest = quest;
+        this.npcId = npcId;
         this.npcLocation = npcLocation;
         this.hologram = HologramsAPI.createHologram(Plugin.getInstance(), npcLocation);
         this.hologram.getVisibilityManager().setVisibleByDefault(false);
@@ -53,12 +57,31 @@ public class HologramTaskQueue extends TaskQueue {
     }
 
     /**
-     *
+     * Hides quest status holograms during dialogue
      */
-    private void hideQuestStatusHologram() {
+    private void changeQuestStatusHolograms(boolean display) {
+        if (npcId == null) return;
+        for (Quest q : RunicQuestsAPI.getQuestProfile(player).getQuests()) {
+            if (!q.getFirstNPC().getNpcId().equals(npcId)) continue;
+            if (q.equals(quest)) continue;
+            cleanUpStatusHologram(display, q);
+        }
+        cleanUpStatusHologram(display, this.quest);
+    }
+
+    /**
+     * For the given quest, determines a status hologram if the status hologram should be displayed, otherwise hides all status holograms
+     *
+     * @param display whether to hide the status hologram or display it
+     * @param quest   which quest to check
+     */
+    private void cleanUpStatusHologram(boolean display, Quest quest) {
         Map<Integer, Map<FirstNpcHoloType, Hologram>> hologramMap = Plugin.getHoloManager().getHologramMap();
         for (Hologram hologram : hologramMap.get(quest.getQuestID()).values()) {
-            hologram.getVisibilityManager().hideTo(player);
+            if (display)
+                Plugin.getHoloManager().determineHoloByStatus(player, quest).getVisibilityManager().showTo(player);
+            else
+                hologram.getVisibilityManager().hideTo(player);
         }
     }
 
@@ -70,7 +93,7 @@ public class HologramTaskQueue extends TaskQueue {
      */
     private List<Runnable> createHologramRunnables() {
         if (quest != null)
-            hideQuestStatusHologram();
+            changeQuestStatusHolograms(false);
         hologram.getVisibilityManager().showTo(player);
         List<Runnable> runnables = new ArrayList<>();
         List<String> messagesCloned = new ArrayList<>(messages); // all strings in Java are pass-by-reference, so we're cloning here to prevent side effects
@@ -96,7 +119,11 @@ public class HologramTaskQueue extends TaskQueue {
                 speechParser.executeCommands();
             });
         }
-        // todo: search queue.addTasks and setCompletedTask
+        if (questResponse == QuestResponse.REQUIREMENTS_NOT_MET)
+            runnables.add(() -> {
+                this.getHologram().delete();
+                changeQuestStatusHolograms(true);
+            });
         return runnables;
     }
 

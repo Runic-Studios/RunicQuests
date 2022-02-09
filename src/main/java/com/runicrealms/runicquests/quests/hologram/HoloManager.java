@@ -74,17 +74,17 @@ public class HoloManager implements Listener {
 
     @EventHandler
     public void onLoad(CharacterLoadEvent e) {
-        Bukkit.getScheduler().scheduleSyncDelayedTask(Plugin.getInstance(), () -> refreshHolograms(e.getPlayer()), 20L);
+        Bukkit.getScheduler().scheduleSyncDelayedTask(Plugin.getInstance(), () -> refreshStatusHolograms(e.getPlayer()), 20L);
     }
 
     @EventHandler
     public void onLevel(PlayerLevelChangeEvent e) {
-        refreshHolograms(e.getPlayer());
+        refreshStatusHolograms(e.getPlayer());
     }
 
     @EventHandler
     public void onQuestComplete(QuestCompleteEvent e) {
-        Bukkit.getScheduler().scheduleSyncDelayedTask(Plugin.getInstance(), () -> refreshHolograms(e.getPlayer()), 20L);
+        Bukkit.getScheduler().scheduleSyncDelayedTask(Plugin.getInstance(), () -> refreshStatusHolograms(e.getPlayer()), 20L);
     }
 
     /**
@@ -94,7 +94,7 @@ public class HoloManager implements Listener {
      * @param quest  A quest in the player's quest profile
      * @return A hologram to activate
      */
-    private Hologram determineHoloByStatus(Player player, Quest quest) {
+    public Hologram determineHoloByStatus(Player player, Quest quest) {
         Map<FirstNpcHoloType, Hologram> types = hologramMap.get(quest.getQuestID());
         if (quest.getQuestState().isCompleted())
             return types.get(FirstNpcHoloType.GREEN);
@@ -108,14 +108,16 @@ public class HoloManager implements Listener {
         return types.get(FirstNpcHoloType.GOLD);
     }
 
-    private void refreshHolograms(Player player) {
-        for (Quest q : RunicQuestsAPI.getQuestProfile(player).getQuests()) {
-            if (hologramMap.get(q.getQuestID()) != null) {
-                for (Hologram hologram : hologramMap.get(q.getQuestID()).values()) { // reset previous holograms
+    /**
+     * @param player
+     */
+    private void refreshStatusHolograms(Player player) {
+        for (Quest quest : RunicQuestsAPI.getQuestProfile(player).getQuests()) {
+            if (hologramMap.get(quest.getQuestID()) != null) {
+                for (Hologram hologram : hologramMap.get(quest.getQuestID()).values()) { // reset previous holograms
                     hologram.getVisibilityManager().hideTo(player);
                 }
-//                if (!q.getQuestState().hasStarted()) // no holograms for in-progress quests
-                determineHoloByStatus(player, q).getVisibilityManager().showTo(player);
+                determineHoloByStatus(player, quest).getVisibilityManager().showTo(player);
             }
         }
     }

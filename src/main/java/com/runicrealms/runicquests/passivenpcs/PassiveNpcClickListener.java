@@ -36,7 +36,15 @@ public class PassiveNpcClickListener implements Listener {
 
     private void sendFirstMessage(PassiveNpc passiveNpc, Player player) {
         List<String> dialogue = passiveNpc.getDialogue();
-        HologramTaskQueue hologramTaskQueue = new HologramTaskQueue(HologramTaskQueue.QuestResponse.STARTED, null, PassiveNpc.getPassiveNpcLocation(passiveNpc), player, dialogue);
+        HologramTaskQueue hologramTaskQueue = new HologramTaskQueue
+                (
+                        HologramTaskQueue.QuestResponse.STARTED,
+                        null,
+                        null,
+                        PassiveNpc.getPassiveNpcLocation(passiveNpc),
+                        player,
+                        dialogue
+                );
         hologramTaskQueue.setCompletedTask(() -> {
             passiveNpc.TALKING.remove(player.getUniqueId());
             hologramTaskQueue.getHologram().delete();
