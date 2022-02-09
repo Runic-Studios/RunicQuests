@@ -178,11 +178,18 @@ public class QuestMenu implements InventoryHolder {
         this.inventory.setItem(5, toggleShowRepeatableQuestsItem());
         this.inventory.setItem(8, forwardArrow());
 
-        int location = (currentPage - 1) * INVENTORY_SIZE; // holds our place in the list
+        int location = (currentPage - 1) * INVENTORY_SIZE; // holds our place in the list of pages
         try {
             for (int i = 0; i < INVENTORY_SIZE; i++) {
                 if ((location + i) < quests.size()) {
-                    this.inventory.setItem(i + QUEST_INVENTORY_FIRST_INDEX, quests.get((location + i)).generateQuestIcon(player));
+                    // adds a divider between started and not started quests
+                    if (i > 0
+                            && quests.get((location + (i - 1))) != null
+                            && quests.get((location + (i - 1))).getQuestState().hasStarted()
+                            && !quests.get((location + i)).getQuestState().hasStarted()) {
+                        this.inventory.setItem(this.getInventory().firstEmpty(), GUIUtil.borderItem());
+                    }
+                    this.inventory.setItem(this.getInventory().firstEmpty(), quests.get((location + i)).generateQuestIcon(player));
                 }
             }
         } catch (IndexOutOfBoundsException e) {
