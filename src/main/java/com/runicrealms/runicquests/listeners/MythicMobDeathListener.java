@@ -1,4 +1,4 @@
-package com.runicrealms.runicquests.event;
+package com.runicrealms.runicquests.listeners;
 
 import com.runicrealms.plugin.RunicCore;
 import com.runicrealms.plugin.character.api.CharacterApi;
@@ -28,7 +28,7 @@ import org.bukkit.event.Listener;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EventKillMythicMob implements Listener {
+public class MythicMobDeathListener implements Listener {
 
     private static final int KILL_COUNT_DIST_SQUARED = 250;
     private static final String PREFIX = "&6[Quest] »";

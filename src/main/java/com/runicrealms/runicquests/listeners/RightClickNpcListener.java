@@ -1,11 +1,11 @@
-package com.runicrealms.runicquests.event;
+package com.runicrealms.runicquests.listeners;
 
+import com.runicrealms.runicnpcs.api.NpcClickEvent;
 import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.api.QuestCompleteEvent;
 import com.runicrealms.runicquests.api.RunicQuestsAPI;
 import com.runicrealms.runicquests.data.PlayerDataLoader;
 import com.runicrealms.runicquests.data.QuestProfile;
-import com.runicrealms.runicquests.event.custom.RightClickNpcEvent;
 import com.runicrealms.runicquests.quests.*;
 import com.runicrealms.runicquests.quests.objective.QuestObjective;
 import com.runicrealms.runicquests.quests.objective.QuestObjectiveBreak;
@@ -26,10 +26,10 @@ import java.util.HashMap;
 import java.util.Objects;
 import java.util.Optional;
 
-public class EventClickNpc implements Listener {
+public class RightClickNpcListener implements Listener {
 
     @EventHandler
-    public void onNpcRightClick(RightClickNpcEvent event) {
+    public void onNpcRightClick(NpcClickEvent event) {
         Player player = event.getPlayer();
         QuestProfile questProfile = PlayerDataLoader.getPlayerQuestData(player.getUniqueId());
         HashMap<Long, TaskQueue> npcTaskQueues = Plugin.getNpcTaskQueues();
@@ -37,7 +37,7 @@ public class EventClickNpc implements Listener {
         questsLoop:
         for (Quest quest : questProfile.getQuests()) { // Loop through quests to find a match for the NPC
             if (quest.getQuestState().isCompleted() && !quest.isRepeatable()) { // Check for if the quest is completed
-                if (quest.getFirstNPC().getNpcId().equals(event.getNpcId())) { // Check for first NPC quest completed speech
+                if (quest.getFirstNPC().getNpcId().equals(event.getNpc().getId())) { // Check for first NPC quest completed speech
                     if (quest.getFirstNPC().hasQuestCompletedSpeech()) { // Create a task queue for the speech
                         HologramTaskQueue queue = new HologramTaskQueue(HologramTaskQueue.QuestResponse.COMPLETED, quest, quest.getFirstNPC().getNpcId(), quest.getFirstNPC().getLocation(), player, quest.getFirstNPC().getQuestCompletedSpeech());
                         queue.setCompletedTask(() -> npcTaskQueues.remove(quest.getFirstNPC().getId()));
@@ -51,7 +51,7 @@ public class EventClickNpc implements Listener {
                 for (QuestObjective objective : quest.getObjectives()) { // Loop through the objectives
                     if (objective.getObjectiveType() == QuestObjectiveType.TALK) { // Check the objective type
                         QuestObjectiveTalk talkObjective = (QuestObjectiveTalk) objective;
-                        if (talkObjective.getQuestNpc().getNpcId().equals(event.getNpcId())) { // Check that the NPC id matches the one that has been clicked
+                        if (talkObjective.getQuestNpc().getNpcId().equals(event.getNpc().getId())) { // Check that the NPC id matches the one that has been clicked
                             if (talkObjective.getQuestNpc().getNpcId().equals(quest.getFirstNPC().getNpcId())) { // Check if the NPC being talked to is the first NPC (same NPC used twice)
                                 if (npcTaskQueues.containsKey(quest.getFirstNPC().getId())) { // If you are talking to the first NPC, continue to next objective
                                     continue;
@@ -167,7 +167,7 @@ public class EventClickNpc implements Listener {
         for (Quest quest : questProfile.getQuests()) {
             if ((!quest.getQuestState().isCompleted()) ||
                     (quest.isRepeatable() && quest.getQuestState().hasStarted() && quest.getQuestState().isCompleted())) { // Check that the quest is not completed
-                if ((quest.getFirstNPC().getNpcId().equals(event.getNpcId()))
+                if ((quest.getFirstNPC().getNpcId().equals(event.getNpc().getId()))
                         && Plugin.canStartRepeatableQuest(event.getPlayer().getUniqueId(), quest.getQuestID())) { // Check for an NPC id match between the first NPC and the clicked NPC
                     if (!QuestObjective.getObjective(quest.getObjectives(), 1).isCompleted() || quest.isRepeatable()) { // Check that the first objective has not been completed
                         if (!npcTaskQueues.containsKey(quest.getFirstNPC().getId())) { // Check that the player is not currently talking with the NPC
@@ -316,7 +316,7 @@ public class EventClickNpc implements Listener {
                         }
                     }
                 }
-                if ((quest.getFirstNPC().getNpcId().equals(event.getNpcId()))
+                if ((quest.getFirstNPC().getNpcId().equals(event.getNpc().getId()))
                         && !Plugin.canStartRepeatableQuest(event.getPlayer().getUniqueId(), quest.getQuestID())) { // If the player is waiting on a quest cooldown (repeatable quests)
                     String time = RunicQuestsAPI.repeatableQuestTimeRemaining(player, quest.getQuestID());
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&7You must wait " + time + " before completing this quest again!"));
@@ -327,7 +327,7 @@ public class EventClickNpc implements Listener {
             for (QuestObjective objective : quest.getObjectives()) { // Loop through objectives
                 if (objective.getObjectiveType() == QuestObjectiveType.TALK) { // Check for objective of type talk
                     QuestObjectiveTalk talkObjective = (QuestObjectiveTalk) objective;
-                    if (talkObjective.getQuestNpc().getNpcId().equals(event.getNpcId())) { // Check that the NPC id matches the one clicked on
+                    if (talkObjective.getQuestNpc().getNpcId().equals(event.getNpc().getId())) { // Check that the NPC id matches the one clicked on
                         if (talkObjective.getQuestNpc().hasIdleSpeech()) { // Check for idle speech
                             idleMessageLoop:
                             // outer loop label

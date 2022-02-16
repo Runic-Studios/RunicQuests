@@ -1,4 +1,4 @@
-package com.runicrealms.runicquests.event;
+package com.runicrealms.runicquests.listeners;
 
 import com.runicrealms.plugin.character.api.CharacterApi;
 import com.runicrealms.runicquests.Plugin;
@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class EventBreakBlock implements Listener {
+public class BlockBreakListener implements Listener {
 
     @EventHandler
     public void onBreak(BlockBreakEvent event) {

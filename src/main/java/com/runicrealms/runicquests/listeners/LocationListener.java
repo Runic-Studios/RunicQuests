@@ -1,4 +1,4 @@
-package com.runicrealms.runicquests.event;
+package com.runicrealms.runicquests.listeners;
 
 import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.api.QuestCompleteEvent;
@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class EventPlayerLocation implements Listener {
+public class LocationListener implements Listener {
 
     public static void playerCompleteLocationObjective(Player player, Integer questID) {
         QuestProfile questProfile = PlayerDataLoader.getPlayerQuestData(player.getUniqueId());
