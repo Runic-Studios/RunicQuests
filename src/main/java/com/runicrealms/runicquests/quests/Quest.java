@@ -138,34 +138,26 @@ public class Quest implements Cloneable {
      */
     public ItemStack generateQuestIcon(Player player) {
         QuestProfile profile = Plugin.getQuestProfile(player.getUniqueId().toString());
+        ItemStack item;
+        ItemMeta meta;
+        List<String> lore = new ArrayList<>();
         if (this.getQuestState().isCompleted()) {
-            ItemStack item = StatusItemUtil.greenStatusItem().clone();
-            ItemMeta meta = item.getItemMeta();
+            item = StatusItemUtil.greenStatusItem().clone();
+            meta = item.getItemMeta();
             assert meta != null;
-            List<String> lore = new ArrayList<>();
             meta.setDisplayName(ChatColor.GREEN + this.getQuestName());
             lore.add(ChatColor.DARK_GREEN + "Completed");
-            lore.add(ChatColor.GRAY + "Level " + this.getRequirements().getClassLvReq());
-            meta.setLore(lore);
-            item.setItemMeta(meta);
-            return item;
         } else if (!RunicCoreHook.isReqClassLv(player, this.getRequirements().getClassLvReq())) {
-            ItemStack item = StatusItemUtil.redStatusItem().clone();
-            ItemMeta meta = item.getItemMeta();
+            item = StatusItemUtil.redStatusItem().clone();
+            meta = item.getItemMeta();
             assert meta != null;
-            List<String> lore = new ArrayList<>();
             meta.setDisplayName(ChatColor.RED + this.getQuestName());
             lore.add(ChatColor.DARK_RED + "You do not meet the level requirements!");
-            lore.add(ChatColor.GRAY + "Level " + this.getRequirements().getClassLvReq());
-            meta.setLore(lore);
-            item.setItemMeta(meta);
-            return item;
         } else if (this.isRepeatable()) {
             boolean canStart = Plugin.canStartRepeatableQuest(player.getUniqueId(), this.getQuestID());
-            ItemStack item = canStart ? StatusItemUtil.blueStatusItem().clone() : StatusItemUtil.greenStatusItem().clone();
-            ItemMeta meta = item.getItemMeta();
+            item = canStart ? StatusItemUtil.blueStatusItem().clone() : StatusItemUtil.greenStatusItem().clone();
+            meta = item.getItemMeta();
             assert meta != null;
-            List<String> lore = new ArrayList<>();
             meta.setDisplayName(ChatColor.AQUA + this.getQuestName());
             String[] messageLocation = Plugin.getFirstUncompletedGoalMessageAndLocation(this, profile);
             lore.add(ChatColor.YELLOW + ChatColor.translateAlternateColorCodes('&', messageLocation[0]));
@@ -173,41 +165,37 @@ public class Quest implements Cloneable {
                 lore.add(ChatColor.YELLOW + "Location: " + ChatColor.translateAlternateColorCodes('&', messageLocation[1]));
             }
             lore.add(canStart ? ChatColor.BLUE + "Can complete!" : ChatColor.GRAY + "On cooldown: " + ChatColor.WHITE + RunicQuestsAPI.repeatableQuestTimeRemaining(player, this.getQuestID()));
-            lore.add(ChatColor.GRAY + "Level " + this.getRequirements().getClassLvReq());
-            meta.setLore(lore);
-            item.setItemMeta(meta);
-            return item;
         } else if (this.isSideQuest()) {
-            ItemStack item = StatusItemUtil.yellowStatusItem().clone();
-            ItemMeta meta = item.getItemMeta();
+            item = StatusItemUtil.yellowStatusItem().clone();
+            meta = item.getItemMeta();
             assert meta != null;
-            List<String> lore = new ArrayList<>();
             meta.setDisplayName(ChatColor.YELLOW + this.getQuestName());
             String[] messageLocation = Plugin.getFirstUncompletedGoalMessageAndLocation(this, profile);
             lore.add(ChatColor.YELLOW + ChatColor.translateAlternateColorCodes('&', messageLocation[0]));
             if (!messageLocation[1].equalsIgnoreCase("")) {
                 lore.add(ChatColor.YELLOW + "Location: " + ChatColor.translateAlternateColorCodes('&', messageLocation[1]));
             }
-            lore.add(ChatColor.GRAY + "Level " + this.getRequirements().getClassLvReq());
-            meta.setLore(lore);
-            item.setItemMeta(meta);
-            return item;
         } else {
-            ItemStack item = StatusItemUtil.goldStatusItem().clone();
-            ItemMeta meta = item.getItemMeta();
+            item = StatusItemUtil.goldStatusItem().clone();
+            meta = item.getItemMeta();
             assert meta != null;
-            List<String> lore = new ArrayList<>();
             meta.setDisplayName(ChatColor.GOLD + this.getQuestName());
             String[] messageLocation = Plugin.getFirstUncompletedGoalMessageAndLocation(this, profile);
             lore.add(ChatColor.YELLOW + ChatColor.translateAlternateColorCodes('&', messageLocation[0]));
             if (!messageLocation[1].equalsIgnoreCase("")) {
                 lore.add(ChatColor.YELLOW + "Location: " + ChatColor.translateAlternateColorCodes('&', messageLocation[1]));
             }
-            lore.add(ChatColor.GRAY + "Level " + this.getRequirements().getClassLvReq());
-            meta.setLore(lore);
-            item.setItemMeta(meta);
-            return item;
         }
+        lore.add(ChatColor.GRAY + "Level " + this.getRequirements().getClassLvReq());
+        lore.add("");
+        lore.add(
+                "" + ChatColor.GRAY + ChatColor.ITALIC + "Rewards " +
+                        ChatColor.WHITE + ChatColor.ITALIC + this.getRewards().getExperienceReward() +
+                        ChatColor.GRAY + ChatColor.ITALIC + " experience"
+        );
+        meta.setLore(lore);
+        item.setItemMeta(meta);
+        return item;
     }
 
 }
