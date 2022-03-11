@@ -70,10 +70,10 @@ public class SpeechParser {
      * @return the message without commands
      */
     private String parseMessage(String message) {
-//        if (message.startsWith(CHAT_PREFIX)) {
-//            message = message.replaceAll("\\$", ""); // remove it
-//            this.chatMessage = true;
-//        }
+        if (message.contains(CHAT_PREFIX)) {
+            message = message.replaceAll("\\$", ""); // remove it "\\$"
+            this.chatMessage = true;
+        }
         String[] parts = message.replaceAll("%player%", player.getName()).split("//");
         if (parts.length != 1)
             commandsToExecute.addAll(Arrays.asList(parts).subList(1, parts.length));

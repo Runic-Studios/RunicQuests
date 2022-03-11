@@ -103,7 +103,6 @@ public class HologramTaskQueue extends TaskQueue {
             runnables.add(() -> {
                 hologram.clearLines();
                 speechParser.updateParsedMessage("&7[" + (messagesCloned.indexOf(message) + 1) + "/" + totalSpeechMessages + "] " + message);
-
                 if (speechParser.isChatMessage()) {
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', questResponse.getChatColor() + speechParser.getParsedMessage()));
                 } else {
