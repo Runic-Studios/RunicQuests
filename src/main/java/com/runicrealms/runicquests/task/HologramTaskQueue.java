@@ -118,7 +118,7 @@ public class HologramTaskQueue extends TaskQueue {
                 speechParser.executeCommands();
             });
         }
-        if (questResponse == QuestResponse.REQUIREMENTS_NOT_MET)
+        if (questResponse == QuestResponse.REQUIREMENTS_NOT_MET || questResponse == QuestResponse.IDLE)
             runnables.add(() -> {
                 this.getHologram().delete();
                 changeQuestStatusHolograms(true);
@@ -133,6 +133,7 @@ public class HologramTaskQueue extends TaskQueue {
     public enum QuestResponse {
         REQUIREMENTS_NOT_MET("&c"),
         STARTED("&6"),
+        IDLE("&6"),
         COMPLETED("&a");
 
         private final String chatColor;

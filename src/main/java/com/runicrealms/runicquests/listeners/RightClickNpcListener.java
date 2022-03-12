@@ -364,7 +364,7 @@ public class RightClickNpcListener implements Listener {
                                 }
                                 HologramTaskQueue queue = new HologramTaskQueue
                                         (
-                                                HologramTaskQueue.QuestResponse.STARTED,
+                                                HologramTaskQueue.QuestResponse.IDLE,
                                                 quest,
                                                 talkObjective.getQuestNpc().getNpcId(),
                                                 QuestNpc.getQuestNpcLocation(talkObjective.getQuestNpc()),
