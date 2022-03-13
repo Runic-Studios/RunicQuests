@@ -181,9 +181,8 @@ public class CompassManager implements Listener {
 
         public void send(Player player) {
             message.forEach(player::sendMessage);
-            Location clone = location.clone();
-            clone.setY(player.getLocation().getY());
-            player.sendMessage(ChatColor.GRAY + "Distance: " + ((int) player.getLocation().distance(clone)) + " blocks");
+            double distance = Math.sqrt(Math.pow(player.getLocation().getX() - location.getX(), 2) + Math.pow(player.getLocation().getZ() - location.getZ(), 2));
+            player.sendMessage(ChatColor.GRAY + "Distance: " + ((int) distance) + " blocks");
         }
 
     }
