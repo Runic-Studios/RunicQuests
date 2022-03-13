@@ -1,4 +1,4 @@
-package com.runicrealms.runicquests.event;
+package com.runicrealms.runicquests.listeners;
 
 import com.runicrealms.plugin.character.api.CharacterApi;
 import com.runicrealms.runicquests.Plugin;
@@ -13,6 +13,7 @@ import com.runicrealms.runicquests.quests.objective.QuestObjective;
 import com.runicrealms.runicquests.quests.objective.QuestObjectiveBreak;
 import com.runicrealms.runicquests.task.TaskQueue;
 import com.runicrealms.runicquests.util.RunicCoreHook;
+import com.runicrealms.runicquests.util.SpeechParser;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
@@ -26,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class EventBreakBlock implements Listener {
+public class BlockBreakListener implements Listener {
 
     @EventHandler
     public void onBreak(BlockBreakEvent event) {
@@ -85,9 +86,14 @@ public class EventBreakBlock implements Listener {
                             if (objective.getObjectiveNumber() != QuestObjective.getLastObjective(quest.getObjectives()).getObjectiveNumber()) { // If this is not the last objective
                                 String goalMessage = ChatColor.translateAlternateColorCodes('&', QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() + 1).getGoalMessage()); // Get goal message
                                 if (objective.hasCompletedMessage()) { // If the objective has a completed message
-                                    List<Runnable> runnables = new ArrayList<Runnable>();
+                                    List<Runnable> runnables = new ArrayList<>();
+                                    SpeechParser speechParser = new SpeechParser(player);
                                     for (String message : objective.getCompletedMessage()) { // Put the completed message into a task queue
-                                        runnables.add(() -> player.sendMessage(ChatColor.translateAlternateColorCodes('&', Plugin.parseMessage(message, player.getName()))));
+                                        runnables.add(() -> {
+                                            speechParser.updateParsedMessage(message);
+                                            player.sendMessage(ChatColor.translateAlternateColorCodes('&', speechParser.getParsedMessage()));
+                                            speechParser.executeCommands();
+                                        });
                                     }
                                     // Put the goal message into the task queue
                                     runnables.add(() -> {
@@ -110,9 +116,12 @@ public class EventBreakBlock implements Listener {
                                 quest.getQuestState().setCompleted(true);
                                 questProfile.save(questProfile.getQuestPoints() + quest.getRewards().getQuestPointsReward());
                                 if (objective.hasCompletedMessage()) { // If there is a completed message
-                                    List<Runnable> runnables = new ArrayList<Runnable>();
+                                    List<Runnable> runnables = new ArrayList<>();
+                                    SpeechParser speechParser = new SpeechParser(player);
                                     for (String message : objective.getCompletedMessage()) { // Create a task queue with the completed message
-                                        runnables.add(() -> player.sendMessage(ChatColor.translateAlternateColorCodes('&', Plugin.parseMessage(message, player.getName()))));
+                                        speechParser.updateParsedMessage(message);
+                                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', speechParser.getParsedMessage()));
+                                        speechParser.executeCommands();
                                     }
                                     TaskQueue queue = new TaskQueue(runnables);
                                     // Add the quest rewards to the task queue

@@ -4,8 +4,8 @@ import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.config.QuestLoader;
 import com.runicrealms.runicquests.data.PlayerDataLoader;
 import com.runicrealms.runicquests.data.QuestProfile;
-import com.runicrealms.runicquests.event.EventInventory;
 import com.runicrealms.runicquests.quests.Quest;
+import com.runicrealms.runicquests.ui.QuestMenu;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -43,7 +43,7 @@ public class RunicQuestsAPI {
      * @param player to shop quest menu to
      */
     public static void openQuestGui(Player player) {
-        EventInventory.openQuestGui(player, 1);
+        player.openInventory(new QuestMenu(player).getInventory());
     }
 
 }

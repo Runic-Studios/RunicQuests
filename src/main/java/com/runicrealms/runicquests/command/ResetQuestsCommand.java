@@ -2,7 +2,7 @@ package com.runicrealms.runicquests.command;
 
 import com.runicrealms.runicquests.data.PlayerDataLoader;
 import com.runicrealms.runicquests.data.QuestProfile;
-import com.runicrealms.runicquests.event.EventPlayerJoinQuit;
+import com.runicrealms.runicquests.listeners.JoinQuitListener;
 import com.runicrealms.runicquests.quests.Quest;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -15,6 +15,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ResetQuestsCommand implements CommandExecutor {
+
+    private static String combineArgs(String[] args, int start) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = start; i < args.length; i++) {
+            builder.append(args[i]);
+            if (i != args.length - 1) {
+                builder.append(" ");
+            }
+        }
+        return builder.toString();
+    }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -35,7 +46,7 @@ public class ResetQuestsCommand implements CommandExecutor {
                         quests.add(quest.clone());
                     }
                     profile.save(quests);
-                    EventPlayerJoinQuit.refreshPlayerData(otherPlayer);
+                    JoinQuitListener.refreshPlayerData(otherPlayer);
                     player.sendMessage(ChatColor.GREEN + "Reset their quest data!");
                 } else {
                     player.sendMessage(ChatColor.RED + "Player \"" + args[0] + "\" is not online.");
@@ -56,7 +67,7 @@ public class ResetQuestsCommand implements CommandExecutor {
                     }
                     if (reset) {
                         profile.save(quests);
-                        EventPlayerJoinQuit.refreshPlayerData(otherPlayer);
+                        JoinQuitListener.refreshPlayerData(otherPlayer);
                         player.sendMessage(ChatColor.GREEN + "Reset their quest data for quest \"" + combineArgs(args, 1) + "\"!");
                     } else {
                         player.sendMessage(ChatColor.RED + "Quest \"" + combineArgs(args, 1) + "\" does not exist.");
@@ -69,17 +80,6 @@ public class ResetQuestsCommand implements CommandExecutor {
             player.sendMessage(ChatColor.RED + "Only operators can use this!");
         }
         return true;
-    }
-
-    private static String combineArgs(String[] args, int start) {
-        StringBuilder builder = new StringBuilder();
-        for (int i = start; i < args.length; i++) {
-            builder.append(args[i]);
-            if (i != args.length - 1) {
-                builder.append(" ");
-            }
-        }
-        return builder.toString();
     }
 
 

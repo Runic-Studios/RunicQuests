@@ -37,7 +37,11 @@ public class QuestItemListener implements Listener {
         if (runicItem.getTags().contains(RunicItemTag.SOULBOUND)) return; // handled somewhere else
         e.setCancelled(true);
         e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.ENTITY_GENERIC_EXTINGUISH_FIRE, 0.5f, 1.0f);
-        e.getPlayer().sendMessage(ChatColor.RED + "This item will be destroyed. Are you sure? Type YES or NO");
+        e.getPlayer().sendMessage
+                (ChatColor.RED + "This item will be destroyed. Are you sure? Type " +
+                        ChatColor.GREEN + ChatColor.BOLD + "YES" + ChatColor.RED + " or " +
+                        ChatColor.RED + ChatColor.BOLD + "NO"
+                );
         BukkitTask bukkitTask = new BukkitRunnable() {
             @Override
             public void run() {

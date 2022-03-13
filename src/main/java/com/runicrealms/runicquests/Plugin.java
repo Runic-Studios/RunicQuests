@@ -1,15 +1,14 @@
 package com.runicrealms.runicquests;
 
 import com.runicrealms.plugin.character.api.CharacterApi;
-import com.runicrealms.runicquests.command.*;
+import com.runicrealms.runicquests.command.CompleteQuestCommand;
+import com.runicrealms.runicquests.command.QuestsCommand;
+import com.runicrealms.runicquests.command.ResetQuestsCommand;
+import com.runicrealms.runicquests.command.TutorialWeaponCommand;
 import com.runicrealms.runicquests.config.ConfigLoader;
 import com.runicrealms.runicquests.data.PlayerDataLoader;
 import com.runicrealms.runicquests.data.QuestProfile;
-import com.runicrealms.runicquests.event.*;
-import com.runicrealms.runicquests.event.custom.RightClickNpcHandler;
-import com.runicrealms.runicquests.listeners.JournalListener;
-import com.runicrealms.runicquests.listeners.QuestCompleteListener;
-import com.runicrealms.runicquests.listeners.QuestItemListener;
+import com.runicrealms.runicquests.listeners.*;
 import com.runicrealms.runicquests.listeners.questwriterlisteners.AncientWhalePowderListener;
 import com.runicrealms.runicquests.passivenpcs.PassiveNpcClickListener;
 import com.runicrealms.runicquests.passivenpcs.PassiveNpcHandler;
@@ -22,6 +21,8 @@ import com.runicrealms.runicquests.quests.location.LocationToReach;
 import com.runicrealms.runicquests.quests.objective.QuestObjective;
 import com.runicrealms.runicquests.quests.objective.QuestObjectiveLocation;
 import com.runicrealms.runicquests.task.TaskQueue;
+import com.runicrealms.runicquests.ui.JournalListener;
+import com.runicrealms.runicquests.ui.QuestMenuListener;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandExecutor;
@@ -74,7 +75,7 @@ public class Plugin extends JavaPlugin {
             for (Entry<Player, Map<Integer, LocationToReach>> entry : cachedLocations.entrySet()) {
                 for (Entry<Integer, LocationToReach> questLocationToReach : entry.getValue().entrySet()) {
                     if (questLocationToReach.getValue().hasReachedLocation(entry.getKey())) {
-                        EventPlayerLocation.playerCompleteLocationObjective(entry.getKey(), questLocationToReach.getKey());
+                        LocationListener.playerCompleteLocationObjective(entry.getKey(), questLocationToReach.getKey());
                         updatePlayerCachedLocations(entry.getKey());
                         break;
                     }
@@ -226,16 +227,6 @@ public class Plugin extends JavaPlugin {
         return aquiredQuestItems == objective.getQuestItems().size();
     }
 
-    public static String parseMessage(String msg, String playerName) { // Parse an NPC message and replace %player% with player name, and run commands
-        String[] parts = msg.replaceAll("%player%", playerName).split("//");
-        if (parts.length != 1) {
-            for (int i = 1; i < parts.length; i++) {
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), parts[i]);
-            }
-        }
-        return parts[0];
-    }
-
     public static QuestProfile getQuestProfile(String uuid) {
         return PlayerDataLoader.getPlayerQuestData(UUID.fromString(uuid));
     }
@@ -248,14 +239,13 @@ public class Plugin extends JavaPlugin {
         ConfigLoader.initDirs(); // Initialize directories that might not exist
         ConfigLoader.loadMainConfig(); // Initialize the main config file if it doesn't exist
         NPC_MESSAGE_DELAY = ConfigLoader.getMainConfig().getDouble("npc-message-delay"); // Get the config value
-        this.getServer().getPluginManager().registerEvents(new EventKillMythicMob(), this); // Register events
-        this.getServer().getPluginManager().registerEvents(new EventClickNpc(), this);
-        this.getServer().getPluginManager().registerEvents(new EventBreakBlock(), this);
-        this.getServer().getPluginManager().registerEvents(new EventPlayerJoinQuit(), this);
-        this.getServer().getPluginManager().registerEvents(new EventPlayerLocation(), this);
+        this.getServer().getPluginManager().registerEvents(new MythicMobDeathListener(), this); // Register events
+        this.getServer().getPluginManager().registerEvents(new RightClickNpcListener(), this);
+        this.getServer().getPluginManager().registerEvents(new BlockBreakListener(), this);
+        this.getServer().getPluginManager().registerEvents(new JoinQuitListener(), this);
+        this.getServer().getPluginManager().registerEvents(new LocationListener(), this);
         this.getServer().getPluginManager().registerEvents(new JournalListener(), this);
-        this.getServer().getPluginManager().registerEvents(new EventInventory(), this);
-        this.getServer().getPluginManager().registerEvents(new RightClickNpcHandler(), this);
+        this.getServer().getPluginManager().registerEvents(new QuestMenuListener(), this);
         this.getServer().getPluginManager().registerEvents(holoManager, this);
         this.getServer().getPluginManager().registerEvents(new PassiveNpcClickListener(), this);
         this.getServer().getPluginManager().registerEvents(new QuestItemListener(), this);
@@ -266,13 +256,13 @@ public class Plugin extends JavaPlugin {
 
         for (Player player : Bukkit.getOnlinePlayers()) { // Loop through online players (fixes bug with /reload)
             if (CharacterApi.getCurrentCharacterSlot(player) != null) {
-                EventPlayerJoinQuit.runJoinEvent(player, CharacterApi.getCurrentCharacterSlot(player)); // Read PlayerJoinQuitEvent.runJoinEvent
+                JoinQuitListener.runJoinEvent(player, CharacterApi.getCurrentCharacterSlot(player)); // Read PlayerJoinQuitEvent.runJoinEvent
             }
         }
         registerCommand(new CompleteQuestCommand(), "completequest", "questcomplete", "cq", "qc");
         registerCommand(new QuestsCommand(), "quests", "quest", "objectives", "objective");
         registerCommand(new ResetQuestsCommand(), "resetquests", "questsreset", "resetquest", "questreset", "rq", "qr");
-        registerCommand(new QuestTriggerCommand(), "questtrigger");
+//        registerCommand(new QuestTriggerCommand(), "questtrigger");
         registerCommand(new TutorialWeaponCommand(), "tutorialweapon");
         for (Player player : Bukkit.getOnlinePlayers()) {
             updatePlayerCachedLocations(player);
