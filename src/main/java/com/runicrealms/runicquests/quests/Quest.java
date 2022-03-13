@@ -142,20 +142,20 @@ public class Quest implements Cloneable {
         ItemMeta meta;
         List<String> lore = new ArrayList<>();
         if (this.getQuestState().isCompleted()) {
-            item = StatusItemUtil.greenStatusItem().clone();
+            item = StatusItemUtil.greenStatusItem.clone();
             meta = item.getItemMeta();
             assert meta != null;
             meta.setDisplayName(ChatColor.GREEN + this.getQuestName());
             lore.add(ChatColor.DARK_GREEN + "Completed");
         } else if (!RunicCoreHook.isReqClassLv(player, this.getRequirements().getClassLvReq())) {
-            item = StatusItemUtil.redStatusItem().clone();
+            item = StatusItemUtil.redStatusItem.clone();
             meta = item.getItemMeta();
             assert meta != null;
             meta.setDisplayName(ChatColor.RED + this.getQuestName());
             lore.add(ChatColor.DARK_RED + "You do not meet the level requirements!");
         } else if (this.isRepeatable()) {
             boolean canStart = Plugin.canStartRepeatableQuest(player.getUniqueId(), this.getQuestID());
-            item = canStart ? StatusItemUtil.blueStatusItem().clone() : StatusItemUtil.greenStatusItem().clone();
+            item = canStart ? StatusItemUtil.blueStatusItem.clone() : StatusItemUtil.greenStatusItem.clone();
             meta = item.getItemMeta();
             assert meta != null;
             meta.setDisplayName(ChatColor.AQUA + this.getQuestName());
@@ -166,7 +166,7 @@ public class Quest implements Cloneable {
             }
             lore.add(canStart ? ChatColor.BLUE + "Can complete!" : ChatColor.GRAY + "On cooldown: " + ChatColor.WHITE + RunicQuestsAPI.repeatableQuestTimeRemaining(player, this.getQuestID()));
         } else if (this.isSideQuest()) {
-            item = StatusItemUtil.yellowStatusItem().clone();
+            item = StatusItemUtil.yellowStatusItem.clone();
             meta = item.getItemMeta();
             assert meta != null;
             meta.setDisplayName(ChatColor.YELLOW + this.getQuestName());
@@ -176,7 +176,7 @@ public class Quest implements Cloneable {
                 lore.add(ChatColor.YELLOW + "Location: " + ChatColor.translateAlternateColorCodes('&', messageLocation[1]));
             }
         } else {
-            item = StatusItemUtil.goldStatusItem().clone();
+            item = StatusItemUtil.goldStatusItem.clone();
             meta = item.getItemMeta();
             assert meta != null;
             meta.setDisplayName(ChatColor.GOLD + this.getQuestName());

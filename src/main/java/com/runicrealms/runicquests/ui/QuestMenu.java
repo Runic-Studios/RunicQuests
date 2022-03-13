@@ -10,10 +10,13 @@ import com.runicrealms.runicquests.util.StatusItemUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.CompassMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
@@ -33,6 +36,49 @@ public class QuestMenu implements InventoryHolder {
     private final Player player;
     private boolean showRepeatableQuests;
     private int currentPage;
+
+    public static ItemStack forwardArrow = new ItemStack(Material.BROWN_STAINED_GLASS_PANE);
+
+    static {
+        ItemMeta meta = forwardArrow.getItemMeta();
+        assert meta != null;
+        meta.setDisplayName(ChatColor.GOLD + "Next Page");
+        forwardArrow.setItemMeta(meta);
+    }
+
+    public static ItemStack toggleShowRepeatableQuestsItem = StatusItemUtil.blueStatusItem.clone();
+
+    static {
+        ItemMeta meta = toggleShowRepeatableQuestsItem.getItemMeta();
+        assert meta != null;
+        meta.setDisplayName(ChatColor.AQUA + "Toggle Repeatable Quests");
+        meta.setLore(Arrays.asList(ChatColor.GRAY + "If toggled, only repeatable quests", ChatColor.GRAY + "will be shown!"));
+        toggleShowRepeatableQuestsItem.setItemMeta(meta);
+    }
+
+    public static ItemStack disableCompassItem = new ItemStack(Material.COMPASS);
+
+    static {
+        CompassMeta meta = (CompassMeta) disableCompassItem.getItemMeta();
+        meta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 1, true);
+        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        meta.setDisplayName(ChatColor.AQUA + "Disable Compass Tracking");
+        meta.setLore(Arrays.asList(ChatColor.GRAY + "Turn your compass back into the quest book!", ChatColor.GRAY + "You can always click on a quest to track it."));
+        disableCompassItem.setItemMeta(meta);
+    }
+
+    public static ItemStack trackCompassItem = new ItemStack(Material.WRITABLE_BOOK);
+
+    static {
+        ItemMeta meta = trackCompassItem.getItemMeta();
+        meta.setDisplayName(ChatColor.AQUA + "Compass Tracking");
+        meta.setLore(Arrays.asList(
+                ChatColor.GRAY + "Click on a quest to begin compass tracking.",
+                ChatColor.GRAY + "Your quest book will turn into a compass",
+                ChatColor.GRAY + "that leads you to your destination."
+        ));
+        trackCompassItem.setItemMeta(meta);
+    }
 
     public QuestMenu(Player player) {
         this.showRepeatableQuests = false;
@@ -93,24 +139,7 @@ public class QuestMenu implements InventoryHolder {
         return infoPaper;
     }
 
-    public static ItemStack toggleShowRepeatableQuestsItem() {
-        ItemStack infoPaper = StatusItemUtil.blueStatusItem().clone();
-        ItemMeta meta = infoPaper.getItemMeta();
-        assert meta != null;
-        meta.setDisplayName(ChatColor.AQUA + "Toggle Repeatable Quests");
-        meta.setLore(Arrays.asList(ChatColor.GRAY + "If toggled, only repeatable quests", ChatColor.GRAY + "will be shown!"));
-        infoPaper.setItemMeta(meta);
-        return infoPaper;
-    }
 
-    public static ItemStack forwardArrow() {
-        ItemStack arrow = new ItemStack(Material.BROWN_STAINED_GLASS_PANE);
-        ItemMeta meta = arrow.getItemMeta();
-        assert meta != null;
-        meta.setDisplayName(ChatColor.GOLD + "Next Page");
-        arrow.setItemMeta(meta);
-        return arrow;
-    }
 
     /**
      * Returns a list of quests sorted by level, adjust for player class, and other parameters
@@ -175,8 +204,15 @@ public class QuestMenu implements InventoryHolder {
         else
             this.inventory.setItem(0, GUIUtil.backButton());
         this.inventory.setItem(4, infoPaper(questList.getStartedQuestCount(), questList.getCompletedQuestCount(), quests.size(), showRepeatableQuests));
-        this.inventory.setItem(5, toggleShowRepeatableQuestsItem());
-        this.inventory.setItem(8, forwardArrow());
+        this.inventory.setItem(5, toggleShowRepeatableQuestsItem);
+        this.inventory.setItem(8, forwardArrow);
+        if (CompassManager.getCompasses().containsKey(player)
+                && CompassManager.getCompasses().get(player) != null
+                && CompassManager.getCompasses().get(player).getLocation() != null) {
+            this.inventory.setItem(2, disableCompassItem);
+        } else {
+            this.inventory.setItem(2, trackCompassItem);
+        }
 
         int location = (currentPage - 1) * INVENTORY_SIZE; // holds our place in the list of pages
         try {

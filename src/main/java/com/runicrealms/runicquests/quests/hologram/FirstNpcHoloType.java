@@ -5,11 +5,11 @@ import org.bukkit.inventory.ItemStack;
 
 public enum FirstNpcHoloType {
 
-    RED(StatusItemUtil.redStatusItem()),
-    YELLOW(StatusItemUtil.yellowStatusItem()),
-    GOLD(StatusItemUtil.goldStatusItem()),
-    BLUE(StatusItemUtil.blueStatusItem()),
-    GREEN(StatusItemUtil.greenStatusItem());
+    RED(StatusItemUtil.redStatusItem),
+    YELLOW(StatusItemUtil.yellowStatusItem),
+    GOLD(StatusItemUtil.goldStatusItem),
+    BLUE(StatusItemUtil.blueStatusItem),
+    GREEN(StatusItemUtil.greenStatusItem);
 
     private final ItemStack itemStack;
 

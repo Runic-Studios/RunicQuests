@@ -1,6 +1,7 @@
 package com.runicrealms.runicquests.ui;
 
 import com.runicrealms.plugin.utilities.GUIUtil;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -25,11 +26,14 @@ public class QuestMenuListener implements Listener {
             player.closeInventory();
         } else if (event.getCurrentItem().equals(GUIUtil.backButton())) {
             questMenu.openFirstPage();
-        } else if (event.getCurrentItem().equals(QuestMenu.forwardArrow())) {
+        } else if (event.getCurrentItem().equals(QuestMenu.forwardArrow)) {
             questMenu.openNextPage();
-        } else if (event.getCurrentItem().equals(QuestMenu.toggleShowRepeatableQuestsItem())) {
+        } else if (event.getCurrentItem().equals(QuestMenu.toggleShowRepeatableQuestsItem)) {
             questMenu.setShowRepeatableQuests(!questMenu.getShowRepeatableQuests());
             questMenu.openFirstPage();
+        } else if (event.getCurrentItem().equals(QuestMenu.disableCompassItem)) {
+            CompassManager.revertCompass(player);
+            event.getWhoClicked().sendMessage(ChatColor.DARK_GREEN + "" + ChatColor.BOLD + "Tracking is now disabled.");
         }
     }
 }
