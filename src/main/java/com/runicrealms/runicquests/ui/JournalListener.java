@@ -3,6 +3,7 @@ package com.runicrealms.runicquests.ui;
 import com.runicrealms.plugin.character.api.CharacterLoadEvent;
 import com.runicrealms.runicitems.RunicItemsAPI;
 import com.runicrealms.runicquests.Plugin;
+import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -56,9 +57,9 @@ public class JournalListener implements Listener {
 
         // don't trigger if there's no item in the slot to avoid null issues
         if (player.getInventory().getItem(7) == null) return;
-        ItemStack rune = player.getInventory().getItem(7);
+        ItemStack book = player.getInventory().getItem(7);
 
-        ItemMeta meta = Objects.requireNonNull(rune).getItemMeta();
+        ItemMeta meta = Objects.requireNonNull(book).getItemMeta();
         if (meta == null) return;
 
         // only activate in survival mode to save builders the headache
@@ -79,9 +80,18 @@ public class JournalListener implements Listener {
         if (slot != 7) return;
         // annoying 1.9 feature which makes the event run twice, once for each hand
         if (e.getHand() != EquipmentSlot.HAND) return;
-        if (e.getAction() != Action.RIGHT_CLICK_AIR && e.getAction() != Action.RIGHT_CLICK_BLOCK) return;
-        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1.0f);
-        player.openInventory(new QuestMenu(player).getInventory());
-        e.setCancelled(true);
+        if (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) {
+            player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1.0f);
+            player.openInventory(new QuestMenu(player).getInventory());
+            e.setCancelled(true);
+        } else if ((e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK)
+                && e.getPlayer().getInventory().getItemInMainHand().getType() == Material.COMPASS
+                && CompassManager.getCompasses().containsKey(e.getPlayer())
+                && CompassManager.getCompasses().get(e.getPlayer()).getLocation() != null) {
+            player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1.0f);
+            CompassManager.CompassLocation comp = CompassManager.getCompasses().get(e.getPlayer());
+            comp.send(player);
+            e.setCancelled(true);
+        }
     }
 }

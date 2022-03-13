@@ -5,6 +5,7 @@ import com.runicrealms.plugin.character.api.CharacterApi;
 import com.runicrealms.plugin.party.Party;
 import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.api.QuestCompleteEvent;
+import com.runicrealms.runicquests.api.QuestCompleteObjectiveEvent;
 import com.runicrealms.runicquests.data.PlayerDataLoader;
 import com.runicrealms.runicquests.data.QuestProfile;
 import com.runicrealms.runicquests.quests.FirstNpcState;
@@ -92,6 +93,7 @@ public class MythicMobDeathListener implements Listener {
                                                 if (objective.shouldDisplayNextObjectiveTitle())
                                                     player.sendTitle(ChatColor.GOLD + "New Objective", ChatColor.YELLOW + goalMessage, 10, 80, 10);  // Display a title on the screen
                                                 Plugin.updatePlayerCachedLocations(player);
+                                                Bukkit.getPluginManager().callEvent(new QuestCompleteObjectiveEvent(quest, questProfile, objective));
                                             });
                                             TaskQueue queue = new TaskQueue(runnables);
                                             queue.startTasks();
@@ -101,6 +103,7 @@ public class MythicMobDeathListener implements Listener {
                                             if (objective.shouldDisplayNextObjectiveTitle())
                                                 player.sendTitle(ChatColor.GOLD + "New Objective", ChatColor.YELLOW + goalMessage, 10, 80, 10);  // Display a title on the screen
                                             Plugin.updatePlayerCachedLocations(player);
+                                            Bukkit.getPluginManager().callEvent(new QuestCompleteObjectiveEvent(quest, questProfile, objective));
                                         }
                                     } else { // If we have completed the quest
                                         quest.getQuestState().setCompleted(true);

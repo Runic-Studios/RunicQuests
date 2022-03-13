@@ -3,6 +3,8 @@ package com.runicrealms.runicquests.listeners;
 import com.runicrealms.runicnpcs.api.NpcClickEvent;
 import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.api.QuestCompleteEvent;
+import com.runicrealms.runicquests.api.QuestCompleteObjectiveEvent;
+import com.runicrealms.runicquests.api.QuestStartEvent;
 import com.runicrealms.runicquests.api.RunicQuestsAPI;
 import com.runicrealms.runicquests.data.PlayerDataLoader;
 import com.runicrealms.runicquests.data.QuestProfile;
@@ -126,6 +128,7 @@ public class RightClickNpcListener implements Listener {
                                         if (objective.shouldDisplayNextObjectiveTitle())
                                             player.sendTitle(ChatColor.GOLD + "New Objective", ChatColor.YELLOW + goalMessage, 10, 80, 10); // Send a goal message title
                                         Plugin.updatePlayerCachedLocations(player);
+                                        Bukkit.getPluginManager().callEvent(new QuestCompleteObjectiveEvent(quest, questProfile, objective));
                                     });
                                 } else { // If this is the last objective then...
                                     // Add the quest rewards to the task queue
@@ -302,6 +305,7 @@ public class RightClickNpcListener implements Listener {
                                         player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e- &r&6" + goalMessage));
                                         player.sendTitle(ChatColor.GOLD + "New Objective", ChatColor.YELLOW + goalMessage, 10, 80, 10); // Send a goal message title
                                         Plugin.updatePlayerCachedLocations(player);
+                                        Bukkit.getPluginManager().callEvent(new QuestStartEvent(quest, questProfile, quest.getFirstNPC()));
                                     });
                                     npcTaskQueues.put(quest.getFirstNPC().getId(), queue);
                                     queue.startTasks();

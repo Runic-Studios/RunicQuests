@@ -21,10 +21,12 @@ import com.runicrealms.runicquests.quests.location.LocationToReach;
 import com.runicrealms.runicquests.quests.objective.QuestObjective;
 import com.runicrealms.runicquests.quests.objective.QuestObjectiveLocation;
 import com.runicrealms.runicquests.task.TaskQueue;
+import com.runicrealms.runicquests.ui.CompassManager;
 import com.runicrealms.runicquests.ui.JournalListener;
 import com.runicrealms.runicquests.ui.QuestMenuListener;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
@@ -50,7 +52,7 @@ public class Plugin extends JavaPlugin {
     private static HoloManager holoManager;
     private static PassiveNpcHandler passiveNpcHandler;
     private static Long nextId = Long.MIN_VALUE; // This is used to give each NPC a new unique ID.
-
+    
     private static void registerCommand(CommandExecutor executor, String... aliases) {
         for (String alias : aliases) {
             PluginCommand pluginCommand = getInstance().getCommand(alias);
@@ -250,6 +252,7 @@ public class Plugin extends JavaPlugin {
         this.getServer().getPluginManager().registerEvents(new PassiveNpcClickListener(), this);
         this.getServer().getPluginManager().registerEvents(new QuestItemListener(), this);
         this.getServer().getPluginManager().registerEvents(new QuestCompleteListener(), this);
+        this.getServer().getPluginManager().registerEvents(new CompassManager(), this);
 
         //quest writer listeners
         this.getServer().getPluginManager().registerEvents(new AncientWhalePowderListener(), this);

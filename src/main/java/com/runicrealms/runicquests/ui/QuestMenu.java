@@ -182,6 +182,7 @@ public class QuestMenu implements InventoryHolder {
         try {
             for (int i = 0; i < INVENTORY_SIZE; i++) {
                 if ((location + i) < quests.size()) {
+                    if (this.getInventory().firstEmpty() == -1) continue;
                     // adds a divider between started and not started quests
                     if (i > 0
                             && quests.get((location + (i - 1))) != null
