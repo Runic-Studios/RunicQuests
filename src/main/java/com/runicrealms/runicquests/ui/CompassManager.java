@@ -35,14 +35,15 @@ public class CompassManager implements Listener {
 
     public static Optional<Location> parseLocation(String goalLocationMessage, World world) {
         String[] words = goalLocationMessage.split(" ");
-        for (int i = 0; i < words.length - 2; i++) {
-            Double x = getDoubleOrNull(formatForCoord(words[i]));
-            if (x == null) continue;
-            Double y = getDoubleOrNull(formatForCoord(words[i + 1]));
-            if (y == null) continue;
-            Double z = getDoubleOrNull(formatForCoord(words[i + 2]));
-            if (z == null) continue;
-            return Optional.of(new Location(world, x, y, z));
+        for (int i = 0; i < words.length - 1; i++) {
+            Double first = getDoubleOrNull(formatForCoord(words[i]));
+            if (first == null) continue;
+            Double second = getDoubleOrNull(formatForCoord(words[i + 1]));
+            if (second == null) continue;
+            Double third = null;
+            if (i + 2 < words.length) third = getDoubleOrNull(formatForCoord(words[i + 2]));
+            if (third == null) return Optional.of(new Location(world, first, 0, second));
+            return Optional.of(new Location(world, first, second, third));
         }
         return Optional.empty();
     }
@@ -126,8 +127,7 @@ public class CompassManager implements Listener {
         ItemMeta meta = item.getItemMeta();
         for (String lore : meta.getLore()) {
             String stripped = ChatColor.stripColor(lore);
-            if (stripped.toLowerCase().startsWith("location: ")) stripped = stripped.replaceAll("location: ", "");
-            Optional<Location> opt = parseLocation(stripped, event.getWhoClicked().getWorld());
+            Optional<Location> opt = parseLocation(stripped.replaceAll("location: ", ""), event.getWhoClicked().getWorld());
             if (opt.isPresent()) {
                 event.setCancelled(true);
                 Location location = opt.get();
