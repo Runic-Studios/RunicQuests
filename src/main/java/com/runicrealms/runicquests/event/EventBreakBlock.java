@@ -56,7 +56,7 @@ public class EventBreakBlock implements Listener {
                                 if (event.getBlock().getLocation().getBlockX() != breakObjective.getBlockLocation().getBlockX() ||
                                         event.getBlock().getLocation().getBlockY() != breakObjective.getBlockLocation().getBlockY() ||
                                         event.getBlock().getLocation().getBlockZ() != breakObjective.getBlockLocation().getBlockZ() ||
-                                        event.getBlock().getWorld().getName().equalsIgnoreCase(breakObjective.getBlockLocation().getWorld().getName()) == false) { // Check the block location
+                                        !event.getBlock().getWorld().getName().equalsIgnoreCase(breakObjective.getBlockLocation().getWorld().getName())) { // Check the block location
                                     continue;
                                 }
                             }

@@ -20,7 +20,7 @@ public class QuestsCommand implements CommandExecutor {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		if (sender instanceof Player == false) {
+		if (!(sender instanceof Player)) {
 			sender.sendMessage(ChatColor.RED + "Only players can use this!");
 			return true;
 		}
@@ -32,7 +32,7 @@ public class QuestsCommand implements CommandExecutor {
 				if (quest.getFirstNPC().getState() == FirstNpcState.ACCEPTED) {
 					QuestObjective lowestUncompletedObjective = null;
 					for (QuestObjective objective : quest.getObjectives()) {
-						if (objective.isCompleted() == false) {
+						if (!objective.isCompleted()) {
 							if (lowestUncompletedObjective == null) {
 								lowestUncompletedObjective = objective;
 							} else if (objective.getObjectiveNumber() < lowestUncompletedObjective.getObjectiveNumber()) {

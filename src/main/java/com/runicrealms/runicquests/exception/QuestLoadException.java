@@ -1,6 +1,7 @@
 package com.runicrealms.runicquests.exception;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -8,7 +9,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
-@SuppressWarnings("serial")
 public class QuestLoadException extends Exception {
 
 	/*
@@ -19,9 +19,7 @@ public class QuestLoadException extends Exception {
 	private String error = null;
 
 	public QuestLoadException(String... messages) {
-		for (String message : messages) {
-			this.messages.add(message);
-		}
+		this.messages.addAll(Arrays.asList(messages));
 	}
 
 	public QuestLoadException setErrorMessage(String message) {
@@ -30,9 +28,7 @@ public class QuestLoadException extends Exception {
 	}
 
 	public void addMessage(String... messages) {
-		for (String message : messages) {
-			this.messages.add(message);
-		}
+		this.messages.addAll(Arrays.asList(messages));
 	}
 
 	public void displayToOnlinePlayers() {

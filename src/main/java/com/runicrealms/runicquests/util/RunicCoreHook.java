@@ -29,7 +29,7 @@ public class RunicCoreHook {
 
 	public static boolean hasCompletedRequiredQuests(Player player, List<Integer> quests) {
 		QuestProfile profile = PlayerDataLoader.getPlayerQuestData(player.getUniqueId());
-		Integer completed = 0;
+		int completed = 0;
 		for (Quest quest : profile.getQuests()) {
 			if (quest.getQuestState().isCompleted()){
 				if (quests.contains(quest.getQuestID())) {

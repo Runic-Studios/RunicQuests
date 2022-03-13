@@ -137,7 +137,7 @@ public class QuestTriggerCommand implements CommandExecutor {
                                         if (objective.hasExecute()) { // Execute objective commands
                                             objective.executeCommand(player.getName());
                                         }
-                                        if (objective.getObjectiveNumber() != QuestObjective.getLastObjective(quest.getObjectives()).getObjectiveNumber()) { // If this is not the last objective
+                                        if (!objective.getObjectiveNumber().equals(QuestObjective.getLastObjective(quest.getObjectives()).getObjectiveNumber())) { // If this is not the last objective
                                             String goalMessage = ChatColor.translateAlternateColorCodes('&', QuestObjective.getObjective(quest.getObjectives(), objective.getObjectiveNumber() + 1).getGoalMessage()); // Get goal message
                                             if (objective.hasCompletedMessage()) { // If the objective has a completed message
                                                 List<Runnable> runnables = new ArrayList<>();

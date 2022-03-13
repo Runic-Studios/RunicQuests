@@ -69,15 +69,7 @@ public class QuestProfile {
                 }
             }
             Plugin.getQuestCooldowns().put(UUID.fromString(this.uuid), cooldowns);
-            Collections.sort(quests, (a, b) -> {
-                if (a.getRequirements().getClassLvReq() > b.getRequirements().getClassLvReq()) {
-                    return 1;
-                } else if (a.getRequirements().getClassLvReq() < b.getRequirements().getClassLvReq()) {
-                    return -1;
-                } else {
-                    return 0;
-                }
-            });
+            quests.sort(Comparator.comparing(a -> a.getRequirements().getClassLvReq()));
 
             if (!mongoData.has("character." + slot + ".quest-points")) {
                 questPoints = 0;

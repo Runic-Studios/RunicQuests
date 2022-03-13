@@ -1,6 +1,7 @@
 package com.runicrealms.runicquests.task;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.scheduler.BukkitTask;
@@ -17,7 +18,7 @@ public class TaskQueue {
 	 * This code is very confusing, but should work as expected.
 	 */
 
-	private List<Runnable> tasks = new ArrayList<Runnable>(); // List of tasks
+	private final List<Runnable> tasks = new ArrayList<Runnable>(); // List of tasks
 	private volatile ArrayList<Task> uncompletedTasks = new ArrayList<Task>(); // Tasks that are left to run
 	private double secsDelay = 3; // Interval between tasks
 	private volatile Runnable completedTask = null; // An additional task that will be run with the last task in uncompletedTasks
@@ -28,22 +29,18 @@ public class TaskQueue {
 	}
 
 	public TaskQueue(Runnable... runnables) { // Initialize the tasks
-		for (Runnable runnable : runnables) {
-			tasks.add(runnable);
-		}
+		tasks.addAll(Arrays.asList(runnables));
 		this.secsDelay = Plugin.NPC_MESSAGE_DELAY;
 	}
 
 	public TaskQueue(List<Runnable> runnables) { // Initialize the tasks
-		for (Runnable runnable : runnables) {
-			tasks.add(runnable);
-		}
+		tasks.addAll(runnables);
 		this.secsDelay = Plugin.NPC_MESSAGE_DELAY;
 	}
 
 	public void nextTask() { // Move instantly to the next task
 		if (!canceled) { // Check that this has not been canceled
-			if (uncompletedTasks.get(0).hasRun() == false) { // Run the next tasks
+			if (!uncompletedTasks.get(0).hasRun()) { // Run the next tasks
 				uncompletedTasks.get(0).getRunnable().run();
 			}
 			if (uncompletedTasks.size() == 0 && completedTask != null) { // Check that all the tasks have been run and there is a completed task
@@ -52,7 +49,7 @@ public class TaskQueue {
 					completedTask = null;
 					canceled = true;
 					uncompletedTasks.forEach(task -> task.getTask().cancel()); // Cancel all the current bukkit tasks left (bug fix)
-				} catch (Exception exception) {}
+				} catch (Exception ignored) {}
 				return;
 			}
 			uncompletedTasks.forEach(task -> task.getTask().cancel()); // Cancel all the current bukkit tasks (we later re-schedule them)
@@ -74,14 +71,14 @@ public class TaskQueue {
 			if (i == 0) { // Check if this is the first task
 				try {
 					task.run(); // Run the task
-				} catch (Exception exception) {}
+				} catch (Exception ignored) {}
 				if (tasks.size() == 1 && completedTask != null) { // If this is the last task (there is only one task in the queue), and we have a completed task
 					try {
 						completedTask.run(); // Run the completed task
 						completedTask = null;
 						canceled = true;
 						uncompletedTasks.forEach(task_ -> task_.getTask().cancel()); // Cancel remaining tasks (bug fix)
-					} catch (Exception exception) {}
+					} catch (Exception ignored) {}
 					return;
 				}
 			} else { // If this is not the first task in the queue
@@ -91,7 +88,7 @@ public class TaskQueue {
 					public void run() {
 						for (Task uncompletedTask : uncompletedTasks) { // Loop through the uncompleted tasks
 							if (uncompletedTask.getRunnable() == this) { // If the uncompleted runnable is this new one
-								if (uncompletedTask.hasRun() == false) { // If the task has not been run
+								if (!uncompletedTask.hasRun()) { // If the task has not been run
 									task.run(); // Run the task
 								}
 								if (lastTask && completedTask != null) { // If this is the last task and we have a completed task
@@ -101,7 +98,7 @@ public class TaskQueue {
 										canceled = true;
 										uncompletedTasks.forEach(task_ -> task_.getTask().cancel()); // Cancel remaining tasks (bug fix)
 										uncompletedTasks.remove(uncompletedTask);
-									} catch (Exception exception) {}
+									} catch (Exception ignored) {}
 									return;
 								}
 								uncompletedTasks.remove(uncompletedTask); // Remove the uncompleted task that has been completed
@@ -117,9 +114,7 @@ public class TaskQueue {
 	}
 
 	public void addTasks(Runnable... runnables) { // Add more tasks to the queue
-		for (Runnable runnable : runnables) {
-			tasks.add(runnable);
-		}
+		tasks.addAll(Arrays.asList(runnables));
 	}
 
 	public List<Runnable> getTasks() { // Get the runnables

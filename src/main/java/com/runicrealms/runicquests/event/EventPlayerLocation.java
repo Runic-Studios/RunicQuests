@@ -29,7 +29,7 @@ public class EventPlayerLocation implements Listener {
         Map<UUID, Map<Integer, Long>> questCooldowns = Plugin.getQuestCooldowns();
         Quest questFound = null;
         for (Quest otherQuest : questProfile.getQuests()) {
-            if (otherQuest.getQuestID() == questID) {
+            if (otherQuest.getQuestID().equals(questID)) {
                 questFound = otherQuest;
             }
         }
