@@ -45,7 +45,7 @@ public class EventPlayerJoinQuit implements Listener {
 			}
 		}
 		PlayerDataLoader.getAllPlayerData().remove(player.getUniqueId());
-		Plugin.getCachedLocations().remove(player.getUniqueId());
+		Plugin.getCachedLocations().remove(player);
 	}
 
 	public static void refreshPlayerData(Player player) {
@@ -58,7 +58,7 @@ public class EventPlayerJoinQuit implements Listener {
 				}
 			}
 		}
-		Plugin.getCachedLocations().remove(player.getUniqueId());
+		Plugin.getCachedLocations().remove(player);
 		Plugin.updatePlayerCachedLocations(player);
 	}
 }
