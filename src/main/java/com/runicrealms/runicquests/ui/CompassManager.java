@@ -167,8 +167,8 @@ public class CompassManager implements Listener {
 
         public CompassLocation(Location location, String questName, String message) {
             this.location = location;
-            this.message.add(ChatColor.DARK_GREEN + "" + ChatColor.BOLD + "Now Tracking: " + ChatColor.RESET + ChatColor.GREEN + location.getBlockX() + " " + location.getBlockY() + " " + location.getBlockZ());
-            this.message.add(ChatColor.WHITE + questName + " " + ChatColor.GRAY + message);
+            this.message.add(ChatColor.DARK_GREEN + "" + ChatColor.BOLD + "Now Tracking: " + ChatColor.RESET + ChatColor.GREEN + questName);
+            this.message.add(ChatColor.GRAY + message);
         }
 
         public Location getLocation() {

@@ -59,12 +59,12 @@ public class HoloManager implements Listener {
 
                 Hologram hologramGreen = HologramsAPI.createHologram(Plugin.getInstance(), loc);
                 hologramGreen.getVisibilityManager().setVisibleByDefault(false);
-                hologramGreen.appendItemLine(StatusItemUtil.greenStatusItem());
+                hologramGreen.appendItemLine(StatusItemUtil.greenStatusItem);
                 hologramMap.get(q.getQuestID()).put(FirstNpcHoloType.GREEN, hologramGreen);
 
                 Hologram hologramRed = HologramsAPI.createHologram(Plugin.getInstance(), loc);
                 hologramRed.getVisibilityManager().setVisibleByDefault(false);
-                hologramRed.appendItemLine(StatusItemUtil.redStatusItem());
+                hologramRed.appendItemLine(StatusItemUtil.redStatusItem);
                 hologramMap.get(q.getQuestID()).put(FirstNpcHoloType.RED, hologramRed);
             }
 
