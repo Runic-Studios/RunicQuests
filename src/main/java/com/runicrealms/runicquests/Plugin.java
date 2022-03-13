@@ -171,7 +171,7 @@ public class Plugin extends JavaPlugin {
         if (quest.getFirstNPC().getState() != FirstNpcState.ACCEPTED) {
             return new String[]{
                     quest.getFirstNPC().hasGoalMessage() ? ChatColor.translateAlternateColorCodes('&', quest.getFirstNPC().getGoalMessage()) :
-                            "Speak with: " + quest.getFirstNPC().getNpcName() + " at " + quest.getFirstNPC().getLocation().getBlockX() + " " + quest.getFirstNPC().getLocation().getBlockY() + " " + quest.getFirstNPC().getLocation().getBlockZ(),
+                            "Speak to " + quest.getFirstNPC().getNpcName() + " at " + quest.getFirstNPC().getLocation().getBlockX() + ", " + quest.getFirstNPC().getLocation().getBlockY() + ", " + quest.getFirstNPC().getLocation().getBlockZ(),
                     quest.getFirstNPC().hasGoalLocation() ? ChatColor.translateAlternateColorCodes('&', quest.getFirstNPC().getGoalLocation()) : ""
             };
         }

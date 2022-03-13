@@ -44,7 +44,7 @@ public class QuestsCommand implements CommandExecutor {
 						goalMessages.put(quest.getQuestName(), lowestUncompletedObjective.getGoalMessage());
 					}
 				} else {
-					goalMessages.put(quest.getQuestName(), "Speak with: " + ChatColor.GOLD + quest.getFirstNPC().getNpcName());
+					goalMessages.put(quest.getQuestName(), "Speak to: " + ChatColor.GOLD + quest.getFirstNPC().getNpcName());
 				}
 			}
 		}
