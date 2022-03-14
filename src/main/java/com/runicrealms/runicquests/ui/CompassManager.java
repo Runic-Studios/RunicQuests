@@ -1,6 +1,7 @@
 package com.runicrealms.runicquests.ui;
 
 import com.runicrealms.plugin.character.api.CharacterLoadEvent;
+import com.runicrealms.runicquests.api.QuestCompleteEvent;
 import com.runicrealms.runicquests.api.QuestCompleteObjectiveEvent;
 import com.runicrealms.runicquests.api.QuestStartEvent;
 import com.runicrealms.runicquests.quests.objective.QuestObjective;
@@ -75,6 +76,11 @@ public class CompassManager implements Listener {
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         compasses.remove(event.getPlayer());
+    }
+
+    @EventHandler
+    public void onQuestComplete(QuestCompleteEvent event) {
+        if (compasses.get(event.getPlayer()) != null) revertCompass(event.getPlayer());
     }
 
     @EventHandler
