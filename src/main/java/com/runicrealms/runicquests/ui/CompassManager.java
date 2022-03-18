@@ -14,6 +14,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -85,6 +86,7 @@ public class CompassManager implements Listener {
 
     @EventHandler
     public void onQuestCompleteObjective(QuestCompleteObjectiveEvent event) {
+        if (!event.getPlayer().getWorld().getName().equalsIgnoreCase("alterra")) return;
         QuestObjective nextObjective = QuestObjective.getObjective(event.getQuest().getObjectives(), event.getObjectiveCompleted().getObjectiveNumber() + 1);
         if (nextObjective == null || (nextObjective.getGoalMessage() == null && nextObjective.getGoalLocation() == null)) { revertCompass(event.getPlayer()); return; }
         Optional<Location> parsed = Optional.empty();
@@ -105,6 +107,7 @@ public class CompassManager implements Listener {
 
     @EventHandler
     public void onQuestStart(QuestStartEvent event) {
+        if (!event.getPlayer().getWorld().getName().equalsIgnoreCase("alterra")) return;
         QuestObjective nextObjective = event.getQuest().getObjectives().get(0);
         if (nextObjective == null || (nextObjective.getGoalMessage() == null && nextObjective.getGoalLocation() == null)) { revertCompass(event.getPlayer()); return; }
         Optional<Location> parsed = Optional.empty();
@@ -125,6 +128,11 @@ public class CompassManager implements Listener {
 
     @EventHandler
     public void onQuestJournalClick(InventoryClickEvent event) {
+        if (!event.getWhoClicked().getWorld().getName().equalsIgnoreCase("alterra")) {
+            event.getWhoClicked().sendMessage(ChatColor.RED + "Compass tracking is disabled in the dungeon world!");
+            event.setCancelled(true);
+            event.getWhoClicked().closeInventory();
+        }
         if (event.getClickedInventory() == null || event.getCurrentItem() == null) return;
         if (!(event.getClickedInventory().getHolder() instanceof QuestMenu)) return;
         if (event.getSlot() < 9 || event.getCurrentItem().getType() == Material.BLACK_STAINED_GLASS_PANE) return;
@@ -143,6 +151,13 @@ public class CompassManager implements Listener {
                 event.getWhoClicked().closeInventory();
                 return;
             }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerChangeWorld(PlayerChangedWorldEvent event) {
+        if (!event.getPlayer().getLocation().getWorld().getName().equalsIgnoreCase("alterra")) {
+            if (compasses.get(event.getPlayer()) != null) revertCompass(event.getPlayer());
         }
     }
 
