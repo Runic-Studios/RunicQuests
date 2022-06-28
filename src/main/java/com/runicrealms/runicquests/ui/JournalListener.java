@@ -1,9 +1,9 @@
 package com.runicrealms.runicquests.ui;
 
-import com.runicrealms.plugin.character.api.CharacterLoadEvent;
+import com.runicrealms.plugin.RunicCore;
+import com.runicrealms.plugin.character.api.CharacterSelectEvent;
 import com.runicrealms.runicitems.RunicItemsAPI;
-import com.runicrealms.runicquests.Plugin;
-import org.bukkit.ChatColor;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -18,7 +18,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Objects;
 
@@ -34,16 +33,14 @@ public class JournalListener implements Listener {
     }
 
     @EventHandler
-    public void onCharacterLoad(CharacterLoadEvent e) {
-        Player pl = e.getPlayer();
-        if (pl.getGameMode() != GameMode.SURVIVAL) return;
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                pl.getInventory().setItem(7, getQuestJournal());
-                pl.updateInventory();
-            }
-        }.runTaskLater(Plugin.getInstance(), 2L);
+    public void onCharacterLoad(CharacterSelectEvent e) {
+        Player player = e.getPlayer();
+        if (player.getGameMode() != GameMode.SURVIVAL) return;
+        Bukkit.getScheduler().runTaskLater(RunicCore.getInstance(), () ->
+        {
+            player.getInventory().setItem(7, getQuestJournal());
+            player.updateInventory();
+        }, 2L);
     }
 
     @EventHandler(priority = EventPriority.HIGH)

@@ -26,7 +26,7 @@ public class QuestMenuListener implements Listener {
             player.closeInventory();
         } else if (event.getCurrentItem().equals(GUIUtil.backButton())) {
             questMenu.openFirstPage();
-        } else if (event.getCurrentItem().equals(QuestMenu.forwardArrow)) {
+        } else if (event.getCurrentItem().equals(QuestMenu.FORWARD_ARROW)) {
             questMenu.openNextPage();
         } else if (event.getCurrentItem().equals(QuestMenu.toggleShowRepeatableQuestsItem)) {
             questMenu.setShowRepeatableQuests(!questMenu.getShowRepeatableQuests());

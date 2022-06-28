@@ -2,7 +2,7 @@ package com.runicrealms.runicquests.quests.hologram;
 
 import com.gmail.filoghost.holographicdisplays.api.Hologram;
 import com.gmail.filoghost.holographicdisplays.api.HologramsAPI;
-import com.runicrealms.plugin.character.api.CharacterLoadEvent;
+import com.runicrealms.plugin.character.api.CharacterSelectEvent;
 import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.api.QuestCompleteEvent;
 import com.runicrealms.runicquests.api.RunicQuestsAPI;
@@ -73,7 +73,7 @@ public class HoloManager implements Listener {
     }
 
     @EventHandler
-    public void onLoad(CharacterLoadEvent e) {
+    public void onLoad(CharacterSelectEvent e) {
         Bukkit.getScheduler().scheduleSyncDelayedTask(Plugin.getInstance(), () -> refreshStatusHolograms(e.getPlayer()), 20L);
     }
 

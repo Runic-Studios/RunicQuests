@@ -1,6 +1,6 @@
 package com.runicrealms.runicquests.ui;
 
-import com.runicrealms.plugin.character.api.CharacterLoadEvent;
+import com.runicrealms.plugin.character.api.CharacterSelectEvent;
 import com.runicrealms.runicquests.api.QuestCompleteEvent;
 import com.runicrealms.runicquests.api.QuestCompleteObjectiveEvent;
 import com.runicrealms.runicquests.api.QuestStartEvent;
@@ -21,11 +21,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.CompassMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class CompassManager implements Listener {
 
@@ -69,8 +65,28 @@ public class CompassManager implements Listener {
         player.updateInventory();
     }
 
+    private static ItemStack createTracker(Location location) {
+        ItemStack compass = JournalListener.getQuestJournal().clone();
+        compass.setType(Material.COMPASS);
+        CompassMeta meta = (CompassMeta) compass.getItemMeta();
+        meta.setLodestone(location);
+        meta.setLodestoneTracked(false);
+        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        meta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 1, true);
+        compass.setItemMeta(meta);
+        return compass;
+    }
+
+    private static Double getDoubleOrNull(String string) {
+        try {
+            return Double.parseDouble(string);
+        } catch (NumberFormatException exception) {
+            return null;
+        }
+    }
+
     @EventHandler
-    public void onJoin(CharacterLoadEvent event) {
+    public void onJoin(CharacterSelectEvent event) {
         compasses.put(event.getPlayer(), null);
     }
 
@@ -88,7 +104,10 @@ public class CompassManager implements Listener {
     public void onQuestCompleteObjective(QuestCompleteObjectiveEvent event) {
         if (!event.getPlayer().getWorld().getName().equalsIgnoreCase("alterra")) return;
         QuestObjective nextObjective = QuestObjective.getObjective(event.getQuest().getObjectives(), event.getObjectiveCompleted().getObjectiveNumber() + 1);
-        if (nextObjective == null || (nextObjective.getGoalMessage() == null && nextObjective.getGoalLocation() == null)) { revertCompass(event.getPlayer()); return; }
+        if (nextObjective == null || (nextObjective.getGoalMessage() == null && nextObjective.getGoalLocation() == null)) {
+            revertCompass(event.getPlayer());
+            return;
+        }
         Optional<Location> parsed = Optional.empty();
         String message = null;
         if (nextObjective.getGoalMessage() != null) {
@@ -99,7 +118,10 @@ public class CompassManager implements Listener {
             parsed = parseLocation(nextObjective.getGoalLocation(), event.getPlayer().getWorld());
             message = nextObjective.getGoalLocation();
         }
-        if (!parsed.isPresent()) { revertCompass(event.getPlayer()); return; }
+        if (!parsed.isPresent()) {
+            revertCompass(event.getPlayer());
+            return;
+        }
         CompassLocation comp = new CompassLocation(parsed.get(), event.getQuest().getQuestName(), message);
         setCompass(event.getPlayer(), comp);
         comp.send(event.getPlayer());
@@ -109,7 +131,10 @@ public class CompassManager implements Listener {
     public void onQuestStart(QuestStartEvent event) {
         if (!event.getPlayer().getWorld().getName().equalsIgnoreCase("alterra")) return;
         QuestObjective nextObjective = event.getQuest().getObjectives().get(0);
-        if (nextObjective == null || (nextObjective.getGoalMessage() == null && nextObjective.getGoalLocation() == null)) { revertCompass(event.getPlayer()); return; }
+        if (nextObjective == null || (nextObjective.getGoalMessage() == null && nextObjective.getGoalLocation() == null)) {
+            revertCompass(event.getPlayer());
+            return;
+        }
         Optional<Location> parsed = Optional.empty();
         String message = null;
         if (nextObjective.getGoalMessage() != null) {
@@ -120,7 +145,10 @@ public class CompassManager implements Listener {
             parsed = parseLocation(nextObjective.getGoalLocation(), event.getPlayer().getWorld());
             message = nextObjective.getGoalLocation();
         }
-        if (!parsed.isPresent()) { revertCompass(event.getPlayer()); return; }
+        if (!parsed.isPresent()) {
+            revertCompass(event.getPlayer());
+            return;
+        }
         CompassLocation comp = new CompassLocation(parsed.get(), event.getQuest().getQuestName(), message);
         setCompass(event.getPlayer(), comp);
         comp.send(event.getPlayer());
@@ -158,26 +186,6 @@ public class CompassManager implements Listener {
     public void onPlayerChangeWorld(PlayerChangedWorldEvent event) {
         if (!event.getPlayer().getLocation().getWorld().getName().equalsIgnoreCase("alterra")) {
             if (compasses.get(event.getPlayer()) != null) revertCompass(event.getPlayer());
-        }
-    }
-
-    private static ItemStack createTracker(Location location) {
-        ItemStack compass = JournalListener.getQuestJournal().clone();
-        compass.setType(Material.COMPASS);
-        CompassMeta meta = (CompassMeta) compass.getItemMeta();
-        meta.setLodestone(location);
-        meta.setLodestoneTracked(false);
-        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-        meta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 1, true);
-        compass.setItemMeta(meta);
-        return compass;
-    }
-
-    private static Double getDoubleOrNull(String string) {
-        try {
-            return Double.parseDouble(string);
-        } catch (NumberFormatException exception) {
-            return null;
         }
     }
 

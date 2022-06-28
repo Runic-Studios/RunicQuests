@@ -20,10 +20,7 @@ import org.bukkit.inventory.meta.CompassMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 public class QuestMenu implements InventoryHolder {
 
@@ -32,21 +29,18 @@ public class QuestMenu implements InventoryHolder {
     private static final int MAX_REPEATABLE_PAGES = 1;
     private static final int QUEST_INVENTORY_FIRST_INDEX = 9;
     private static final String QUEST_MENU_TITLE = ChatColor.GOLD + "Quests";
-    private final Inventory inventory;
-    private final Player player;
-    private boolean showRepeatableQuests;
-    private int currentPage;
-
-    public static ItemStack forwardArrow = new ItemStack(Material.BROWN_STAINED_GLASS_PANE);
+    private static final ItemStack ACTIVE_QUEST_ITEM = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
+    public static ItemStack FORWARD_ARROW = new ItemStack(Material.BROWN_STAINED_GLASS_PANE);
+    public static ItemStack toggleShowRepeatableQuestsItem = StatusItemUtil.blueStatusItem.clone();
+    public static ItemStack disableCompassItem = new ItemStack(Material.COMPASS);
+    public static ItemStack trackCompassItem = new ItemStack(Material.WRITABLE_BOOK);
 
     static {
-        ItemMeta meta = forwardArrow.getItemMeta();
+        ItemMeta meta = FORWARD_ARROW.getItemMeta();
         assert meta != null;
         meta.setDisplayName(ChatColor.GOLD + "Next Page");
-        forwardArrow.setItemMeta(meta);
+        FORWARD_ARROW.setItemMeta(meta);
     }
-
-    public static ItemStack toggleShowRepeatableQuestsItem = StatusItemUtil.blueStatusItem.clone();
 
     static {
         ItemMeta meta = toggleShowRepeatableQuestsItem.getItemMeta();
@@ -56,8 +50,6 @@ public class QuestMenu implements InventoryHolder {
         toggleShowRepeatableQuestsItem.setItemMeta(meta);
     }
 
-    public static ItemStack disableCompassItem = new ItemStack(Material.COMPASS);
-
     static {
         CompassMeta meta = (CompassMeta) disableCompassItem.getItemMeta();
         meta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 1, true);
@@ -66,8 +58,6 @@ public class QuestMenu implements InventoryHolder {
         meta.setLore(Arrays.asList(ChatColor.GRAY + "Turn your compass back into the quest book!", ChatColor.GRAY + "You can always click on a quest to track it."));
         disableCompassItem.setItemMeta(meta);
     }
-
-    public static ItemStack trackCompassItem = new ItemStack(Material.WRITABLE_BOOK);
 
     static {
         ItemMeta meta = trackCompassItem.getItemMeta();
@@ -79,6 +69,19 @@ public class QuestMenu implements InventoryHolder {
         ));
         trackCompassItem.setItemMeta(meta);
     }
+
+    static {
+        ItemMeta meta = ACTIVE_QUEST_ITEM.getItemMeta();
+        assert meta != null;
+        meta.setDisplayName(ChatColor.GREEN + "Active Quests");
+        meta.setLore(Collections.singletonList(ChatColor.GRAY + "Your active quests appear to the left!"));
+        ACTIVE_QUEST_ITEM.setItemMeta(meta);
+    }
+
+    private final Inventory inventory;
+    private final Player player;
+    private boolean showRepeatableQuests;
+    private int currentPage;
 
     public QuestMenu(Player player) {
         this.showRepeatableQuests = false;
@@ -138,7 +141,6 @@ public class QuestMenu implements InventoryHolder {
         infoPaper.setItemMeta(meta);
         return infoPaper;
     }
-
 
 
     /**
@@ -205,7 +207,7 @@ public class QuestMenu implements InventoryHolder {
             this.inventory.setItem(0, GUIUtil.backButton());
         this.inventory.setItem(4, infoPaper(questList.getStartedQuestCount(), questList.getCompletedQuestCount(), quests.size(), showRepeatableQuests));
         this.inventory.setItem(5, toggleShowRepeatableQuestsItem);
-        this.inventory.setItem(8, forwardArrow);
+        this.inventory.setItem(8, FORWARD_ARROW);
         if (CompassManager.getCompasses().containsKey(player)
                 && CompassManager.getCompasses().get(player) != null
                 && CompassManager.getCompasses().get(player).getLocation() != null) {
@@ -224,7 +226,7 @@ public class QuestMenu implements InventoryHolder {
                             && quests.get((location + (i - 1))) != null
                             && quests.get((location + (i - 1))).getQuestState().hasStarted()
                             && !quests.get((location + i)).getQuestState().hasStarted()) {
-                        this.inventory.setItem(this.getInventory().firstEmpty(), GUIUtil.borderItem());
+                        this.inventory.setItem(this.getInventory().firstEmpty(), ACTIVE_QUEST_ITEM);
                     }
                     this.inventory.setItem(this.getInventory().firstEmpty(), quests.get((location + i)).generateQuestIcon(player));
                 }

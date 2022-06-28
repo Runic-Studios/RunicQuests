@@ -1,7 +1,7 @@
 package com.runicrealms.runicquests.listeners;
 
-import com.runicrealms.plugin.character.api.CharacterLoadEvent;
 import com.runicrealms.plugin.character.api.CharacterQuitEvent;
+import com.runicrealms.plugin.character.api.CharacterSelectEvent;
 import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.data.PlayerDataLoader;
 import com.runicrealms.runicquests.data.QuestProfile;
@@ -52,7 +52,7 @@ public class JoinQuitListener implements Listener {
     }
 
     @EventHandler
-    public void onPlayerJoin(CharacterLoadEvent event) {
+    public void onPlayerJoin(CharacterSelectEvent event) {
         runJoinEvent(event.getPlayer(), event.getSlot());
     }
 
