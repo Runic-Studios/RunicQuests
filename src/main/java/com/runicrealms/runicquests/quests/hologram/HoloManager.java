@@ -76,7 +76,7 @@ public class HoloManager implements Listener {
      */
     @EventHandler
     public void onLevel(PlayerLevelChangeEvent e) {
-        refreshStatusHolograms(e.getPlayer());
+        Bukkit.getScheduler().scheduleSyncDelayedTask(Plugin.getInstance(), () -> refreshStatusHolograms(e.getPlayer()), 20L);
     }
 
     @EventHandler
