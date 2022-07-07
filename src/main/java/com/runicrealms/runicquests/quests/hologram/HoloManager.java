@@ -2,7 +2,6 @@ package com.runicrealms.runicquests.quests.hologram;
 
 import com.gmail.filoghost.holographicdisplays.api.Hologram;
 import com.gmail.filoghost.holographicdisplays.api.HologramsAPI;
-import com.runicrealms.plugin.character.api.CharacterSelectEvent;
 import com.runicrealms.runicquests.Plugin;
 import com.runicrealms.runicquests.api.QuestCompleteEvent;
 import com.runicrealms.runicquests.api.RunicQuestsAPI;
@@ -72,11 +71,9 @@ public class HoloManager implements Listener {
         }, 20L); // delay to wait for quests to load
     }
 
-    @EventHandler
-    public void onLoad(CharacterSelectEvent e) {
-        Bukkit.getScheduler().scheduleSyncDelayedTask(Plugin.getInstance(), () -> refreshStatusHolograms(e.getPlayer()), 20L);
-    }
-
+    /**
+     * No need for a character select event, since PlayerLevelChangeEvent is always triggered on character select
+     */
     @EventHandler
     public void onLevel(PlayerLevelChangeEvent e) {
         refreshStatusHolograms(e.getPlayer());

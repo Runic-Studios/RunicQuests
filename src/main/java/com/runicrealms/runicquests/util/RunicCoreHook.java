@@ -24,6 +24,11 @@ public class RunicCoreHook {
         return level >= reqLevel;
     }
 
+    /**
+     * @param player
+     * @param quests
+     * @return
+     */
     public static boolean hasCompletedRequiredQuests(Player player, List<Integer> quests) {
         QuestProfile profile = PlayerDataLoader.getPlayerQuestData(player.getUniqueId());
         int completed = 0;
