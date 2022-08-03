@@ -1,7 +1,8 @@
 package com.runicrealms.runicquests.util;
 
-import com.runicrealms.plugin.RunicCore;
+import com.runicrealms.plugin.api.RunicCoreAPI;
 import com.runicrealms.plugin.player.utilities.PlayerLevelUtil;
+import com.runicrealms.plugin.redis.RedisField;
 import com.runicrealms.plugin.utilities.CurrencyUtil;
 import com.runicrealms.runicitems.RunicItemsAPI;
 import com.runicrealms.runicquests.data.PlayerDataLoader;
@@ -20,14 +21,16 @@ import java.util.List;
 public class RunicCoreHook {
 
     public static boolean isReqClassLv(Player player, int reqLevel) {
-        int level = RunicCore.getCacheManager().getPlayerCaches().get(player).getClassLevel();
+        int level = player.getLevel();
         return level >= reqLevel;
     }
 
     /**
-     * @param player
-     * @param quests
-     * @return
+     * Checks to see if the player has completed the required quests to accept a new quest
+     *
+     * @param player to check
+     * @param quests a list of quest ids required
+     * @return true if the player can start the quest
      */
     public static boolean hasCompletedRequiredQuests(Player player, List<Integer> quests) {
         QuestProfile profile = PlayerDataLoader.getPlayerQuestData(player.getUniqueId());
@@ -45,16 +48,32 @@ public class RunicCoreHook {
         return completed == quests.size();
     }
 
+    /**
+     * @param player
+     * @param profession
+     * @param level
+     * @return
+     */
     public static boolean isRequiredCraftingLevel(Player player, CraftingProfessionType profession, int level) {
-        String playerProf = RunicCore.getCacheManager().getPlayerCaches().get(player).getProfName().toLowerCase();
+        String playerProf = RunicCoreAPI.getRedisCharacterValue(player.getUniqueId(), RedisField.PROF_NAME.getField(), RunicCoreAPI.getCharacterSlot(player.getUniqueId()));
         if (playerProf.equalsIgnoreCase("none") && profession == CraftingProfessionType.ANY) return false;
-        int profLevel = RunicCore.getCacheManager().getPlayerCaches().get(player).getProfLevel();
+        int profLevel = Integer.parseInt(RunicCoreAPI.getRedisCharacterValue
+                (
+                        player.getUniqueId(),
+                        RedisField.PROF_LEVEL.getField(),
+                        RunicCoreAPI.getCharacterSlot(player.getUniqueId())
+                ));
         if (profession == CraftingProfessionType.ANY && profLevel >= level) return true;
         return profession != CraftingProfessionType.ANY && playerProf.equals(profession.getName()) && profLevel >= level;
     }
 
+    /**
+     * @param player
+     * @param professions
+     * @return
+     */
     public static boolean hasProfession(Player player, List<CraftingProfessionType> professions) {
-        String playerProf = RunicCore.getCacheManager().getPlayerCaches().get(player).getProfName();
+        String playerProf = RunicCoreAPI.getRedisCharacterValue(player.getUniqueId(), RedisField.PROF_NAME.getField(), RunicCoreAPI.getCharacterSlot(player.getUniqueId()));
         if (playerProf.equalsIgnoreCase("none") && professions.contains(CraftingProfessionType.ANY)) return false;
         if (professions.contains(CraftingProfessionType.ANY)) return true;
         for (CraftingProfessionType profession : professions) {
@@ -78,8 +97,13 @@ public class RunicCoreHook {
         }
     }
 
+    /**
+     * @param classType
+     * @param player
+     * @return
+     */
     public static boolean isRequiredClass(PlayerClassType classType, Player player) {
-        String className = RunicCore.getCacheManager().getPlayerCaches().get(player).getClassName();
+        String className = RunicCoreAPI.getPlayerClass(player);
         return classType.getName().equalsIgnoreCase(className);
     }
 }

@@ -52,12 +52,12 @@ public class JoinQuitListener implements Listener {
     }
 
     @EventHandler
-    public void onPlayerJoin(CharacterSelectEvent event) {
-        runJoinEvent(event.getPlayer(), event.getSlot());
+    public void onCharacterSelect(CharacterSelectEvent event) {
+        runJoinEvent(event.getPlayer(), event.getCharacterData().getBaseCharacterInfo().getSlot());
     }
 
     @EventHandler
-    public void onPlayerQuit(CharacterQuitEvent event) {
+    public void onCharacterQuit(CharacterQuitEvent event) {
         runQuitEvent(event.getPlayer());
     }
 }
