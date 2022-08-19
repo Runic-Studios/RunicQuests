@@ -1,8 +1,8 @@
 package com.runicrealms.runicquests.util;
 
 import com.runicrealms.plugin.api.RunicCoreAPI;
+import com.runicrealms.plugin.model.CharacterField;
 import com.runicrealms.plugin.player.utilities.PlayerLevelUtil;
-import com.runicrealms.plugin.redis.RedisField;
 import com.runicrealms.plugin.utilities.CurrencyUtil;
 import com.runicrealms.runicitems.RunicItemsAPI;
 import com.runicrealms.runicquests.data.PlayerDataLoader;
@@ -49,18 +49,20 @@ public class RunicCoreHook {
     }
 
     /**
-     * @param player
-     * @param profession
-     * @param level
-     * @return
+     * Check whether the player has the required crafting level for any given quest requirement
+     *
+     * @param player     to check
+     * @param profession the crafting profession of the player
+     * @param level      the required level for crafting
+     * @return true if the player has met the requirement
      */
     public static boolean isRequiredCraftingLevel(Player player, CraftingProfessionType profession, int level) {
-        String playerProf = RunicCoreAPI.getRedisCharacterValue(player.getUniqueId(), RedisField.PROF_NAME.getField(), RunicCoreAPI.getCharacterSlot(player.getUniqueId()));
+        String playerProf = RunicCoreAPI.getRedisCharacterValue(player.getUniqueId(), CharacterField.PROF_NAME.getField(), RunicCoreAPI.getCharacterSlot(player.getUniqueId()));
         if (playerProf.equalsIgnoreCase("none") && profession == CraftingProfessionType.ANY) return false;
         int profLevel = Integer.parseInt(RunicCoreAPI.getRedisCharacterValue
                 (
                         player.getUniqueId(),
-                        RedisField.PROF_LEVEL.getField(),
+                        CharacterField.PROF_LEVEL.getField(),
                         RunicCoreAPI.getCharacterSlot(player.getUniqueId())
                 ));
         if (profession == CraftingProfessionType.ANY && profLevel >= level) return true;
@@ -68,12 +70,19 @@ public class RunicCoreHook {
     }
 
     /**
-     * @param player
-     * @param professions
-     * @return
+     * Check whether the player has met the profession requirement for the given quest
+     *
+     * @param player      to check
+     * @param professions a list of professions that the player must be. can be multiple
+     * @return true if the requirement is met
      */
     public static boolean hasProfession(Player player, List<CraftingProfessionType> professions) {
-        String playerProf = RunicCoreAPI.getRedisCharacterValue(player.getUniqueId(), RedisField.PROF_NAME.getField(), RunicCoreAPI.getCharacterSlot(player.getUniqueId()));
+        String playerProf = RunicCoreAPI.getRedisCharacterValue
+                (
+                        player.getUniqueId(),
+                        CharacterField.PROF_NAME.getField(),
+                        RunicCoreAPI.getCharacterSlot(player.getUniqueId())
+                );
         if (playerProf.equalsIgnoreCase("none") && professions.contains(CraftingProfessionType.ANY)) return false;
         if (professions.contains(CraftingProfessionType.ANY)) return true;
         for (CraftingProfessionType profession : professions) {
@@ -98,9 +107,11 @@ public class RunicCoreHook {
     }
 
     /**
-     * @param classType
-     * @param player
-     * @return
+     * Check whether the player has met the class requirement for the given class
+     *
+     * @param classType the class required
+     * @param player    the player to check
+     * @return true if the player is the required class
      */
     public static boolean isRequiredClass(PlayerClassType classType, Player player) {
         String className = RunicCoreAPI.getPlayerClass(player);
