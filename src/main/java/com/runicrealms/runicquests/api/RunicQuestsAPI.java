@@ -1,49 +1,46 @@
 package com.runicrealms.runicquests.api;
 
-import com.runicrealms.runicquests.Plugin;
-import com.runicrealms.runicquests.config.QuestLoader;
-import com.runicrealms.runicquests.data.PlayerDataLoader;
-import com.runicrealms.runicquests.data.QuestProfile;
+import com.runicrealms.runicquests.model.QuestProfileData;
 import com.runicrealms.runicquests.quests.Quest;
-import com.runicrealms.runicquests.ui.QuestMenu;
-import org.bukkit.entity.Player;
 
 import java.util.List;
+import java.util.UUID;
 
-public class RunicQuestsAPI {
-
-    /**
-     * Returns a string that represents the time remaining before the player can complete a repeatable quest
-     *
-     * @param player  to lookup
-     * @param questId the id of the repeatable quest
-     * @return a string version of the time remaining
-     */
-    public static String repeatableQuestTimeRemaining(Player player, int questId) {
-        int cooldownLeft = (int) Math.floor((Plugin.getQuestCooldowns().get(player.getUniqueId()).get(questId) - System.currentTimeMillis()) / 1000.0);
-        int hours = (cooldownLeft - (cooldownLeft % 3600)) / 3600; // Some very odd code to create a cooldown message
-        int minutes = (cooldownLeft - (cooldownLeft % 60)) / 60 - (hours * 60);
-        int seconds = cooldownLeft - (hours * 3600) - (minutes * 60);
-        return (hours == 0 ? "" : hours + " " + (hours == 1 ? "hour, " : "hours, ")) +
-                (minutes == 0 ? "" : minutes + " " + (seconds == 0 ? (minutes == 1 ? "minute" : "minutes") : (minutes == 1 ? "minute, " : "minutes, "))) +
-                (seconds == 0 ? "" : seconds + " " + (seconds == 1 ? "second" : "seconds"));
-    }
-
-    public static QuestProfile getQuestProfile(Player player) {
-        return PlayerDataLoader.getPlayerQuestData(player.getUniqueId());
-    }
-
-    public static List<Quest> getBlankQuestList() {
-        return QuestLoader.getBlankQuestList();
-    }
+public interface RunicQuestsAPI {
 
     /**
-     * Opens the quest GUI on the default page for the given player
-     *
-     * @param player to shop quest menu to
+     * @return a list of all quests without player-specific data
      */
-    public static void openQuestGui(Player player) {
-        player.openInventory(new QuestMenu(player).getInventory());
-    }
+    List<Quest> getBlankQuestList();
+
+    /**
+     * Grabs the quest data wrapper for the given player
+     *
+     * @param uuid of the player
+     * @return their quest data wrapper
+     */
+    QuestProfileData getQuestProfile(UUID uuid);
+
+    /**
+     * While QuestProfileData gives us all the data for a player, this method
+     * gives us data specific to a character and their quest list
+     *
+     * @param profileData of the player-quest wrapper
+     * @param slot        of the character
+     * @return a list of quests (blank if there is no data)
+     */
+    List<Quest> loadQuestsList(QuestProfileData profileData, int slot);
+
+    /**
+     * Determines if the quest should save any persistent data.
+     * For non-repeatable quests, just checks if quest has started or not.
+     * Repeatable quests are a bit trickier. Checks if quest is started, completed, or on cooldown.
+     * All are valid.
+     *
+     * @param uuid  of the player
+     * @param quest the quest to check
+     * @return true if it will be persisted to Redis/Mongo
+     */
+    boolean shouldWriteData(UUID uuid, Quest quest);
 
 }

@@ -4,6 +4,7 @@ import com.runicrealms.plugin.character.api.CharacterSelectEvent;
 import com.runicrealms.runicquests.api.QuestCompleteEvent;
 import com.runicrealms.runicquests.api.QuestCompleteObjectiveEvent;
 import com.runicrealms.runicquests.api.QuestStartEvent;
+import com.runicrealms.runicquests.listeners.JournalListener;
 import com.runicrealms.runicquests.quests.objective.QuestObjective;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -12,14 +13,13 @@ import org.bukkit.World;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.CompassMeta;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.*;
 
@@ -91,8 +91,10 @@ public class CompassManager implements Listener {
     }
 
     @EventHandler
-    public void onQuit(PlayerQuitEvent event) {
-        compasses.remove(event.getPlayer());
+    public void onPlayerChangeWorld(PlayerChangedWorldEvent event) {
+        if (!event.getPlayer().getLocation().getWorld().getName().equalsIgnoreCase("alterra")) {
+            if (compasses.get(event.getPlayer()) != null) revertCompass(event.getPlayer());
+        }
     }
 
     @EventHandler
@@ -127,7 +129,7 @@ public class CompassManager implements Listener {
         comp.send(event.getPlayer());
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.NORMAL)
     public void onQuestStart(QuestStartEvent event) {
         if (!event.getPlayer().getWorld().getName().equalsIgnoreCase("alterra")) return;
         QuestObjective nextObjective = event.getQuest().getObjectives().get(0);
@@ -155,44 +157,14 @@ public class CompassManager implements Listener {
     }
 
     @EventHandler
-    public void onQuestJournalClick(InventoryClickEvent event) {
-        if (!event.getWhoClicked().getWorld().getName().equalsIgnoreCase("alterra")) {
-            event.getWhoClicked().sendMessage(ChatColor.RED + "Compass tracking is disabled in the dungeon world!");
-            event.setCancelled(true);
-            event.getWhoClicked().closeInventory();
-        }
-        if (event.getClickedInventory() == null || event.getCurrentItem() == null) return;
-        if (!(event.getClickedInventory().getHolder() instanceof QuestMenu)) return;
-        if (event.getSlot() < 9 || event.getCurrentItem().getType() == Material.BLACK_STAINED_GLASS_PANE) return;
-        ItemStack item = event.getCurrentItem();
-        if (!item.hasItemMeta()) return;
-        ItemMeta meta = item.getItemMeta();
-        for (String lore : meta.getLore()) {
-            String stripped = ChatColor.stripColor(lore);
-            Optional<Location> opt = parseLocation(stripped.replaceAll("location: ", ""), event.getWhoClicked().getWorld());
-            if (opt.isPresent()) {
-                event.setCancelled(true);
-                Location location = opt.get();
-                CompassLocation comp = new CompassLocation(location, ChatColor.stripColor(meta.getDisplayName()), stripped);
-                setCompass((Player) event.getWhoClicked(), comp);
-                comp.send((Player) event.getWhoClicked());
-                event.getWhoClicked().closeInventory();
-                return;
-            }
-        }
-    }
-
-    @EventHandler
-    public void onPlayerChangeWorld(PlayerChangedWorldEvent event) {
-        if (!event.getPlayer().getLocation().getWorld().getName().equalsIgnoreCase("alterra")) {
-            if (compasses.get(event.getPlayer()) != null) revertCompass(event.getPlayer());
-        }
+    public void onQuit(PlayerQuitEvent event) {
+        compasses.remove(event.getPlayer());
     }
 
     public static class CompassLocation {
 
-        private Location location;
-        private List<String> message = new ArrayList<>();
+        private final Location location;
+        private final List<String> message = new ArrayList<>();
 
         public CompassLocation(Location location, String questName, String message) {
             this.location = location;

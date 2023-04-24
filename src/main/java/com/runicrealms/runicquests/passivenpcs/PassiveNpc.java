@@ -1,6 +1,6 @@
 package com.runicrealms.runicquests.passivenpcs;
 
-import com.runicrealms.runicnpcs.api.RunicNpcsAPI;
+import com.runicrealms.plugin.RunicNpcs;
 import com.runicrealms.runicquests.task.TaskQueue;
 import org.bukkit.Location;
 
@@ -34,34 +34,34 @@ public class PassiveNpc {
      * @return a Location object
      */
     public static Location getPassiveNpcLocation(PassiveNpc passiveNpc) {
-        return RunicNpcsAPI.getNpcById(passiveNpc.getNpcID()).getLocation();
-    }
-
-    public int getNpcID() {
-        return this.npcID;
-    }
-
-    public boolean isRunic() {
-        return this.isRunic;
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    public boolean isOverrideText() {
-        return this.overrideText;
-    }
-
-    public List<List<String>> getRawDialogue() {
-        return this.dialogue;
+        return RunicNpcs.getAPI().getNpcById(passiveNpc.getNpcID()).getLocation();
     }
 
     public List<String> getDialogue() {
         return this.dialogue.get(ThreadLocalRandom.current().nextInt(this.dialogue.size()));
     }
 
+    public String getName() {
+        return this.name;
+    }
+
     public Object getNpc() {
-        return RunicNpcsAPI.getNpcById(this.npcID);
+        return RunicNpcs.getAPI().getNpcById(this.npcID);
+    }
+
+    public int getNpcID() {
+        return this.npcID;
+    }
+
+    public List<List<String>> getRawDialogue() {
+        return this.dialogue;
+    }
+
+    public boolean isOverrideText() {
+        return this.overrideText;
+    }
+
+    public boolean isRunic() {
+        return this.isRunic;
     }
 }

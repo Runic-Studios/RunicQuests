@@ -1,13 +1,14 @@
-package com.runicrealms.runicquests.ui;
+package com.runicrealms.runicquests.listeners;
 
-import com.runicrealms.plugin.RunicCore;
-import com.runicrealms.plugin.character.api.CharacterSelectEvent;
+import com.runicrealms.plugin.character.api.CharacterLoadedEvent;
 import com.runicrealms.runicitems.RunicItemsAPI;
-import org.bukkit.Bukkit;
+import com.runicrealms.runicquests.ui.CompassManager;
+import com.runicrealms.runicquests.ui.QuestMenu;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -33,23 +34,20 @@ public class JournalListener implements Listener {
     }
 
     @EventHandler
-    public void onCharacterLoad(CharacterSelectEvent e) {
-        Player player = e.getPlayer();
-        if (player.getGameMode() != GameMode.SURVIVAL) return;
-        Bukkit.getScheduler().runTaskLater(RunicCore.getInstance(), () ->
-        {
-            player.getInventory().setItem(7, getQuestJournal());
-            player.updateInventory();
-        }, 2L);
+    public void onCharacterLoad(CharacterLoadedEvent event) {
+        Player player = event.getPlayer();
+        if (player.getGameMode() == GameMode.CREATIVE) return;
+        player.getInventory().setItem(7, getQuestJournal());
+        player.updateInventory();
     }
 
     @EventHandler(priority = EventPriority.HIGH)
-    public void onInventoryClick(InventoryClickEvent e) {
-        if (e.isCancelled()) return;
-        if (e.getClickedInventory() == null) return;
-        if (e.getClickedInventory().getType() != InventoryType.PLAYER) return;
-        Player player = (Player) e.getWhoClicked();
-        int itemSlot = e.getSlot();
+    public void onInventoryClick(InventoryClickEvent event) {
+        if (event.isCancelled()) return;
+        if (event.getClickedInventory() == null) return;
+        if (event.getClickedInventory().getType() != InventoryType.PLAYER) return;
+        Player player = (Player) event.getWhoClicked();
+        int itemSlot = event.getSlot();
         if (itemSlot != 7) return;
 
         // don't trigger if there's no item in the slot to avoid null issues
@@ -60,35 +58,37 @@ public class JournalListener implements Listener {
         if (meta == null) return;
 
         // only activate in survival mode to save builders the headache
-        if (player.getGameMode() != GameMode.SURVIVAL) return;
+        if (player.getGameMode() == GameMode.CREATIVE) return;
 
         // only listen for a player inventory
-        if (e.getClickedInventory() == null) return;
+        if (event.getClickedInventory() == null) return;
 
-        e.setCancelled(true);
+        event.setCancelled(true);
     }
 
-    @EventHandler
-    public void onQuestJournalUse(PlayerInteractEvent e) {
-        Player player = e.getPlayer();
+    @EventHandler(priority = EventPriority.NORMAL)
+    public void onQuestJournalUse(PlayerInteractEvent event) {
+        if (event.useInteractedBlock() == Event.Result.DENY && event.useItemInHand() == Event.Result.DENY)
+            return;
+        Player player = event.getPlayer();
         if (player.getInventory().getItemInMainHand().getType() == Material.AIR) return;
         if (player.getGameMode() == GameMode.CREATIVE) return;
         int slot = player.getInventory().getHeldItemSlot();
         if (slot != 7) return;
         // annoying 1.9 feature which makes the event run twice, once for each hand
-        if (e.getHand() != EquipmentSlot.HAND) return;
-        if (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) {
+        if (event.getHand() != EquipmentSlot.HAND) return;
+        if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1.0f);
             player.openInventory(new QuestMenu(player).getInventory());
-            e.setCancelled(true);
-        } else if ((e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK)
-                && e.getPlayer().getInventory().getItemInMainHand().getType() == Material.COMPASS
-                && CompassManager.getCompasses().containsKey(e.getPlayer())
-                && CompassManager.getCompasses().get(e.getPlayer()).getLocation() != null) {
+            event.setCancelled(true);
+        } else if ((event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK)
+                && event.getPlayer().getInventory().getItemInMainHand().getType() == Material.COMPASS
+                && CompassManager.getCompasses().containsKey(event.getPlayer())
+                && CompassManager.getCompasses().get(event.getPlayer()).getLocation() != null) {
             player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1.0f);
-            CompassManager.CompassLocation comp = CompassManager.getCompasses().get(e.getPlayer());
+            CompassManager.CompassLocation comp = CompassManager.getCompasses().get(event.getPlayer());
             comp.send(player);
-            e.setCancelled(true);
+            event.setCancelled(true);
         }
     }
 }

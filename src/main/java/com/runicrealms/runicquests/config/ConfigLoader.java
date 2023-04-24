@@ -1,77 +1,49 @@
 package com.runicrealms.runicquests.config;
 
+import com.runicrealms.plugin.RunicCore;
+import com.runicrealms.runicquests.RunicQuests;
+import org.bukkit.configuration.file.FileConfiguration;
+
 import java.io.File;
 import java.io.IOException;
 
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
-
-import com.runicrealms.runicquests.Plugin;
-
 public class ConfigLoader {
-	
-	// Main config.yml file
-	private static FileConfiguration mainConfig;
 
-	// Loads a YamlConfiguration from a File
-	public static FileConfiguration getYamlConfigFile(String fileName, File folder) {
-		FileConfiguration config;
-		File file;
-		file = new File(folder, fileName);
-		config = new YamlConfiguration();
-		try {
-			if (!file.exists()) {
-				file.createNewFile();
-			}
-			config.load(file);
-		} catch (Exception exception) {
-			exception.printStackTrace();
-		}
-		return config;
-	}
+    // Main config.yml file
+    private static FileConfiguration mainConfig;
 
-	// Gets a sub-directory
-	public static File getSubFolder(File folder, String subfolder) {
-		for (File file : folder.listFiles()) {
-			if (file.getName().equalsIgnoreCase(subfolder)) {
-				return file;
-			}
-		}
-		return null;
-	}
-	
-	// Set default values for config.yml
-	public static void loadMainConfig() {
-		mainConfig = getYamlConfigFile("config.yml", Plugin.getInstance().getDataFolder());
-		if (!mainConfig.contains("npc-message-delay")) {
-			mainConfig.set("npc-message-delay", 3);
-			try {
-				mainConfig.save(new File(Plugin.getInstance().getDataFolder(), "config.yml"));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-	}
+    // Set default values for config.yml
+    public static void loadMainConfig() {
+        mainConfig = RunicCore.getConfigAPI().getYamlConfigFromFile("config.yml", RunicQuests.getInstance().getDataFolder());
+        if (!mainConfig.contains("npc-message-delay")) {
+            mainConfig.set("npc-message-delay", 3);
+            try {
+                mainConfig.save(new File(RunicQuests.getInstance().getDataFolder(), "config.yml"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
-	// Create users and quests folders if they have not been created
-	public static void initDirs() {
-		if (!Plugin.getInstance().getDataFolder().exists()) {
-			Plugin.getInstance().getDataFolder().mkdir();
-		}
-		File folder = ConfigLoader.getSubFolder(Plugin.getInstance().getDataFolder(), "quests");
-		if (folder == null) {
-			folder = new File(Plugin.getInstance().getDataFolder(), "quests");
-			folder.mkdir();
-		}
-		File folderPassive = ConfigLoader.getSubFolder(Plugin.getInstance().getDataFolder(), "passive");
-		if (folderPassive == null) {
-			folderPassive = new File(Plugin.getInstance().getDataFolder(), "passive");
-			folderPassive.mkdir();
-		}
-	}
-	
-	public static FileConfiguration getMainConfig() {
-		return mainConfig;
-	}
+    // Create users and quests folders if they have not been created
+    public static void initDirs() {
+        if (!RunicQuests.getInstance().getDataFolder().exists()) {
+            RunicQuests.getInstance().getDataFolder().mkdir();
+        }
+        File folder = RunicCore.getConfigAPI().getSubFolder(RunicQuests.getInstance().getDataFolder(), "quests");
+        if (folder == null) {
+            folder = new File(RunicQuests.getInstance().getDataFolder(), "quests");
+            folder.mkdir();
+        }
+        File folderPassive = RunicCore.getConfigAPI().getSubFolder(RunicQuests.getInstance().getDataFolder(), "passive");
+        if (folderPassive == null) {
+            folderPassive = new File(RunicQuests.getInstance().getDataFolder(), "passive");
+            folderPassive.mkdir();
+        }
+    }
+
+    public static FileConfiguration getMainConfig() {
+        return mainConfig;
+    }
 
 }

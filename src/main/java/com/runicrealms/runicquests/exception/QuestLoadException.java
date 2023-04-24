@@ -1,20 +1,18 @@
 package com.runicrealms.runicquests.exception;
 
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
-
+/**
+ * This exception helps writers understand why quests won't
+ */
 public class QuestLoadException extends Exception {
-
-    /*
-     * This exception is just meant to hold info on why quest loading doesn't work
-     */
-
     private final List<String> messages = new ArrayList<>();
     private String error = null;
 
@@ -22,13 +20,15 @@ public class QuestLoadException extends Exception {
         Collections.addAll(this.messages, messages);
     }
 
-    public QuestLoadException setErrorMessage(String message) {
-        error = message;
-        return this;
-    }
-
     public void addMessage(String... messages) {
         Collections.addAll(this.messages, messages);
+    }
+
+    public void displayToConsole() {
+        Bukkit.getLogger().log(Level.SEVERE, this.getMessage());
+        if (this.error != null) {
+            Bukkit.getLogger().log(Level.WARNING, this.error);
+        }
     }
 
     public void displayToOnlinePlayers() {
@@ -37,13 +37,6 @@ public class QuestLoadException extends Exception {
             if (this.error != null) {
                 player.sendMessage(ChatColor.RED + "Check the console for a detailed QuestLoadException error trace.");
             }
-        }
-    }
-
-    public void displayToConsole() {
-        Bukkit.getLogger().log(Level.SEVERE, this.getMessage());
-        if (this.error != null) {
-            Bukkit.getLogger().log(Level.WARNING, this.error);
         }
     }
 
@@ -56,6 +49,11 @@ public class QuestLoadException extends Exception {
             }
         }
         return builder.toString();
+    }
+
+    public QuestLoadException setErrorMessage(String message) {
+        error = message;
+        return this;
     }
 
 }

@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class TriggerObjectiveHandler {
 
-    private static Map<String, Trigger> triggers = new HashMap<String, Trigger>();
+    private static final Map<String, Trigger> triggers = new HashMap<>();
 
     public static void addTrigger(Trigger trigger, String triggerId) {
         triggers.put(triggerId, trigger);

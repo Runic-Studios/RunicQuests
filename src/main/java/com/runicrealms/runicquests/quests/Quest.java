@@ -1,10 +1,9 @@
 package com.runicrealms.runicquests.quests;
 
-import com.runicrealms.runicquests.Plugin;
-import com.runicrealms.runicquests.api.RunicQuestsAPI;
-import com.runicrealms.runicquests.data.QuestProfile;
+import com.runicrealms.runicquests.RunicQuests;
 import com.runicrealms.runicquests.quests.objective.QuestObjective;
 import com.runicrealms.runicquests.quests.objective.QuestObjectiveTalk;
+import com.runicrealms.runicquests.util.QuestsUtil;
 import com.runicrealms.runicquests.util.RunicCoreHook;
 import com.runicrealms.runicquests.util.StatusItemUtil;
 import org.bukkit.ChatColor;
@@ -15,23 +14,32 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Contains all the quest values which are needed.
+ * All values except "QuestState state" can be parsed from config
+ *
+ * @author Excel
+ */
 public class Quest implements Cloneable {
+    private Integer questID;
+    private List<QuestObjective> objectives;
+    private QuestState state;
+    private QuestRequirements requirements;
+    private boolean sideQuest;
+    private boolean repeatable;
+    private Integer cooldown;
+    private String questName;
+    private QuestFirstNpc firstNPC;
+    private QuestRewards rewards;
 
-    /*
-     * Contains all the quest values which are needed.
-     * All values except "QuestState state" can be parsed from config
+    /**
+     * A dummy constructor used as a placeholder in the ui menu
+     *
+     * @param questName "dummy"
      */
-
-    private final String questName;
-    private final QuestFirstNpc firstNPC;
-    private final List<QuestObjective> objectives;
-    private final QuestRewards rewards;
-    private final QuestState state;
-    private final Integer questID;
-    private final QuestRequirements requirements;
-    private final boolean sideQuest;
-    private final boolean repeatable;
-    private final Integer cooldown;
+    public Quest(String questName) {
+        this.questName = questName;
+    }
 
     /**
      * Creates a quest object with the following fields
@@ -73,48 +81,54 @@ public class Quest implements Cloneable {
         this.cooldown = quest.cooldown;
     }
 
-    public String getQuestName() {
-        return questName;
+    public static List<String> getRequirementsNotMetMsg(Quest quest, RequirementsResult result) {
+        List<String> list = new ArrayList<>();
+        switch (result) {
+            case CLASS_TYPE_NOT_MET:
+                return quest.getRequirements().getClassTypeNotMetMsg();
+            case CRAFTING_LEVEL_NOT_MET:
+                return quest.getRequirements().getCraftingLevelNotMetMsg();
+            case LEVEL_NOT_MET:
+                return quest.getRequirements().getLevelNotMetMsg();
+            case REQUIRED_QUESTS_NOT_MET:
+                return quest.getRequirements().getCompletedQuestsNotMetMsg();
+            case ALL_REQUIREMENTS_MET:
+                return list;
+        }
+        return list;
     }
 
-    public QuestFirstNpc getFirstNPC() {
-        return firstNPC;
-    }
-
-    public List<QuestObjective> getObjectives() {
-        return objectives;
-    }
-
-    public QuestRewards getRewards() {
-        return rewards;
-    }
-
-    public QuestState getQuestState() {
-        return state;
-    }
-
-    public Integer getQuestID() {
-        return questID;
-    }
-
-    public boolean isSideQuest() {
-        return sideQuest;
-    }
-
-    public QuestRequirements getRequirements() {
-        return requirements;
-    }
-
-    public boolean isRepeatable() {
-        return repeatable;
-    }
-
-    public boolean hasCooldown() {
-        return this.cooldown != null;
-    }
-
-    public Integer getCooldown() {
-        return this.cooldown;
+    /**
+     * Checks all possible requirements and ensures the player has met all
+     *
+     * @return a RequirementsResult based on the missing requirement(s)
+     */
+    public static RequirementsResult hasMetRequirements(Player player, Quest quest) {
+        // Check prior completed quests req
+        if (quest.getRequirements().hasCompletedQuestRequirement()) {
+            if (!RunicCoreHook.hasCompletedRequiredQuests(player, quest.getRequirements().getCompletedQuestsRequirement())) {
+                return RequirementsResult.REQUIRED_QUESTS_NOT_MET;
+            }
+        }
+        // Check level req
+        if (!RunicCoreHook.hasCompletedLevelRequirement(player, quest.getRequirements().getClassLvReq())) {
+            return RequirementsResult.LEVEL_NOT_MET;
+        }
+        // Check crafting level req
+        if (quest.getRequirements().hasCraftingRequirement()) {
+            for (CraftingProfessionType profession : quest.getRequirements().getCraftingProfessionType()) {
+                if (!RunicCoreHook.isRequiredCraftingLevel(player, profession, quest.getRequirements().getCraftingRequirement())) {
+                    return RequirementsResult.CRAFTING_LEVEL_NOT_MET;
+                }
+            }
+        }
+        // Check class type req
+        if (quest.getRequirements().hasClassTypeRequirement()) {
+            boolean isRequiredClass = RunicCoreHook.isRequiredClass(quest.getRequirements().getClassTypeRequirement(), player);
+            if (!isRequiredClass)
+                return RequirementsResult.CLASS_TYPE_NOT_MET;
+        }
+        return RequirementsResult.ALL_REQUIREMENTS_MET;
     }
 
     @Override
@@ -137,40 +151,41 @@ public class Quest implements Cloneable {
      * @return a menu item representing a quest with dynamic values
      */
     public ItemStack generateQuestIcon(Player player) {
-        QuestProfile profile = Plugin.getQuestProfile(player.getUniqueId().toString());
         ItemStack item;
         ItemMeta meta;
         List<String> lore = new ArrayList<>();
-        if (this.getQuestState().isCompleted()) {
+        if (this.isRepeatable()) {
+            boolean canStart = QuestsUtil.canStartRepeatableQuest(player.getUniqueId(), this);
+            item = canStart ? StatusItemUtil.blueStatusItem.clone() : StatusItemUtil.greenStatusItem.clone();
+            meta = item.getItemMeta();
+            assert meta != null;
+            meta.setDisplayName(ChatColor.AQUA + this.getQuestName());
+            lore.add(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "REPEATABLE");
+            String[] messageLocation = RunicQuests.getFirstUncompletedGoalMessageAndLocation(this);
+            lore.add(ChatColor.YELLOW + ChatColor.translateAlternateColorCodes('&', messageLocation[0]));
+            if (!messageLocation[1].equalsIgnoreCase("")) {
+                lore.add(ChatColor.YELLOW + "Location: " + ChatColor.translateAlternateColorCodes('&', messageLocation[1]));
+            }
+            lore.add(canStart ? ChatColor.BLUE + "Can complete!" : ChatColor.GRAY + "On cooldown: " + ChatColor.WHITE + QuestsUtil.repeatableQuestTimeRemaining(player, this));
+        } else if (this.getQuestState().isCompleted()) {
             item = StatusItemUtil.greenStatusItem.clone();
             meta = item.getItemMeta();
             assert meta != null;
             meta.setDisplayName(ChatColor.GREEN + this.getQuestName());
-            lore.add(ChatColor.DARK_GREEN + "Completed");
-        } else if (!RunicCoreHook.isReqClassLv(player, this.getRequirements().getClassLvReq())) {
+            lore.add(ChatColor.DARK_GREEN + "" + ChatColor.BOLD + "COMPLETE!");
+        } else if (!RunicCoreHook.hasCompletedLevelRequirement(player, this.getRequirements().getClassLvReq())) {
             item = StatusItemUtil.redStatusItem.clone();
             meta = item.getItemMeta();
             assert meta != null;
             meta.setDisplayName(ChatColor.RED + this.getQuestName());
             lore.add(ChatColor.DARK_RED + "You do not meet the level requirements!");
-        } else if (this.isRepeatable()) {
-            boolean canStart = Plugin.canStartRepeatableQuest(player.getUniqueId(), this.getQuestID());
-            item = canStart ? StatusItemUtil.blueStatusItem.clone() : StatusItemUtil.greenStatusItem.clone();
-            meta = item.getItemMeta();
-            assert meta != null;
-            meta.setDisplayName(ChatColor.AQUA + this.getQuestName());
-            String[] messageLocation = Plugin.getFirstUncompletedGoalMessageAndLocation(this, profile);
-            lore.add(ChatColor.YELLOW + ChatColor.translateAlternateColorCodes('&', messageLocation[0]));
-            if (!messageLocation[1].equalsIgnoreCase("")) {
-                lore.add(ChatColor.YELLOW + "Location: " + ChatColor.translateAlternateColorCodes('&', messageLocation[1]));
-            }
-            lore.add(canStart ? ChatColor.BLUE + "Can complete!" : ChatColor.GRAY + "On cooldown: " + ChatColor.WHITE + RunicQuestsAPI.repeatableQuestTimeRemaining(player, this.getQuestID()));
         } else if (this.isSideQuest()) {
             item = StatusItemUtil.yellowStatusItem.clone();
             meta = item.getItemMeta();
             assert meta != null;
             meta.setDisplayName(ChatColor.YELLOW + this.getQuestName());
-            String[] messageLocation = Plugin.getFirstUncompletedGoalMessageAndLocation(this, profile);
+            lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "SIDE QUEST");
+            String[] messageLocation = RunicQuests.getFirstUncompletedGoalMessageAndLocation(this);
             lore.add(ChatColor.YELLOW + ChatColor.translateAlternateColorCodes('&', messageLocation[0]));
             if (!messageLocation[1].equalsIgnoreCase("")) {
                 lore.add(ChatColor.YELLOW + "Location: " + ChatColor.translateAlternateColorCodes('&', messageLocation[1]));
@@ -180,7 +195,8 @@ public class Quest implements Cloneable {
             meta = item.getItemMeta();
             assert meta != null;
             meta.setDisplayName(ChatColor.GOLD + this.getQuestName());
-            String[] messageLocation = Plugin.getFirstUncompletedGoalMessageAndLocation(this, profile);
+            lore.add(ChatColor.GOLD + "" + ChatColor.BOLD + "MAIN STORY");
+            String[] messageLocation = RunicQuests.getFirstUncompletedGoalMessageAndLocation(this);
             lore.add(ChatColor.YELLOW + ChatColor.translateAlternateColorCodes('&', messageLocation[0]));
             if (!messageLocation[1].equalsIgnoreCase("")) {
                 lore.add(ChatColor.YELLOW + "Location: " + ChatColor.translateAlternateColorCodes('&', messageLocation[1]));
@@ -196,6 +212,94 @@ public class Quest implements Cloneable {
         meta.setLore(lore);
         item.setItemMeta(meta);
         return item;
+    }
+
+    public Integer getCooldown() {
+        return this.cooldown;
+    }
+
+    public void setCooldown(Integer cooldown) {
+        this.cooldown = cooldown;
+    }
+
+    public QuestFirstNpc getFirstNPC() {
+        return firstNPC;
+    }
+
+    public void setFirstNPC(QuestFirstNpc firstNPC) {
+        this.firstNPC = firstNPC;
+    }
+
+    public List<QuestObjective> getObjectives() {
+        return objectives;
+    }
+
+    public void setObjectives(List<QuestObjective> objectives) {
+        this.objectives = objectives;
+    }
+
+    public Integer getQuestID() {
+        return questID;
+    }
+
+    public void setQuestID(Integer questID) {
+        this.questID = questID;
+    }
+
+    public String getQuestName() {
+        return questName;
+    }
+
+    public void setQuestName(String questName) {
+        this.questName = questName;
+    }
+
+    public QuestState getQuestState() {
+        return state;
+    }
+
+    public QuestRequirements getRequirements() {
+        return requirements;
+    }
+
+    public void setRequirements(QuestRequirements requirements) {
+        this.requirements = requirements;
+    }
+
+    public QuestRewards getRewards() {
+        return rewards;
+    }
+
+    public void setRewards(QuestRewards rewards) {
+        this.rewards = rewards;
+    }
+
+    public QuestState getState() {
+        return state;
+    }
+
+    public void setState(QuestState state) {
+        this.state = state;
+    }
+
+    public boolean hasCooldown() {
+        return this.cooldown != null;
+    }
+
+    public boolean isRepeatable() {
+        return repeatable;
+    }
+
+    public void setRepeatable(boolean repeatable) {
+        this.repeatable = repeatable;
+    }
+
+    public boolean isSideQuest() {
+        return sideQuest;
+    }
+
+    public void setSideQuest(boolean sideQuest) {
+        this.sideQuest = sideQuest;
     }
 
 }

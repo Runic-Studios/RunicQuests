@@ -5,7 +5,7 @@ import com.runicrealms.plugin.item.util.ItemRemover;
 import com.runicrealms.runicitems.RunicItemsAPI;
 import com.runicrealms.runicitems.item.RunicItem;
 import com.runicrealms.runicitems.item.stats.RunicItemTag;
-import com.runicrealms.runicquests.Plugin;
+import com.runicrealms.runicquests.RunicQuests;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
@@ -47,7 +47,7 @@ public class QuestItemListener implements Listener {
             public void run() {
                 itemDestroyers.remove(e.getPlayer().getUniqueId());
             }
-        }.runTaskLater(Plugin.getInstance(), CHAT_TIMEOUT * 20L);
+        }.runTaskLater(RunicQuests.getInstance(), CHAT_TIMEOUT * 20L);
         itemDestroyers.put(e.getPlayer().getUniqueId(), new ItemDestroyIntent(bukkitTask, e.getItemDrop().getItemStack()));
     }
 

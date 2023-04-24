@@ -2,9 +2,9 @@ package com.runicrealms.runicquests.task;
 
 import com.gmail.filoghost.holographicdisplays.api.Hologram;
 import com.gmail.filoghost.holographicdisplays.api.HologramsAPI;
+import com.runicrealms.plugin.RunicCore;
 import com.runicrealms.plugin.utilities.ChatUtils;
-import com.runicrealms.runicquests.Plugin;
-import com.runicrealms.runicquests.api.RunicQuestsAPI;
+import com.runicrealms.runicquests.RunicQuests;
 import com.runicrealms.runicquests.quests.Quest;
 import com.runicrealms.runicquests.quests.hologram.FirstNpcHoloType;
 import com.runicrealms.runicquests.util.SpeechParser;
@@ -48,12 +48,22 @@ public class HologramTaskQueue extends TaskQueue {
         this.quest = quest;
         this.npcId = npcId;
         this.npcLocation = npcLocation;
-        this.hologram = HologramsAPI.createHologram(Plugin.getInstance(), npcLocation);
+        this.hologram = HologramsAPI.createHologram(RunicQuests.getInstance(), npcLocation);
         this.hologram.getVisibilityManager().setVisibleByDefault(false);
         this.player = player;
         this.speechParser = new SpeechParser(player);
         this.messages = messages;
         getTasks().addAll(createHologramRunnables());
+        List<HologramTaskQueue> currentTaskQueues = TaskQueueCleanupListener.getCurrentQueuesForUuid(player.getUniqueId());
+        currentTaskQueues.add(this);
+        TaskQueueCleanupListener.CURRENT_TASK_QUEUES.putIfAbsent(player.getUniqueId(), currentTaskQueues);
+    }
+
+    @Override
+    public void cancel() {
+        super.cancel();
+        if (!this.hologram.isDeleted())
+            this.hologram.delete();
     }
 
     /**
@@ -61,10 +71,12 @@ public class HologramTaskQueue extends TaskQueue {
      */
     private void changeQuestStatusHolograms(boolean display) {
         if (npcId == null) return;
-        for (Quest q : RunicQuestsAPI.getQuestProfile(player).getQuests()) {
-            if (!q.getFirstNPC().getNpcId().equals(npcId)) continue;
-            if (q.equals(quest)) continue;
-            cleanUpStatusHologram(display, q);
+        int slot = RunicCore.getCharacterAPI().getCharacterSlot(player.getUniqueId());
+        List<Quest> quests = RunicQuests.getAPI().getQuestProfile(player.getUniqueId()).getQuestsMap().get(slot);
+        for (Quest quest : quests) {
+            if (!quest.getFirstNPC().getNpcId().equals(npcId)) continue;
+            if (quest.equals(this.quest)) continue;
+            cleanUpStatusHologram(display, quest);
         }
         cleanUpStatusHologram(display, this.quest);
     }
@@ -76,10 +88,10 @@ public class HologramTaskQueue extends TaskQueue {
      * @param quest   which quest to check
      */
     private void cleanUpStatusHologram(boolean display, Quest quest) {
-        Map<Integer, Map<FirstNpcHoloType, Hologram>> hologramMap = Plugin.getHoloManager().getHologramMap();
+        Map<Integer, Map<FirstNpcHoloType, Hologram>> hologramMap = RunicQuests.getHoloManager().getHologramMap();
         for (Hologram hologram : hologramMap.get(quest.getQuestID()).values()) {
             if (display)
-                Plugin.getHoloManager().determineHoloByStatus(player, quest).getVisibilityManager().showTo(player);
+                RunicQuests.getHoloManager().determineHoloByStatus(player, quest).getVisibilityManager().showTo(player);
             else
                 hologram.getVisibilityManager().hideTo(player);
         }
@@ -122,6 +134,7 @@ public class HologramTaskQueue extends TaskQueue {
             runnables.add(() -> {
                 this.getHologram().delete();
                 changeQuestStatusHolograms(true);
+                TaskQueueCleanupListener.getCurrentQueuesForUuid(player.getUniqueId()).remove(this);
             });
         return runnables;
     }
