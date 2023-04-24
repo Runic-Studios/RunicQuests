@@ -1,7 +1,7 @@
 package com.runicrealms.runicquests.passivenpcs;
 
-import com.runicrealms.runicnpcs.api.NpcClickEvent;
-import com.runicrealms.runicquests.Plugin;
+import com.runicrealms.plugin.api.NpcClickEvent;
+import com.runicrealms.runicquests.RunicQuests;
 import com.runicrealms.runicquests.task.HologramTaskQueue;
 import com.runicrealms.runicquests.task.TaskQueue;
 import org.bukkit.entity.Player;
@@ -14,24 +14,12 @@ public class PassiveNpcClickListener implements Listener {
 
     @EventHandler
     public void onNpcClick(NpcClickEvent event) {
-        PassiveNpc npc = Plugin.getPassiveNpcHandler().getNPC(event.getNpc().getId());
+        PassiveNpc npc = RunicQuests.getPassiveNpcHandler().getNPC(event.getNpc().getId());
         if (npc == null) {
             return;
         }
 
         this.sendMessage(npc, event.getPlayer());
-    }
-
-    private void sendMessage(PassiveNpc npc, Player player) {
-        if (!npc.TALKING.containsKey(player.getUniqueId())) {
-            this.sendFirstMessage(npc, player);
-            return;
-        }
-
-        TaskQueue tasks = npc.TALKING.get(player.getUniqueId());
-
-        tasks.nextTask();
-        tasks.setDelay(Plugin.NPC_MESSAGE_DELAY);
     }
 
     private void sendFirstMessage(PassiveNpc passiveNpc, Player player) {
@@ -51,5 +39,17 @@ public class PassiveNpcClickListener implements Listener {
         });
         passiveNpc.TALKING.put(player.getUniqueId(), hologramTaskQueue);
         hologramTaskQueue.startTasks();
+    }
+
+    private void sendMessage(PassiveNpc npc, Player player) {
+        if (!npc.TALKING.containsKey(player.getUniqueId())) {
+            this.sendFirstMessage(npc, player);
+            return;
+        }
+
+        TaskQueue tasks = npc.TALKING.get(player.getUniqueId());
+
+        tasks.nextTask();
+        tasks.setDelay(RunicQuests.NPC_MESSAGE_DELAY);
     }
 }

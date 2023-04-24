@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.runicrealms.runicquests.Plugin</groupId>
     <artifactId>RunicQuests</artifactId>
-    <version>1.16.4</version>
+    <version>1.16.5</version>
     <name>RunicQuests</name>
     <description>Runic Realms Quest Plugin</description>
 
@@ -78,8 +78,21 @@
             <id>placeholderapi</id>
             <url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>
         </repository>
+        <!-- ACF -->
+        <repository>
+            <id>aikar</id>
+            <url>https://repo.aikar.co/content/groups/aikar/</url>
+        </repository>
     </repositories>
     <dependencies>
+        <!-- Aikar's TaskChain -->
+        <dependency>
+            <groupId>com.runicrealms.libs</groupId>
+            <artifactId>taskchain</artifactId>
+            <version>3.7.2</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/../lib/RunicCore-1.16.5.jar</systemPath>
+        </dependency>
         <!-- HolographicDisplays API -->
         <dependency>
             <groupId>com.gmail.filoghost.holographicdisplays</groupId>
@@ -120,17 +133,17 @@
         <dependency>
             <groupId>com.runicrealms.plugin</groupId>
             <artifactId>RunicCore</artifactId>
-            <version>1.16.4</version>
+            <version>1.16.5</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/../lib/RunicCore-1.16.4.jar</systemPath>
+            <systemPath>${project.basedir}/../lib/RunicCore-1.16.5.jar</systemPath>
         </dependency>
         <!-- RunicChat -->
         <dependency>
             <groupId>com.runicrealms.plugin</groupId>
             <artifactId>RunicChat</artifactId>
-            <version>1.16.4</version>
+            <version>1.16.5</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/../lib/RunicChat-1.16.4.jar</systemPath>
+            <systemPath>${project.basedir}/../lib/RunicChat-1.16.5.jar</systemPath>
         </dependency>
         <!-- RunicNpcs -->
         <dependency>
@@ -139,6 +152,14 @@
             <version>1.16.4</version>
             <scope>system</scope>
             <systemPath>${project.basedir}/../lib/RunicNpcs-1.16.4.jar</systemPath>
+        </dependency>
+        <!-- RunicProfessions -->
+        <dependency>
+            <groupId>com.runicrealms.plugin</groupId>
+            <artifactId>RunicProfessions</artifactId>
+            <version>1.16.5</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/../lib/RunicProfessions-1.16.5.jar</systemPath>
         </dependency>
         <!-- RunicRestart -->
         <dependency>
@@ -152,9 +173,15 @@
         <dependency>
             <groupId>com.runicrealms.runicitems</groupId>
             <artifactId>RunicItems</artifactId>
-            <version>1.16.4</version>
+            <version>1.16.5</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/../lib/RunicItems-1.16.4.jar</systemPath>
+            <systemPath>${project.basedir}/../lib/RunicItems-1.16.5.jar</systemPath>
+        </dependency>
+        <!-- ACF -->
+        <dependency>
+            <groupId>co.aikar</groupId>
+            <artifactId>acf-paper</artifactId>
+            <version>0.5.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 </project>

@@ -1,7 +1,7 @@
 package com.runicrealms.runicquests.quests;
 
-import com.runicrealms.runicnpcs.api.RunicNpcsAPI;
-import com.runicrealms.runicquests.Plugin;
+import com.runicrealms.plugin.RunicNpcs;
+import com.runicrealms.runicquests.RunicQuests;
 import org.bukkit.Location;
 
 import java.util.List;
@@ -25,7 +25,7 @@ public class QuestNpc implements Cloneable {
         this.addNpcName = addNpcName;
         this.idleSpeech = idleSpeech;
         this.npcName = npcName;
-        this.id = Plugin.getNextId();
+        this.id = RunicQuests.getNextId();
         this.deniedMessage = deniedMessage;
     }
 
@@ -36,19 +36,20 @@ public class QuestNpc implements Cloneable {
      * @return a Location object
      */
     public static Location getQuestNpcLocation(QuestNpc questNpc) {
-        return RunicNpcsAPI.getNpcById(questNpc.getNpcId()).getLocation();
-    }
-
-    public Integer getNpcId() {
-        return this.npcId;
-    }
-
-    public List<String> getSpeech() {
-        return speech;
+        return RunicNpcs.getAPI().getNpcById(questNpc.getNpcId()).getLocation();
     }
 
     public boolean addNpcName() {
         return this.addNpcName;
+    }
+
+    @Override
+    public QuestNpc clone() {
+        return new QuestNpc(this.npcId, this.speech, this.addNpcName, this.idleSpeech, this.npcName, this.deniedMessage);
+    }
+
+    public List<String> getDeniedMessage() {
+        return this.deniedMessage;
     }
 
     public Long getId() {
@@ -59,25 +60,24 @@ public class QuestNpc implements Cloneable {
         return idleSpeech;
     }
 
+    public Integer getNpcId() {
+        return this.npcId;
+    }
+
     public String getNpcName() {
         return this.npcName;
     }
 
-    public boolean hasIdleSpeech() {
-        return this.idleSpeech != null;
+    public List<String> getSpeech() {
+        return speech;
     }
 
     public boolean hasDeniedMessage() {
         return this.deniedMessage != null;
     }
 
-    public List<String> getDeniedMessage() {
-        return this.deniedMessage;
-    }
-
-    @Override
-    public QuestNpc clone() {
-        return new QuestNpc(this.npcId, this.speech, this.addNpcName, this.idleSpeech, this.npcName, this.deniedMessage);
+    public boolean hasIdleSpeech() {
+        return this.idleSpeech != null;
     }
 
 }

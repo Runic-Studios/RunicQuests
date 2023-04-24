@@ -1,6 +1,6 @@
 package com.runicrealms.runicquests.passivenpcs;
 
-import com.runicrealms.runicquests.Plugin;
+import com.runicrealms.runicquests.RunicQuests;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -16,7 +16,7 @@ public final class PassiveNpcHandler {
     public PassiveNpcHandler() {
         this.passiveNPCs = new HashMap<>();
 
-        File passivenpcs = new File(Plugin.getInstance().getDataFolder(), "passivenpcs");
+        File passivenpcs = new File(RunicQuests.getInstance().getDataFolder(), "passivenpcs");
 
         if (!passivenpcs.exists()) {
             passivenpcs.mkdir();

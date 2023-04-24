@@ -1,17 +1,19 @@
 package com.runicrealms.runicquests.util;
 
-import com.runicrealms.plugin.api.RunicCoreAPI;
-import com.runicrealms.plugin.model.CharacterField;
+import com.runicrealms.plugin.RunicCore;
+import com.runicrealms.plugin.RunicProfessions;
 import com.runicrealms.plugin.player.utilities.PlayerLevelUtil;
+import com.runicrealms.plugin.professions.Profession;
 import com.runicrealms.plugin.utilities.CurrencyUtil;
 import com.runicrealms.runicitems.RunicItemsAPI;
-import com.runicrealms.runicquests.data.PlayerDataLoader;
-import com.runicrealms.runicquests.data.QuestProfile;
+import com.runicrealms.runicquests.RunicQuests;
+import com.runicrealms.runicquests.model.QuestProfileData;
 import com.runicrealms.runicquests.quests.CraftingProfessionType;
 import com.runicrealms.runicquests.quests.PlayerClassType;
 import com.runicrealms.runicquests.quests.Quest;
 import com.runicrealms.runicquests.quests.QuestRewards;
 import org.bukkit.entity.Player;
+import redis.clients.jedis.Jedis;
 
 import java.util.List;
 
@@ -20,7 +22,7 @@ import java.util.List;
  */
 public class RunicCoreHook {
 
-    public static boolean isReqClassLv(Player player, int reqLevel) {
+    public static boolean hasCompletedLevelRequirement(Player player, int reqLevel) {
         int level = player.getLevel();
         return level >= reqLevel;
     }
@@ -33,9 +35,10 @@ public class RunicCoreHook {
      * @return true if the player can start the quest
      */
     public static boolean hasCompletedRequiredQuests(Player player, List<Integer> quests) {
-        QuestProfile profile = PlayerDataLoader.getPlayerQuestData(player.getUniqueId());
+        int slot = RunicCore.getCharacterAPI().getCharacterSlot(player.getUniqueId());
+        QuestProfileData questProfileData = RunicQuests.getAPI().getQuestProfile(player.getUniqueId());
         int completed = 0;
-        for (Quest quest : profile.getQuests()) {
+        for (Quest quest : questProfileData.getQuestsMap().get(slot)) {
             if (quest.getQuestState().isCompleted()) {
                 if (quests.contains(quest.getQuestID())) {
                     completed++;
@@ -51,22 +54,20 @@ public class RunicCoreHook {
     /**
      * Check whether the player has the required crafting level for any given quest requirement
      *
-     * @param player     to check
-     * @param profession the crafting profession of the player
-     * @param level      the required level for crafting
+     * @param player        to check
+     * @param profession    the crafting profession of the player
+     * @param requiredLevel the required level for crafting
      * @return true if the player has met the requirement
      */
-    public static boolean isRequiredCraftingLevel(Player player, CraftingProfessionType profession, int level) {
-        String playerProf = RunicCoreAPI.getRedisCharacterValue(player.getUniqueId(), CharacterField.PROF_NAME.getField(), RunicCoreAPI.getCharacterSlot(player.getUniqueId()));
-        if (playerProf.equalsIgnoreCase("none") && profession == CraftingProfessionType.ANY) return false;
-        int profLevel = Integer.parseInt(RunicCoreAPI.getRedisCharacterValue
-                (
-                        player.getUniqueId(),
-                        CharacterField.PROF_LEVEL.getField(),
-                        RunicCoreAPI.getCharacterSlot(player.getUniqueId())
-                ));
-        if (profession == CraftingProfessionType.ANY && profLevel >= level) return true;
-        return profession != CraftingProfessionType.ANY && playerProf.equals(profession.getName()) && profLevel >= level;
+    public static boolean isRequiredCraftingLevel(Player player, CraftingProfessionType profession, int requiredLevel) {
+        int slot = RunicCore.getCharacterAPI().getCharacterSlot(player.getUniqueId());
+        Profession playerProfession = RunicProfessions.getAPI().getPlayerProfession(player.getUniqueId(), slot);
+        int profLevel = RunicProfessions.getAPI().getPlayerProfessionLevel(player.getUniqueId(), slot);
+        if (profession == CraftingProfessionType.ANY) {
+            return profLevel >= requiredLevel;
+        } else {
+            return playerProfession.getName().equalsIgnoreCase(profession.getName()) && profLevel >= requiredLevel;
+        }
     }
 
     /**
@@ -77,16 +78,11 @@ public class RunicCoreHook {
      * @return true if the requirement is met
      */
     public static boolean hasProfession(Player player, List<CraftingProfessionType> professions) {
-        String playerProf = RunicCoreAPI.getRedisCharacterValue
-                (
-                        player.getUniqueId(),
-                        CharacterField.PROF_NAME.getField(),
-                        RunicCoreAPI.getCharacterSlot(player.getUniqueId())
-                );
-        if (playerProf.equalsIgnoreCase("none") && professions.contains(CraftingProfessionType.ANY)) return false;
         if (professions.contains(CraftingProfessionType.ANY)) return true;
+        int slot = RunicCore.getCharacterAPI().getCharacterSlot(player.getUniqueId());
+        Profession playerProfession = RunicProfessions.getAPI().getPlayerProfession(player.getUniqueId(), slot);
         for (CraftingProfessionType profession : professions) {
-            if (playerProf.equalsIgnoreCase(profession.getName())) return true;
+            if (playerProfession.getName().equalsIgnoreCase(profession.getName())) return true;
         }
         return false;
     }
@@ -98,11 +94,13 @@ public class RunicCoreHook {
      * @param rewards reward types
      */
     public static void giveRewards(Player player, QuestRewards rewards) {
-        if (rewards.getExperienceReward() > 0) {
-            PlayerLevelUtil.giveExperience(player, rewards.getExperienceReward());
-        }
-        if (rewards.getMoneyReward() > 0) {
-            RunicItemsAPI.addItem(player.getInventory(), CurrencyUtil.goldCoin(rewards.getMoneyReward()), player.getLocation());
+        try (Jedis jedis = RunicCore.getRedisAPI().getNewJedisResource()) {
+            if (rewards.getExperienceReward() > 0) {
+                PlayerLevelUtil.giveExperience(player, rewards.getExperienceReward(), jedis);
+            }
+            if (rewards.getMoneyReward() > 0) {
+                RunicItemsAPI.addItem(player.getInventory(), CurrencyUtil.goldCoin(rewards.getMoneyReward()), player.getLocation());
+            }
         }
     }
 
@@ -114,7 +112,7 @@ public class RunicCoreHook {
      * @return true if the player is the required class
      */
     public static boolean isRequiredClass(PlayerClassType classType, Player player) {
-        String className = RunicCoreAPI.getPlayerClass(player);
+        String className = RunicCore.getCharacterAPI().getPlayerClass(player);
         return classType.getName().equalsIgnoreCase(className);
     }
 }

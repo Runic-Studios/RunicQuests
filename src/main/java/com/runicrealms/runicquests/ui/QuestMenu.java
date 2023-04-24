@@ -1,10 +1,11 @@
 package com.runicrealms.runicquests.ui;
 
+import com.runicrealms.plugin.RunicCore;
+import com.runicrealms.plugin.utilities.ChatUtils;
 import com.runicrealms.plugin.utilities.GUIUtil;
-import com.runicrealms.runicquests.Plugin;
-import com.runicrealms.runicquests.data.PlayerDataLoader;
-import com.runicrealms.runicquests.data.QuestProfile;
+import com.runicrealms.runicquests.RunicQuests;
 import com.runicrealms.runicquests.quests.Quest;
+import com.runicrealms.runicquests.util.QuestsUtil;
 import com.runicrealms.runicquests.util.RunicCoreHook;
 import com.runicrealms.runicquests.util.StatusItemUtil;
 import org.bukkit.Bukkit;
@@ -23,59 +24,44 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 
 public class QuestMenu implements InventoryHolder {
-
+    public static final ItemStack ACTIVE_QUEST_ITEM = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
+    public static final ItemStack TOGGLE_SHOW_REPEATABLE_QUESTS_ITEM = StatusItemUtil.blueStatusItem.clone();
+    public static final ItemStack DISABLE_COMPASS_ITEM = new ItemStack(Material.COMPASS);
+    public static final ItemStack TRACK_COMPASS_ITEM = new ItemStack(Material.WRITABLE_BOOK);
     private static final int INVENTORY_SIZE = 45;
     private static final int MAX_PAGES = 2;
     private static final int MAX_REPEATABLE_PAGES = 1;
     private static final int QUEST_INVENTORY_FIRST_INDEX = 9;
     private static final String QUEST_MENU_TITLE = ChatColor.GOLD + "Quests";
-    private static final ItemStack ACTIVE_QUEST_ITEM = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
-    public static ItemStack FORWARD_ARROW = new ItemStack(Material.BROWN_STAINED_GLASS_PANE);
-    public static ItemStack toggleShowRepeatableQuestsItem = StatusItemUtil.blueStatusItem.clone();
-    public static ItemStack disableCompassItem = new ItemStack(Material.COMPASS);
-    public static ItemStack trackCompassItem = new ItemStack(Material.WRITABLE_BOOK);
 
     static {
-        ItemMeta meta = FORWARD_ARROW.getItemMeta();
-        assert meta != null;
-        meta.setDisplayName(ChatColor.GOLD + "Next Page");
-        FORWARD_ARROW.setItemMeta(meta);
-    }
+        ItemMeta repeatableMeta = TOGGLE_SHOW_REPEATABLE_QUESTS_ITEM.getItemMeta();
+        assert repeatableMeta != null;
+        repeatableMeta.setDisplayName(ChatColor.AQUA + "Toggle Repeatable Quests");
+        repeatableMeta.setLore(ChatUtils.formattedText(ChatColor.GRAY + "If toggled, only repeatable quests will be shown!"));
+        TOGGLE_SHOW_REPEATABLE_QUESTS_ITEM.setItemMeta(repeatableMeta);
 
-    static {
-        ItemMeta meta = toggleShowRepeatableQuestsItem.getItemMeta();
-        assert meta != null;
-        meta.setDisplayName(ChatColor.AQUA + "Toggle Repeatable Quests");
-        meta.setLore(Arrays.asList(ChatColor.GRAY + "If toggled, only repeatable quests", ChatColor.GRAY + "will be shown!"));
-        toggleShowRepeatableQuestsItem.setItemMeta(meta);
-    }
+        CompassMeta compassMeta = (CompassMeta) DISABLE_COMPASS_ITEM.getItemMeta();
+        assert compassMeta != null;
+        compassMeta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 1, true);
+        compassMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        compassMeta.setDisplayName(ChatColor.RED + "Disable Compass Tracking");
+        compassMeta.setLore(ChatUtils.formattedText(ChatColor.GRAY + "&7Turn your compass back into the quest book! You can always click on a quest to track it."));
+        DISABLE_COMPASS_ITEM.setItemMeta(compassMeta);
 
-    static {
-        CompassMeta meta = (CompassMeta) disableCompassItem.getItemMeta();
-        meta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 1, true);
-        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-        meta.setDisplayName(ChatColor.AQUA + "Disable Compass Tracking");
-        meta.setLore(Arrays.asList(ChatColor.GRAY + "Turn your compass back into the quest book!", ChatColor.GRAY + "You can always click on a quest to track it."));
-        disableCompassItem.setItemMeta(meta);
-    }
+        ItemMeta compassItemMeta = TRACK_COMPASS_ITEM.getItemMeta();
+        assert compassItemMeta != null;
+        compassItemMeta.setDisplayName(ChatColor.AQUA + "Compass Tracking");
+        List<String> lore = ChatUtils.formattedText(ChatColor.GRAY + "Click on a quest to begin compass tracking. " +
+                "Your quest book will turn into a compass that leads you to your destination.");
+        compassItemMeta.setLore(lore);
+        TRACK_COMPASS_ITEM.setItemMeta(compassItemMeta);
 
-    static {
-        ItemMeta meta = trackCompassItem.getItemMeta();
-        meta.setDisplayName(ChatColor.AQUA + "Compass Tracking");
-        meta.setLore(Arrays.asList(
-                ChatColor.GRAY + "Click on a quest to begin compass tracking.",
-                ChatColor.GRAY + "Your quest book will turn into a compass",
-                ChatColor.GRAY + "that leads you to your destination."
-        ));
-        trackCompassItem.setItemMeta(meta);
-    }
-
-    static {
-        ItemMeta meta = ACTIVE_QUEST_ITEM.getItemMeta();
-        assert meta != null;
-        meta.setDisplayName(ChatColor.GREEN + "Active Quests");
-        meta.setLore(Collections.singletonList(ChatColor.GRAY + "Your active quests appear to the left!"));
-        ACTIVE_QUEST_ITEM.setItemMeta(meta);
+        ItemMeta activeMeta = ACTIVE_QUEST_ITEM.getItemMeta();
+        assert activeMeta != null;
+        activeMeta.setDisplayName(ChatColor.GREEN + "Active Quests");
+        activeMeta.setLore(ChatUtils.formattedText(ChatColor.GRAY + "Your active quests appear to the left!"));
+        ACTIVE_QUEST_ITEM.setItemMeta(activeMeta);
     }
 
     private final Inventory inventory;
@@ -99,13 +85,14 @@ public class QuestMenu implements InventoryHolder {
     /**
      * Creates the informational ItemStack used in the quest GUI
      *
+     * @param uuid            of the player
      * @param startedQuests   the number of quests the player has which are in-progress
      * @param completedQuests the number of quests the player has completed
      * @param totalQuests     the total number of quests in the category
      * @param repeatableMenu  toggle the category (e.g., non-repeatable or repeatable quests)
      * @return an ItemStack to use in a GUI
      */
-    private static ItemStack infoPaper(int startedQuests, int completedQuests, int totalQuests, boolean repeatableMenu) {
+    private static ItemStack infoPaper(UUID uuid, int startedQuests, int completedQuests, int totalQuests, boolean repeatableMenu) {
         ItemStack infoPaper = new ItemStack(Material.PAPER);
         ItemMeta meta = infoPaper.getItemMeta();
         assert meta != null;
@@ -113,6 +100,7 @@ public class QuestMenu implements InventoryHolder {
         if (!repeatableMenu) {
             meta.setLore(Arrays.asList
                     (
+                            ChatColor.YELLOW + "" + ChatColor.BOLD + "POINTS: " + ChatColor.WHITE + ChatColor.BOLD + QuestsUtil.calculateQuestPoints(uuid),
                             ChatColor.GRAY + "Here you can view available quests!",
                             "",
                             ChatColor.WHITE + "" + startedQuests + " " + ChatColor.YELLOW + "quest(s) in progress",
@@ -142,112 +130,12 @@ public class QuestMenu implements InventoryHolder {
         return infoPaper;
     }
 
-
-    /**
-     * Returns a list of quests sorted by level, adjust for player class, and other parameters
-     *
-     * @return a list of sorted quests
-     */
-    private QuestList sortQuests() {
-        QuestProfile profile = PlayerDataLoader.getPlayerQuestData(player.getUniqueId());
-        List<Quest> startedQuests = new ArrayList<>();
-        List<Quest> notStartedQuests = new ArrayList<>();
-        List<Quest> completedQuests = new ArrayList<>();
-        for (Quest quest : profile.getQuests()) {
-            if (!showRepeatableQuests && quest.isRepeatable()) continue;
-            if (showRepeatableQuests && !quest.isRepeatable()) continue;
-            // skip class quests that don't match class
-            if (quest.getRequirements().hasClassTypeRequirement()) {
-                if (!RunicCoreHook.isRequiredClass(quest.getRequirements().getClassTypeRequirement(), player)) {
-                    continue;
-                }
-            }
-            // skip profession quests that don't match profession
-            if (quest.getRequirements().hasCraftingRequirement()) {
-                if (!RunicCoreHook.hasProfession(player, quest.getRequirements().getCraftingProfessionType())) {
-                    continue;
-                }
-            }
-            if (quest.getQuestState().hasStarted() && !quest.getQuestState().isCompleted()) {
-                startedQuests.add(quest);
-            }
-            if (!quest.getQuestState().hasStarted()
-                    && !quest.getQuestState().isCompleted()
-                    && (!quest.isRepeatable()
-                    || (quest.isRepeatable() && Plugin.canStartRepeatableQuest(player.getUniqueId(), quest.getQuestID())))) {
-                notStartedQuests.add(quest);
-            }
-            if (quest.getQuestState().isCompleted() || (quest.isRepeatable() && !Plugin.canStartRepeatableQuest(player.getUniqueId(), quest.getQuestID()))) {
-                completedQuests.add(quest);
-            }
-        }
-        startedQuests.sort(Comparator.comparing(a -> a.getRequirements().getClassLvReq()));
-        notStartedQuests.sort(Comparator.comparing(a -> a.getRequirements().getClassLvReq()));
-        completedQuests.sort(Comparator.comparing(a -> a.getRequirements().getClassLvReq()));
-        List<Quest> sorted = new ArrayList<>(startedQuests);
-        sorted.addAll(notStartedQuests);
-        sorted.addAll(completedQuests);
-        return new QuestList(startedQuests.size(), completedQuests.size(), sorted);
+    public int getCurrentPage() {
+        return this.currentPage;
     }
 
-    /**
-     * This menu displays a list of available quests to the player
-     */
-    public void updateMenu() {
-        this.inventory.clear();
-        QuestList questList = sortQuests();
-        List<Quest> quests = questList.getSortedQuests();
-        int[] slots = new int[]{1, 2, 3, 6, 7};
-        for (int slot : slots) {
-            this.inventory.setItem(slot, GUIUtil.borderItem());
-        }
-        if (currentPage == 1)
-            this.inventory.setItem(0, GUIUtil.closeButton());
-        else
-            this.inventory.setItem(0, GUIUtil.backButton());
-        this.inventory.setItem(4, infoPaper(questList.getStartedQuestCount(), questList.getCompletedQuestCount(), quests.size(), showRepeatableQuests));
-        this.inventory.setItem(5, toggleShowRepeatableQuestsItem);
-        this.inventory.setItem(8, FORWARD_ARROW);
-        if (CompassManager.getCompasses().containsKey(player)
-                && CompassManager.getCompasses().get(player) != null
-                && CompassManager.getCompasses().get(player).getLocation() != null) {
-            this.inventory.setItem(2, disableCompassItem);
-        } else {
-            this.inventory.setItem(2, trackCompassItem);
-        }
-
-        int location = (currentPage - 1) * INVENTORY_SIZE; // holds our place in the list of pages
-        try {
-            for (int i = 0; i < INVENTORY_SIZE; i++) {
-                if ((location + i) < quests.size()) {
-                    if (this.getInventory().firstEmpty() == -1) continue;
-                    // adds a divider between started and not started quests
-                    if (i > 0
-                            && quests.get((location + (i - 1))) != null
-                            && quests.get((location + (i - 1))).getQuestState().hasStarted()
-                            && !quests.get((location + i)).getQuestState().hasStarted()) {
-                        this.inventory.setItem(this.getInventory().firstEmpty(), ACTIVE_QUEST_ITEM);
-                    }
-                    this.inventory.setItem(this.getInventory().firstEmpty(), quests.get((location + i)).generateQuestIcon(player));
-                }
-            }
-        } catch (IndexOutOfBoundsException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void openFirstPage() {
-        this.setCurrentPage(1);
-        this.updateMenu();
-        player.openInventory(inventory);
-    }
-
-    public void openNextPage() {
-        if (showRepeatableQuests && ((currentPage + 1) > MAX_REPEATABLE_PAGES)) return;
-        if (!showRepeatableQuests && ((currentPage + 1) > MAX_PAGES)) return;
-        this.setCurrentPage(currentPage + 1);
-        this.updateMenu();
-        player.openInventory(inventory);
+    public void setCurrentPage(int currentPage) {
+        this.currentPage = currentPage;
     }
 
     @NotNull
@@ -268,12 +156,118 @@ public class QuestMenu implements InventoryHolder {
         this.showRepeatableQuests = showRepeatableQuests;
     }
 
-    public int getCurrentPage() {
-        return this.currentPage;
+    public void openFirstPage() {
+        this.setCurrentPage(1);
+        Bukkit.getScheduler().runTaskAsynchronously(RunicQuests.getInstance(), () -> {
+            this.updateMenu();
+            Bukkit.getScheduler().runTask(RunicQuests.getInstance(), () -> player.openInventory(inventory));
+        });
     }
 
-    public void setCurrentPage(int currentPage) {
-        this.currentPage = currentPage;
+    public void openNextPage() {
+        if (showRepeatableQuests && ((currentPage + 1) > MAX_REPEATABLE_PAGES)) return;
+        if (!showRepeatableQuests && ((currentPage + 1) > MAX_PAGES)) return;
+        this.setCurrentPage(currentPage + 1);
+        Bukkit.getScheduler().runTaskAsynchronously(RunicQuests.getInstance(), () -> {
+            this.updateMenu();
+            Bukkit.getScheduler().runTask(RunicQuests.getInstance(), () -> player.openInventory(inventory));
+        });
+    }
+
+    /**
+     * Returns a list of quests sorted by level, adjust for player class, and other parameters
+     *
+     * @return a list of sorted quests
+     */
+    private QuestList sortQuests() {
+        int slot = RunicCore.getCharacterAPI().getCharacterSlot(player.getUniqueId());
+        List<Quest> questsFromProfile = RunicQuests.getAPI().getQuestProfile(player.getUniqueId()).getQuestsMap().get(slot);
+        List<Quest> startedQuests = new ArrayList<>();
+        List<Quest> notStartedQuests = new ArrayList<>();
+        List<Quest> completedQuests = new ArrayList<>();
+        for (Quest quest : questsFromProfile) {
+            if (!showRepeatableQuests && quest.isRepeatable()) continue;
+            if (showRepeatableQuests && !quest.isRepeatable()) continue;
+            // Skip class quests that don't match class
+            if (quest.getRequirements().hasClassTypeRequirement()) {
+                if (!RunicCoreHook.isRequiredClass(quest.getRequirements().getClassTypeRequirement(), player)) {
+                    continue;
+                }
+            }
+            // Skip profession quests that don't match profession
+            if (quest.getRequirements().hasCraftingRequirement()) {
+                if (!RunicCoreHook.hasProfession(player, quest.getRequirements().getCraftingProfessionType())) {
+                    continue;
+                }
+            }
+            if (quest.getQuestState().hasStarted() && !quest.getQuestState().isCompleted()) {
+                startedQuests.add(quest);
+            }
+            if (!quest.getQuestState().hasStarted()
+                    && !quest.getQuestState().isCompleted()
+                    && (!quest.isRepeatable()
+                    || (quest.isRepeatable() && QuestsUtil.canStartRepeatableQuest(player.getUniqueId(), quest)))) {
+                notStartedQuests.add(quest);
+            }
+            if (quest.getQuestState().isCompleted() || (quest.isRepeatable() && !QuestsUtil.canStartRepeatableQuest(player.getUniqueId(), quest))) {
+                completedQuests.add(quest);
+            }
+        }
+        // Add all quests to the sorted list
+        startedQuests.sort(Comparator.comparing(a -> a.getRequirements().getClassLvReq()));
+        // If there are any in-progress quests, we add a dummy quest to act as a divider placeholder
+        if (startedQuests.size() > 0) {
+            startedQuests.add(new Quest("dummy"));
+        }
+        notStartedQuests.sort(Comparator.comparing(a -> a.getRequirements().getClassLvReq()));
+        completedQuests.sort(Comparator.comparing(a -> a.getRequirements().getClassLvReq()));
+        List<Quest> sorted = new ArrayList<>(startedQuests);
+        sorted.addAll(notStartedQuests);
+        sorted.addAll(completedQuests);
+        return new QuestList(startedQuests.size(), completedQuests.size(), sorted);
+    }
+
+    /**
+     * This menu displays a list of available quests to the player
+     */
+    public void updateMenu() {
+        this.inventory.clear();
+        QuestList questList = sortQuests();
+        List<Quest> quests = questList.getSortedQuests();
+        int[] slots = new int[]{1, 2, 3, 6, 7};
+        for (int slot : slots) {
+            this.inventory.setItem(slot, GUIUtil.BORDER_ITEM);
+        }
+        if (currentPage == 1)
+            this.inventory.setItem(0, GUIUtil.CLOSE_BUTTON);
+        else
+            this.inventory.setItem(0, GUIUtil.BACK_BUTTON);
+        this.inventory.setItem(4, infoPaper(this.player.getUniqueId(), questList.getStartedQuestCount(), questList.getCompletedQuestCount(), quests.size(), showRepeatableQuests));
+        this.inventory.setItem(5, TOGGLE_SHOW_REPEATABLE_QUESTS_ITEM);
+        this.inventory.setItem(8, GUIUtil.FORWARD_BUTTON);
+        if (CompassManager.getCompasses().containsKey(player)
+                && CompassManager.getCompasses().get(player) != null
+                && CompassManager.getCompasses().get(player).getLocation() != null) {
+            this.inventory.setItem(2, DISABLE_COMPASS_ITEM);
+        } else {
+            this.inventory.setItem(2, TRACK_COMPASS_ITEM);
+        }
+
+        int location = (currentPage - 1) * INVENTORY_SIZE; // holds our place in the list of pages
+        try {
+            for (int i = 0; i < INVENTORY_SIZE; i++) {
+                if ((location + i) < quests.size()) {
+                    if (this.getInventory().firstEmpty() == -1) continue;
+                    if (quests.get(location + i).getQuestName().equalsIgnoreCase("dummy")) {
+                        this.inventory.setItem(this.getInventory().firstEmpty(), ACTIVE_QUEST_ITEM);
+                    } else {
+                        this.inventory.setItem(this.getInventory().firstEmpty(), quests.get((location + i)).generateQuestIcon(player));
+                    }
+                }
+            }
+        } catch (IndexOutOfBoundsException e) {
+            e.printStackTrace();
+        }
     }
 
     static class QuestList {
@@ -288,16 +282,16 @@ public class QuestMenu implements InventoryHolder {
             this.sortedQuests = sortedQuests;
         }
 
-        public int getStartedQuestCount() {
-            return startedQuestCount;
-        }
-
         public int getCompletedQuestCount() {
             return completedQuestCount;
         }
 
         public List<Quest> getSortedQuests() {
             return sortedQuests;
+        }
+
+        public int getStartedQuestCount() {
+            return startedQuestCount;
         }
     }
 }

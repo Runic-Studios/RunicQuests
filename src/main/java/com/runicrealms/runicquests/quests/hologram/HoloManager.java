@@ -2,86 +2,34 @@ package com.runicrealms.runicquests.quests.hologram;
 
 import com.gmail.filoghost.holographicdisplays.api.Hologram;
 import com.gmail.filoghost.holographicdisplays.api.HologramsAPI;
-import com.runicrealms.runicquests.Plugin;
+import com.runicrealms.plugin.RunicCore;
+import com.runicrealms.plugin.character.api.CharacterLoadedEvent;
+import com.runicrealms.runicquests.RunicQuests;
 import com.runicrealms.runicquests.api.QuestCompleteEvent;
-import com.runicrealms.runicquests.api.RunicQuestsAPI;
 import com.runicrealms.runicquests.quests.Quest;
 import com.runicrealms.runicquests.util.RunicCoreHook;
 import com.runicrealms.runicquests.util.StatusItemUtil;
-import com.runicrealms.runicrestart.api.RunicRestartApi;
+import com.runicrealms.runicrestart.RunicRestart;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerLevelChangeEvent;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class HoloManager implements Listener {
-
+    private static final int DELAY = 3; // seconds
     private final Map<Integer, Map<FirstNpcHoloType, Hologram>> hologramMap;
 
     public HoloManager() {
         hologramMap = new HashMap<>();
+        RunicQuests.getInstance().getServer().getPluginManager().registerEvents(this, RunicQuests.getInstance());
         loadHolograms();
-    }
-
-    /**
-     * This method creates invisible holograms above all quest-givers on server startup
-     */
-    private void loadHolograms() {
-
-        Bukkit.getScheduler().scheduleSyncDelayedTask(Plugin.getInstance(), () -> {
-            for (Quest q : RunicQuestsAPI.getBlankQuestList()) {
-
-                if (q == null)
-                    continue;
-
-                Location loc = q.getFirstNPC().getLocation().clone().add(0, 3.25, 0);
-                Hologram hologram = HologramsAPI.createHologram(Plugin.getInstance(), loc);
-                hologram.getVisibilityManager().setVisibleByDefault(false);
-
-                // main hologram based on quest type
-                FirstNpcHoloType firstNpcHoloType;
-                if (q.isRepeatable())
-                    firstNpcHoloType = FirstNpcHoloType.BLUE;
-                else if (q.isSideQuest())
-                    firstNpcHoloType = FirstNpcHoloType.YELLOW;
-                else
-                    firstNpcHoloType = FirstNpcHoloType.GOLD;
-
-                hologram.appendItemLine(firstNpcHoloType.getItemStack());
-                hologramMap.put(q.getQuestID(), new HashMap<>());
-                hologramMap.get(q.getQuestID()).put(firstNpcHoloType, hologram);
-
-                Hologram hologramGreen = HologramsAPI.createHologram(Plugin.getInstance(), loc);
-                hologramGreen.getVisibilityManager().setVisibleByDefault(false);
-                hologramGreen.appendItemLine(StatusItemUtil.greenStatusItem);
-                hologramMap.get(q.getQuestID()).put(FirstNpcHoloType.GREEN, hologramGreen);
-
-                Hologram hologramRed = HologramsAPI.createHologram(Plugin.getInstance(), loc);
-                hologramRed.getVisibilityManager().setVisibleByDefault(false);
-                hologramRed.appendItemLine(StatusItemUtil.redStatusItem);
-                hologramMap.get(q.getQuestID()).put(FirstNpcHoloType.RED, hologramRed);
-            }
-
-            RunicRestartApi.markPluginLoaded("quests");
-        }, 20L); // delay to wait for quests to load
-    }
-
-    /**
-     * No need for a character select event, since PlayerLevelChangeEvent is always triggered on character select
-     */
-    @EventHandler
-    public void onLevel(PlayerLevelChangeEvent e) {
-        Bukkit.getScheduler().scheduleSyncDelayedTask(Plugin.getInstance(), () -> refreshStatusHolograms(e.getPlayer()), 20L);
-    }
-
-    @EventHandler
-    public void onQuestComplete(QuestCompleteEvent e) {
-        Bukkit.getScheduler().scheduleSyncDelayedTask(Plugin.getInstance(), () -> refreshStatusHolograms(e.getPlayer()), 20L);
     }
 
     /**
@@ -96,7 +44,9 @@ public class HoloManager implements Listener {
         if (quest.getQuestState().isCompleted())
             return types.get(FirstNpcHoloType.GREEN);
         if (!RunicCoreHook.hasCompletedRequiredQuests(player, quest.getRequirements().getCompletedQuestsRequirement())
-                || !RunicCoreHook.isReqClassLv(player, quest.getRequirements().getClassLvReq()))
+                || !RunicCoreHook.hasCompletedLevelRequirement(player, quest.getRequirements().getClassLvReq())
+                || (quest.getRequirements().hasCraftingRequirement() && !RunicCoreHook.hasProfession(player, quest.getRequirements().getCraftingProfessionType()))
+                || (quest.getRequirements().hasClassTypeRequirement() && !RunicCoreHook.isRequiredClass(quest.getRequirements().getClassTypeRequirement(), player)))
             return types.get(FirstNpcHoloType.RED);
         if (quest.isRepeatable())
             return types.get(FirstNpcHoloType.BLUE);
@@ -105,11 +55,84 @@ public class HoloManager implements Listener {
         return types.get(FirstNpcHoloType.GOLD);
     }
 
+    public Map<Integer, Map<FirstNpcHoloType, Hologram>> getHologramMap() {
+        return hologramMap;
+    }
+
     /**
-     * @param player
+     * This method creates invisible holograms above all quest-givers on server startup for every type of status
+     * (repeatable, side, main, can't yet start, etc.)
+     * Then they are shown to each player based on the player's quest progress
+     */
+    private void loadHolograms() {
+        Bukkit.getScheduler().scheduleSyncDelayedTask(RunicQuests.getInstance(), () -> {
+            for (Quest quest : RunicQuests.getAPI().getBlankQuestList()) {
+                if (quest == null) continue;
+
+                Location loc = quest.getFirstNPC().getLocation().clone().add(0, 3.25, 0);
+                Hologram hologram = HologramsAPI.createHologram(RunicQuests.getInstance(), loc);
+                hologram.getVisibilityManager().setVisibleByDefault(false);
+
+                // main hologram based on quest type
+                FirstNpcHoloType firstNpcHoloType;
+                if (quest.isRepeatable())
+                    firstNpcHoloType = FirstNpcHoloType.BLUE;
+                else if (quest.isSideQuest())
+                    firstNpcHoloType = FirstNpcHoloType.YELLOW;
+                else
+                    firstNpcHoloType = FirstNpcHoloType.GOLD;
+
+                hologram.appendItemLine(firstNpcHoloType.getItemStack());
+                hologramMap.put(quest.getQuestID(), new HashMap<>());
+                hologramMap.get(quest.getQuestID()).put(firstNpcHoloType, hologram);
+
+                Hologram hologramGreen = HologramsAPI.createHologram(RunicQuests.getInstance(), loc);
+                hologramGreen.getVisibilityManager().setVisibleByDefault(false);
+                hologramGreen.appendItemLine(StatusItemUtil.greenStatusItem);
+                hologramMap.get(quest.getQuestID()).put(FirstNpcHoloType.GREEN, hologramGreen);
+
+                Hologram hologramRed = HologramsAPI.createHologram(RunicQuests.getInstance(), loc);
+                hologramRed.getVisibilityManager().setVisibleByDefault(false);
+                hologramRed.appendItemLine(StatusItemUtil.redStatusItem);
+                hologramMap.get(quest.getQuestID()).put(FirstNpcHoloType.RED, hologramRed);
+            }
+
+            RunicRestart.getAPI().markPluginLoaded("quests");
+        }, 20L); // delay to wait for quests to load
+    }
+
+    @EventHandler(priority = EventPriority.HIGH) // late
+    public void onCharacterSelect(CharacterLoadedEvent event) {
+        Bukkit.getScheduler().runTaskLaterAsynchronously(RunicQuests.getInstance(),
+                () -> refreshStatusHolograms(event.getPlayer()), DELAY * 20L);
+    }
+
+    @EventHandler(priority = EventPriority.HIGH) // late
+    public void onLevel(PlayerLevelChangeEvent event) {
+        if (!RunicCore.getCharacterAPI().getLoadedCharacters().contains(event.getPlayer().getUniqueId()))
+            return;
+        if (RunicQuests.getAPI().getQuestProfile(event.getPlayer().getUniqueId()) == null)
+            return; // Player not loaded yet (login level change)
+        Bukkit.getScheduler().runTaskLaterAsynchronously(RunicQuests.getInstance(),
+                () -> refreshStatusHolograms(event.getPlayer()), DELAY * 20L);
+    }
+
+    @EventHandler(priority = EventPriority.HIGH) // late
+    public void onQuestComplete(QuestCompleteEvent event) {
+        Bukkit.getScheduler().runTaskLaterAsynchronously(RunicQuests.getInstance(),
+                () -> refreshStatusHolograms(event.getPlayer()), DELAY * 20L);
+    }
+
+    /**
+     * Updates all current floating quest status holograms to be accurate
+     *
+     * @param player to update holograms for
      */
     private void refreshStatusHolograms(Player player) {
-        for (Quest quest : RunicQuestsAPI.getQuestProfile(player).getQuests()) {
+        int slot = RunicCore.getCharacterAPI().getCharacterSlot(player.getUniqueId());
+        List<Quest> quests = RunicQuests.getAPI().getQuestProfile(player.getUniqueId()).getQuestsMap().get(slot);
+        if (quests == null) return; // Something did not load
+        for (Quest quest : quests) {
             if (hologramMap.get(quest.getQuestID()) != null) {
                 for (Hologram hologram : hologramMap.get(quest.getQuestID()).values()) { // reset previous holograms
                     hologram.getVisibilityManager().hideTo(player);
@@ -117,9 +140,5 @@ public class HoloManager implements Listener {
                 determineHoloByStatus(player, quest).getVisibilityManager().showTo(player);
             }
         }
-    }
-
-    public Map<Integer, Map<FirstNpcHoloType, Hologram>> getHologramMap() {
-        return hologramMap;
     }
 }

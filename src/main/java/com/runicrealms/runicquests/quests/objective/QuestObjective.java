@@ -2,16 +2,15 @@ package com.runicrealms.runicquests.quests.objective;
 
 import com.runicrealms.runicquests.quests.QuestItem;
 import com.runicrealms.runicquests.quests.QuestObjectiveType;
+import org.bson.Document;
 import org.bukkit.Bukkit;
 
 import java.util.List;
 
+/**
+ * Abstract class that contains methods that must exist for a quest objective
+ */
 public abstract class QuestObjective implements Cloneable {
-
-    /*
-     * Abstract class that contains methods that must exist for a quest objective
-     */
-
     protected Integer objectiveNumber;
     protected QuestObjectiveType objectiveType;
     protected List<String> completedMessage;
@@ -20,7 +19,6 @@ public abstract class QuestObjective implements Cloneable {
     protected List<String> execute;
     protected String goalLocation;
     protected boolean displayNextTitle;
-
     private boolean completed = false;
 
     public QuestObjective(Integer objectiveNumber, QuestObjectiveType objectiveType, List<String> completedMessage, List<QuestItem> questItems, String goalMessage, List<String> execute, String goalLocation, boolean displayNextTitle) {
@@ -52,8 +50,25 @@ public abstract class QuestObjective implements Cloneable {
         return null;
     }
 
-    public List<QuestItem> getQuestItems() {
-        return this.questItems;
+    public abstract QuestObjective clone();
+
+    public void executeCommand(String playerName) {
+        for (String command : this.execute) {
+            String parsedCommand = command.startsWith("/") ? command.substring(1).replaceAll("%player%", playerName) : command.replaceAll("%player%", playerName);
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), parsedCommand);
+        }
+    }
+
+    public List<String> getCompletedMessage() {
+        return completedMessage;
+    }
+
+    public String getGoalLocation() {
+        return this.goalLocation;
+    }
+
+    public String getGoalMessage() {
+        return this.goalMessage;
     }
 
     public Integer getObjectiveNumber() {
@@ -64,8 +79,16 @@ public abstract class QuestObjective implements Cloneable {
         return this.objectiveType;
     }
 
-    public String getGoalMessage() {
-        return this.goalMessage;
+    public List<QuestItem> getQuestItems() {
+        return this.questItems;
+    }
+
+    public boolean hasCompletedMessage() {
+        return this.completedMessage != null;
+    }
+
+    public boolean hasExecute() {
+        return this.execute != null;
     }
 
     public boolean isCompleted() {
@@ -76,37 +99,31 @@ public abstract class QuestObjective implements Cloneable {
         this.completed = completed;
     }
 
-    public List<String> getCompletedMessage() {
-        return completedMessage;
-    }
-
     public boolean requiresQuestItem() {
         return this.questItems != null;
     }
 
-    public boolean hasExecute() {
-        return this.execute != null;
-    }
-
-    public boolean hasCompletedMessage() {
-        return this.completedMessage != null;
-    }
-
-    public String getGoalLocation() {
-        return this.goalLocation;
-    }
+    /**
+     * Base method to reset objective for repeatable quests
+     */
+    public abstract void resetObjective();
 
     public boolean shouldDisplayNextObjectiveTitle() {
         return this.displayNextTitle;
     }
 
-    public void executeCommand(String playerName) {
-        for (String command : this.execute) {
-            String parsedCommand = command.startsWith("/") ? command.substring(1).replaceAll("%player%", playerName) : command.replaceAll("%player%", playerName);
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), parsedCommand);
-        }
+    /**
+     * Writes a perk to mongo. Override in child methods
+     *
+     * @param source   the objective to write
+     * @param document the document to modify
+     * @return the modified document
+     */
+    @SuppressWarnings("unused")
+    public Document writeToDocument(QuestObjective source, Document document) {
+        document.put("objectiveNumber", source.getObjectiveNumber());
+        document.put("completed", source.isCompleted());
+        return document;
     }
-
-    public abstract QuestObjective clone();
 
 }

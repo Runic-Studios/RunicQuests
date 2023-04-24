@@ -4,16 +4,16 @@ package com.runicrealms.runicquests.quests;
  * Contains the different types of quest objectives
  */
 public enum QuestObjectiveType {
-
-    SLAY("slay"), // killing mobs
-    TALK("talk"), // speaking with npcs
-    LOCATION("location"), // reaching a location
-    BREAK("break"), // breaking a block
-    TRIGGER("trigger");
+    CAST("cast"), // Cast a spell
+    GATHER("gather"), // Gathering a resource
+    LOCATION("location"), // Reaching a location
+    SLAY("slay"), // Killing mobs
+    TALK("talk"), // Speaking with npcs
+    TRIGGER("trigger"); // Handled by commands, run from anywhere
 
     private final String identifier;
 
-    private QuestObjectiveType(String identifier) {
+    QuestObjectiveType(String identifier) {
         this.identifier = identifier;
     }
 
