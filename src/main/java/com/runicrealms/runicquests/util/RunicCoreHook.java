@@ -13,7 +13,6 @@ import com.runicrealms.runicquests.quests.PlayerClassType;
 import com.runicrealms.runicquests.quests.Quest;
 import com.runicrealms.runicquests.quests.QuestRewards;
 import org.bukkit.entity.Player;
-import redis.clients.jedis.Jedis;
 
 import java.util.List;
 
@@ -94,13 +93,11 @@ public class RunicCoreHook {
      * @param rewards reward types
      */
     public static void giveRewards(Player player, QuestRewards rewards) {
-        try (Jedis jedis = RunicCore.getRedisAPI().getNewJedisResource()) {
-            if (rewards.getExperienceReward() > 0) {
-                PlayerLevelUtil.giveExperience(player, rewards.getExperienceReward(), jedis);
-            }
-            if (rewards.getMoneyReward() > 0) {
-                RunicItemsAPI.addItem(player.getInventory(), CurrencyUtil.goldCoin(rewards.getMoneyReward()), player.getLocation());
-            }
+        if (rewards.getExperienceReward() > 0) {
+            PlayerLevelUtil.giveExperience(player, rewards.getExperienceReward());
+        }
+        if (rewards.getMoneyReward() > 0) {
+            RunicItemsAPI.addItem(player.getInventory(), CurrencyUtil.goldCoin(rewards.getMoneyReward()), player.getLocation());
         }
     }
 

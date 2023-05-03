@@ -1,7 +1,7 @@
 package com.runicrealms.runicquests;
 
-import co.aikar.commands.ConditionFailedException;
-import co.aikar.commands.PaperCommandManager;
+import com.runicrealms.libs.acf.ConditionFailedException;
+import com.runicrealms.libs.acf.PaperCommandManager;
 import com.runicrealms.libs.taskchain.BukkitTaskChainFactory;
 import com.runicrealms.libs.taskchain.TaskChain;
 import com.runicrealms.libs.taskchain.TaskChainFactory;
@@ -90,24 +90,10 @@ public class RunicQuests extends JavaPlugin {
     }
 
     /**
-     * ?
-     *
-     * @param <T>
-     * @return
+     * @return a TaskChain object for thread context switching
      */
     public static <T> TaskChain<T> newChain() {
         return taskChainFactory.newChain();
-    }
-
-    /**
-     * ?
-     *
-     * @param name
-     * @param <T>
-     * @return
-     */
-    public static <T> TaskChain<T> newSharedChain(String name) {
-        return taskChainFactory.newSharedChain(name);
     }
 
     public static void removeItem(Player pl, String name, String type, int amount) {

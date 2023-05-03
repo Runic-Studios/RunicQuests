@@ -1,7 +1,7 @@
 package com.runicrealms.runicquests.command.system;
 
-import co.aikar.commands.BaseCommand;
-import co.aikar.commands.annotation.*;
+import com.runicrealms.libs.acf.BaseCommand;
+import com.runicrealms.libs.acf.annotation.*;
 import com.runicrealms.plugin.RunicCore;
 import com.runicrealms.runicitems.RunicItemsAPI;
 import org.bukkit.Bukkit;
@@ -21,30 +21,19 @@ public class TutorialWeaponCMD extends BaseCommand {
 
     private ItemStack determineStarterWeapon(Player player) {
         String className = RunicCore.getCharacterAPI().getPlayerClass(player);
-        String templateID = "";
-        switch (className.toLowerCase()) {
-            case "archer":
-                templateID = BOW_TEMPLATE_ID;
-                break;
-            case "cleric":
-                templateID = MACE_TEMPLATE_ID;
-                break;
-            case "mage":
-                templateID = STAFF_TEMPLATE_ID;
-                break;
-            case "rogue":
-                templateID = SWORD_TEMPLATE_ID;
-                break;
-            case "warrior":
-                templateID = AXE_TEMPLATE_ID;
-                break;
-
-        }
+        String templateID = switch (className.toLowerCase()) {
+            case "archer" -> BOW_TEMPLATE_ID;
+            case "cleric" -> MACE_TEMPLATE_ID;
+            case "mage" -> STAFF_TEMPLATE_ID;
+            case "rogue" -> SWORD_TEMPLATE_ID;
+            case "warrior" -> AXE_TEMPLATE_ID;
+            default -> "";
+        };
         return RunicItemsAPI.generateItemFromTemplate(templateID).generateItem();
     }
 
     // tutorialweapon [player]
-    
+
     @CatchUnknown
     @Default
     @CommandCompletion("@players")
