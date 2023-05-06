@@ -16,13 +16,14 @@ import org.bukkit.event.Listener;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class LocationManager implements Listener, QuestObjectiveHandler {
     /*
      * This Map is meant to help with performance issues with checking the player's location. It will just indicate
      * when a player has a location objective on one of their quests
      */
-    private static final Map<Player, Map<Integer, LocationToReach>> cachedLocations = new HashMap<>();
+    private static final Map<Player, Map<Integer, LocationToReach>> cachedLocations = new ConcurrentHashMap<>();
 
     public LocationManager() {
         for (UUID uuid : RunicCore.getCharacterAPI().getLoadedCharacters()) {
