@@ -16,17 +16,18 @@ public enum FirstNpcState {
         this.name = name;
     }
 
-    public String getName() {
-        return this.name;
-    }
-
     public static FirstNpcState fromString(String str) {
+        if (str == null) return NEUTRAL; // by default
         if (str.equalsIgnoreCase("neutral")) {
             return FirstNpcState.NEUTRAL;
         } else if (str.equalsIgnoreCase("accepted")) {
             return FirstNpcState.ACCEPTED;
         }
-        return null;
+        return FirstNpcState.NEUTRAL;
+    }
+
+    public String getName() {
+        return this.name;
     }
 
 }

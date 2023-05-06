@@ -136,6 +136,8 @@ public class QuestProfileData implements SessionDataMongo, SessionDataNested {
         questWithUserData.getQuestState().setCompleted(Boolean.parseBoolean(questDataMap.get(QuestField.COMPLETED.getField())));
         questWithUserData.getFirstNPC().setState(FirstNpcState.fromString(questDataMap.get(QuestField.FIRST_NPC_STATE.getField())));
         questWithUserData.getQuestState().setStarted(Boolean.parseBoolean(questDataMap.get(QuestField.STARTED.getField())));
+        if (questWithUserData.getQuestState().hasStarted())
+            questWithUserData.getFirstNPC().setState(FirstNpcState.ACCEPTED); // Insurance in case they get de-synced
         for (String field : questDataMap.keySet()) {
             for (QuestObjective questObjective : questNoUserData.getObjectives()) {
                 if (QuestField.getFromFieldString(field) != null)
