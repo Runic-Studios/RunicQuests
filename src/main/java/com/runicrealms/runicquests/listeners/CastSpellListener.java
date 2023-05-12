@@ -10,7 +10,6 @@ import com.runicrealms.runicquests.quests.objective.QuestObjective;
 import com.runicrealms.runicquests.quests.objective.QuestObjectiveCast;
 import com.runicrealms.runicquests.quests.objective.QuestObjectiveHandler;
 import com.runicrealms.runicquests.util.QuestsUtil;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -31,7 +30,6 @@ public class CastSpellListener implements Listener, QuestObjectiveHandler {
         for (String objectiveSpell : castObjective.getSpellNames()) {
             if (!(spellName.equalsIgnoreCase(objectiveSpell) || objectiveSpell.equalsIgnoreCase("*")))
                 continue;
-            Bukkit.broadcastMessage("passed");
             castObjective.setSpellsCasted(castObjective.getSpellsCasted() + 1); // Add to the total spells cast
             player.sendMessage(ChatColor.translateAlternateColorCodes
                     ('&', QuestsUtil.PREFIX + " Cast Spell &f" + spellName + " &6» &7[&a" + castObjective.getSpellsCasted() + "&7/" + castObjective.getSpellAmount() + "]"));
