@@ -1,5 +1,6 @@
 package com.runicrealms.runicquests.quests;
 
+import com.runicrealms.plugin.utilities.ChatUtils;
 import com.runicrealms.runicquests.RunicQuests;
 import com.runicrealms.runicquests.quests.objective.QuestObjective;
 import com.runicrealms.runicquests.quests.objective.QuestObjectiveTalk;
@@ -162,9 +163,10 @@ public class Quest implements Cloneable {
             meta.setDisplayName(ChatColor.AQUA + this.getQuestName());
             lore.add(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "REPEATABLE");
             String[] messageLocation = RunicQuests.getFirstUncompletedGoalMessageAndLocation(this);
-            lore.add(ChatColor.YELLOW + ChatColor.translateAlternateColorCodes('&', messageLocation[0]));
+            lore.addAll(ChatUtils.formattedText(ChatColor.YELLOW + ChatColor.translateAlternateColorCodes('&', messageLocation[0])));
             if (!messageLocation[1].equalsIgnoreCase("")) {
-                lore.add(ChatColor.YELLOW + "Location: " + ChatColor.translateAlternateColorCodes('&', messageLocation[1]));
+                lore.add("");
+                lore.addAll(ChatUtils.formattedText(ChatColor.DARK_AQUA + "Location/Tip: " + ChatColor.translateAlternateColorCodes('&', messageLocation[1])));
             }
             lore.add(canStart ? ChatColor.BLUE + "Can complete!" : ChatColor.GRAY + "On cooldown: " + ChatColor.WHITE + QuestsUtil.repeatableQuestTimeRemaining(player, this));
         } else if (this.getQuestState().isCompleted()) {
@@ -186,23 +188,26 @@ public class Quest implements Cloneable {
             meta.setDisplayName(ChatColor.YELLOW + this.getQuestName());
             lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "SIDE QUEST");
             String[] messageLocation = RunicQuests.getFirstUncompletedGoalMessageAndLocation(this);
-            lore.add(ChatColor.YELLOW + ChatColor.translateAlternateColorCodes('&', messageLocation[0]));
+            lore.addAll(ChatUtils.formattedText(ChatColor.YELLOW + ChatColor.translateAlternateColorCodes('&', messageLocation[0])));
             if (!messageLocation[1].equalsIgnoreCase("")) {
-                lore.add(ChatColor.YELLOW + "Location: " + ChatColor.translateAlternateColorCodes('&', messageLocation[1]));
+                lore.add("");
+                lore.addAll(ChatUtils.formattedText(ChatColor.DARK_AQUA + "Location/Tip: " + ChatColor.translateAlternateColorCodes('&', messageLocation[1])));
             }
         } else {
             item = StatusItemUtil.goldStatusItem.clone();
             meta = item.getItemMeta();
             assert meta != null;
             meta.setDisplayName(ChatColor.GOLD + this.getQuestName());
-            lore.add(ChatColor.GOLD + "" + ChatColor.BOLD + "MAIN STORY");
+            lore.add(ChatColor.GOLD + "" + ChatColor.BOLD + "MAIN STORY QUEST");
             String[] messageLocation = RunicQuests.getFirstUncompletedGoalMessageAndLocation(this);
-            lore.add(ChatColor.YELLOW + ChatColor.translateAlternateColorCodes('&', messageLocation[0]));
+            lore.addAll(ChatUtils.formattedText(ChatColor.YELLOW + ChatColor.translateAlternateColorCodes('&', messageLocation[0])));
             if (!messageLocation[1].equalsIgnoreCase("")) {
-                lore.add(ChatColor.YELLOW + "Location: " + ChatColor.translateAlternateColorCodes('&', messageLocation[1]));
+                lore.add("");
+                lore.addAll(ChatUtils.formattedText(ChatColor.DARK_AQUA + "Location/Tip: " + ChatColor.translateAlternateColorCodes('&', messageLocation[1])));
             }
         }
-        lore.add(ChatColor.GRAY + "Level " + this.getRequirements().getClassLvReq());
+        lore.add("");
+        lore.add(ChatColor.GRAY + "Level " + ChatColor.GRAY + "[" + this.getRequirements().getClassLvReq() + "]");
         lore.add("");
         lore.add(
                 "" + ChatColor.GRAY + ChatColor.ITALIC + "Rewards " +

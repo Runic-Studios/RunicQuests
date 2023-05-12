@@ -38,7 +38,7 @@ import java.util.logging.Level;
  * Also acts as a listener to keep redis up-to-date
  */
 public class QuestProfileManager implements Listener, RunicQuestsAPI, SessionDataNestedManager {
-    public static final TaskChainAbortAction<Player, String, ?> CONSOLE_LOG = new TaskChainAbortAction<Player, String, Object>() {
+    public static final TaskChainAbortAction<Player, String, ?> CONSOLE_LOG = new TaskChainAbortAction<>() {
         public void onAbort(TaskChain<?> chain, Player player, String message) {
             Bukkit.getLogger().log(Level.SEVERE, ChatColor.translateAlternateColorCodes('&', message));
         }
