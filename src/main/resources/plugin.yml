@@ -3,7 +3,7 @@ description: Runic Realms Questing Plugin, by Excel
 version: 1.0
 main: com.runicrealms.runicquests.RunicQuests
 depend: [ RunicNpcs, MythicMobs, RunicCore ]
-softdepend: [ HolographicDisplays, RunicRestart ]
+softdepend: [ HolographicDisplays, RunicRestart, RunicCommon ]
 api-version: 1.15
 #commands:
 #  quests:

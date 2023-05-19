@@ -1,7 +1,7 @@
 package com.runicrealms.runicquests.model;
 
+import co.aikar.taskchain.TaskChain;
 import com.mongodb.bulk.BulkWriteResult;
-import com.runicrealms.libs.taskchain.TaskChain;
 import com.runicrealms.plugin.RunicCore;
 import com.runicrealms.plugin.api.MongoTaskOperation;
 import com.runicrealms.plugin.api.WriteCallback;

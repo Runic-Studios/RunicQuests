@@ -8,7 +8,12 @@ import com.runicrealms.runicquests.api.QuestCompleteEvent;
 import com.runicrealms.runicquests.api.QuestCompleteObjectiveEvent;
 import com.runicrealms.runicquests.api.QuestStartEvent;
 import com.runicrealms.runicquests.model.QuestProfileData;
-import com.runicrealms.runicquests.quests.*;
+import com.runicrealms.runicquests.quests.FirstNpcState;
+import com.runicrealms.runicquests.quests.Quest;
+import com.runicrealms.runicquests.quests.QuestItem;
+import com.runicrealms.runicquests.quests.QuestNpc;
+import com.runicrealms.runicquests.quests.QuestObjectiveType;
+import com.runicrealms.runicquests.quests.RequirementsResult;
 import com.runicrealms.runicquests.quests.objective.QuestObjective;
 import com.runicrealms.runicquests.quests.objective.QuestObjectiveHandler;
 import com.runicrealms.runicquests.quests.objective.QuestObjectiveTalk;
@@ -24,7 +29,11 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Handles npc clicks for the RunicQuests plugin. May include starting a new quest,

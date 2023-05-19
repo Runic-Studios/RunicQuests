@@ -21,7 +21,9 @@ import org.bukkit.inventory.meta.CompassMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 
 public class QuestMenu implements InventoryHolder {
     public static final ItemStack ACTIVE_QUEST_ITEM = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
