@@ -1,7 +1,7 @@
 package com.runicrealms.runicquests.ui;
 
-import com.runicrealms.plugin.RunicCore;
-import com.runicrealms.plugin.utilities.ChatUtils;
+import com.runicrealms.plugin.common.util.ChatUtils;
+import com.runicrealms.plugin.rdb.RunicDatabase;
 import com.runicrealms.plugin.utilities.GUIUtil;
 import com.runicrealms.runicquests.RunicQuests;
 import com.runicrealms.runicquests.quests.Quest;
@@ -184,7 +184,7 @@ public class QuestMenu implements InventoryHolder {
      * @return a list of sorted quests
      */
     private QuestList sortQuests() {
-        int slot = RunicCore.getCharacterAPI().getCharacterSlot(player.getUniqueId());
+        int slot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(player.getUniqueId());
         List<Quest> questsFromProfile = RunicQuests.getAPI().getQuestProfile(player.getUniqueId()).getQuestsMap().get(slot);
         List<Quest> startedQuests = new ArrayList<>();
         List<Quest> notStartedQuests = new ArrayList<>();

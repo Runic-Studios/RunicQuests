@@ -1,6 +1,6 @@
 package com.runicrealms.runicquests.quests;
 
-import com.runicrealms.plugin.utilities.ChatUtils;
+import com.runicrealms.plugin.common.util.ChatUtils;
 import com.runicrealms.runicquests.RunicQuests;
 import com.runicrealms.runicquests.quests.objective.QuestObjective;
 import com.runicrealms.runicquests.quests.objective.QuestObjectiveTalk;

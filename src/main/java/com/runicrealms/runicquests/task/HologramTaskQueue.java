@@ -2,8 +2,8 @@ package com.runicrealms.runicquests.task;
 
 import com.gmail.filoghost.holographicdisplays.api.Hologram;
 import com.gmail.filoghost.holographicdisplays.api.HologramsAPI;
-import com.runicrealms.plugin.RunicCore;
-import com.runicrealms.plugin.utilities.ChatUtils;
+import com.runicrealms.plugin.common.util.ChatUtils;
+import com.runicrealms.plugin.rdb.RunicDatabase;
 import com.runicrealms.runicquests.RunicQuests;
 import com.runicrealms.runicquests.quests.Quest;
 import com.runicrealms.runicquests.quests.hologram.FirstNpcHoloType;
@@ -71,7 +71,7 @@ public class HologramTaskQueue extends TaskQueue {
      */
     private void changeQuestStatusHolograms(boolean display) {
         if (npcId == null) return;
-        int slot = RunicCore.getCharacterAPI().getCharacterSlot(player.getUniqueId());
+        int slot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(player.getUniqueId());
         List<Quest> quests = RunicQuests.getAPI().getQuestProfile(player.getUniqueId()).getQuestsMap().get(slot);
         for (Quest quest : quests) {
             if (!quest.getFirstNPC().getNpcId().equals(npcId)) continue;

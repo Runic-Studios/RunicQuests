@@ -1,6 +1,6 @@
 package com.runicrealms.runicquests.util;
 
-import com.runicrealms.plugin.RunicCore;
+import com.runicrealms.plugin.rdb.RunicDatabase;
 import com.runicrealms.runicquests.RunicQuests;
 import com.runicrealms.runicquests.model.QuestProfileData;
 import com.runicrealms.runicquests.quests.Quest;
@@ -89,7 +89,7 @@ public class QuestsUtil {
     public static int calculateQuestPoints(UUID uuid) {
         int result = 0;
         QuestProfileData profileData = RunicQuests.getAPI().getQuestProfile(uuid);
-        int slot = RunicCore.getCharacterAPI().getCharacterSlot(uuid);
+        int slot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(uuid);
         for (Quest quest : profileData.getQuestsMap().get(slot)) {
             if (!quest.getQuestState().isCompleted()) continue;
             result += quest.getRewards().getQuestPointsReward();

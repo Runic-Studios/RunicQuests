@@ -6,7 +6,7 @@ import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.CommandCompletion;
 import co.aikar.commands.annotation.Conditions;
 import co.aikar.commands.annotation.Default;
-import com.runicrealms.plugin.RunicCore;
+import com.runicrealms.plugin.rdb.RunicDatabase;
 import com.runicrealms.runicitems.RunicItemsAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
@@ -24,7 +24,7 @@ public class TutorialWeaponCMD extends BaseCommand {
     private static final String AXE_TEMPLATE_ID = "oaken-axe";
 
     private ItemStack determineStarterWeapon(Player player) {
-        String className = RunicCore.getCharacterAPI().getPlayerClass(player);
+        String className = RunicDatabase.getAPI().getCharacterAPI().getPlayerClass(player);
         String templateID = switch (className.toLowerCase()) {
             case "archer" -> BOW_TEMPLATE_ID;
             case "cleric" -> MACE_TEMPLATE_ID;

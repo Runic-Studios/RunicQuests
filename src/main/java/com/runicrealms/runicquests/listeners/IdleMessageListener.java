@@ -1,7 +1,7 @@
 package com.runicrealms.runicquests.listeners;
 
-import com.runicrealms.plugin.RunicCore;
 import com.runicrealms.plugin.api.NpcClickEvent;
+import com.runicrealms.plugin.rdb.RunicDatabase;
 import com.runicrealms.runicquests.RunicQuests;
 import com.runicrealms.runicquests.model.QuestProfileData;
 import com.runicrealms.runicquests.quests.Quest;
@@ -79,7 +79,7 @@ public class IdleMessageListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void onNpcClick(NpcClickEvent event) {
         Player player = event.getPlayer();
-        int slot = RunicCore.getCharacterAPI().getCharacterSlot(player.getUniqueId());
+        int slot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(player.getUniqueId());
         QuestProfileData profileData = RunicQuests.getAPI().getQuestProfile(player.getUniqueId());
         // Static map that keeps track of the current talk operation
         HashMap<Long, TaskQueue> npcTaskQueues = RunicQuests.getNpcTaskQueues();

@@ -1,6 +1,6 @@
 package com.runicrealms.runicquests.task;
 
-import com.runicrealms.plugin.character.api.CharacterQuitEvent;
+import com.runicrealms.plugin.rdb.event.CharacterQuitEvent;
 import com.runicrealms.runicquests.RunicQuests;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;

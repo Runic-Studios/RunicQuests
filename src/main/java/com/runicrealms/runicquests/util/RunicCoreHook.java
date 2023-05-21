@@ -1,11 +1,11 @@
 package com.runicrealms.runicquests.util;
 
-import com.runicrealms.plugin.RunicCore;
 import com.runicrealms.plugin.RunicProfessions;
 import com.runicrealms.plugin.player.utilities.PlayerLevelUtil;
 import com.runicrealms.plugin.professions.Profession;
-import com.runicrealms.plugin.utilities.CurrencyUtil;
+import com.runicrealms.plugin.rdb.RunicDatabase;
 import com.runicrealms.runicitems.RunicItemsAPI;
+import com.runicrealms.runicitems.util.CurrencyUtil;
 import com.runicrealms.runicquests.RunicQuests;
 import com.runicrealms.runicquests.model.QuestProfileData;
 import com.runicrealms.runicquests.quests.CraftingProfessionType;
@@ -34,7 +34,7 @@ public class RunicCoreHook {
      * @return true if the player can start the quest
      */
     public static boolean hasCompletedRequiredQuests(Player player, List<Integer> quests) {
-        int slot = RunicCore.getCharacterAPI().getCharacterSlot(player.getUniqueId());
+        int slot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(player.getUniqueId());
         QuestProfileData questProfileData = RunicQuests.getAPI().getQuestProfile(player.getUniqueId());
         int completed = 0;
         for (Quest quest : questProfileData.getQuestsMap().get(slot)) {
@@ -59,7 +59,7 @@ public class RunicCoreHook {
      * @return true if the player has met the requirement
      */
     public static boolean isRequiredCraftingLevel(Player player, CraftingProfessionType profession, int requiredLevel) {
-        int slot = RunicCore.getCharacterAPI().getCharacterSlot(player.getUniqueId());
+        int slot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(player.getUniqueId());
         Profession playerProfession = RunicProfessions.getAPI().getPlayerProfession(player.getUniqueId(), slot);
         int profLevel = RunicProfessions.getAPI().getPlayerProfessionLevel(player.getUniqueId(), slot);
         if (profession == CraftingProfessionType.ANY) {
@@ -78,7 +78,7 @@ public class RunicCoreHook {
      */
     public static boolean hasProfession(Player player, List<CraftingProfessionType> professions) {
         if (professions.contains(CraftingProfessionType.ANY)) return true;
-        int slot = RunicCore.getCharacterAPI().getCharacterSlot(player.getUniqueId());
+        int slot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(player.getUniqueId());
         Profession playerProfession = RunicProfessions.getAPI().getPlayerProfession(player.getUniqueId(), slot);
         for (CraftingProfessionType profession : professions) {
             if (playerProfession.getName().equalsIgnoreCase(profession.getName())) return true;
@@ -109,7 +109,7 @@ public class RunicCoreHook {
      * @return true if the player is the required class
      */
     public static boolean isRequiredClass(PlayerClassType classType, Player player) {
-        String className = RunicCore.getCharacterAPI().getPlayerClass(player);
+        String className = RunicDatabase.getAPI().getCharacterAPI().getPlayerClass(player);
         return classType.getName().equalsIgnoreCase(className);
     }
 }

@@ -2,8 +2,8 @@ package com.runicrealms.runicquests.quests.hologram;
 
 import com.gmail.filoghost.holographicdisplays.api.Hologram;
 import com.gmail.filoghost.holographicdisplays.api.HologramsAPI;
-import com.runicrealms.plugin.RunicCore;
-import com.runicrealms.plugin.character.api.CharacterLoadedEvent;
+import com.runicrealms.plugin.rdb.RunicDatabase;
+import com.runicrealms.plugin.rdb.event.CharacterLoadedEvent;
 import com.runicrealms.runicquests.RunicQuests;
 import com.runicrealms.runicquests.api.QuestCompleteEvent;
 import com.runicrealms.runicquests.quests.Quest;
@@ -109,7 +109,7 @@ public class HoloManager implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH) // late
     public void onLevel(PlayerLevelChangeEvent event) {
-        if (!RunicCore.getCharacterAPI().getLoadedCharacters().contains(event.getPlayer().getUniqueId()))
+        if (!RunicDatabase.getAPI().getCharacterAPI().getLoadedCharacters().contains(event.getPlayer().getUniqueId()))
             return;
         if (RunicQuests.getAPI().getQuestProfile(event.getPlayer().getUniqueId()) == null)
             return; // Player not loaded yet (login level change)
@@ -129,7 +129,7 @@ public class HoloManager implements Listener {
      * @param player to update holograms for
      */
     private void refreshStatusHolograms(Player player) {
-        int slot = RunicCore.getCharacterAPI().getCharacterSlot(player.getUniqueId());
+        int slot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(player.getUniqueId());
         List<Quest> quests = RunicQuests.getAPI().getQuestProfile(player.getUniqueId()).getQuestsMap().get(slot);
         if (quests == null) return; // Something did not load
         for (Quest quest : quests) {

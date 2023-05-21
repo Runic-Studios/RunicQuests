@@ -24,6 +24,8 @@ dependencies {
     compileOnly(project(":Projects:Professions"))
     compileOnly(project(":Projects:Restart"))
     compileOnly(project(":Projects:Items"))
+    compileOnly(project(":Projects:Common"))
+    compileOnly(project(":Projects:Database"))
 }
 
 java {

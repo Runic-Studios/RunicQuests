@@ -1,7 +1,7 @@
 package com.runicrealms.runicquests.listeners;
 
-import com.runicrealms.plugin.RunicCore;
 import com.runicrealms.plugin.events.SpellCastEvent;
+import com.runicrealms.plugin.rdb.RunicDatabase;
 import com.runicrealms.runicquests.RunicQuests;
 import com.runicrealms.runicquests.model.QuestProfileData;
 import com.runicrealms.runicquests.quests.Quest;
@@ -54,7 +54,7 @@ public class CastSpellListener implements Listener, QuestObjectiveHandler {
      * @param spellName that was cast
      */
     private void runSpellCast(Player player, String spellName) {
-        int slot = RunicCore.getCharacterAPI().getCharacterSlot(player.getUniqueId());
+        int slot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(player.getUniqueId());
         QuestProfileData profileData = RunicQuests.getAPI().getQuestProfile(player.getUniqueId());
         for (Quest quest : profileData.getQuestsMap().get(slot)) {
             if (!isQuestActive(quest)) continue;
