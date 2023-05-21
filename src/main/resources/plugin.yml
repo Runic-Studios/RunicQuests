@@ -2,8 +2,18 @@ name: RunicQuests
 description: Runic Realms Questing Plugin, by Excel
 version: 1.0
 main: com.runicrealms.runicquests.RunicQuests
-depend: [ RunicNpcs, MythicMobs, RunicCore, RunicCommon, RunicDatabase, RunicRestart, RunicItems ]
-softdepend: [ HolographicDisplays, RunicProfessions ]
+depend:
+  - RunicNpcs
+  - RunicChat
+  - RunicCore
+  - RunicProfessions
+  - RunicRestart
+  - RunicItems
+  - RunicCommon
+  - RunicDatabase
+  - MythicMobs
+  - PlaceholderAPI
+  - HolographicDisplays
 api-version: 1.15
 #commands:
 #  quests:
