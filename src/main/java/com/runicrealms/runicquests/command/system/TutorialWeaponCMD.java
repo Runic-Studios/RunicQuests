@@ -1,11 +1,7 @@
 package com.runicrealms.runicquests.command.system;
 
 import co.aikar.commands.BaseCommand;
-import co.aikar.commands.annotation.CatchUnknown;
-import co.aikar.commands.annotation.CommandAlias;
-import co.aikar.commands.annotation.CommandCompletion;
-import co.aikar.commands.annotation.Conditions;
-import co.aikar.commands.annotation.Default;
+import co.aikar.commands.annotation.*;
 import com.runicrealms.plugin.rdb.RunicDatabase;
 import com.runicrealms.runicitems.RunicItemsAPI;
 import org.bukkit.Bukkit;
@@ -17,11 +13,11 @@ import org.bukkit.inventory.ItemStack;
 
 @CommandAlias("tutorialweapon")
 public class TutorialWeaponCMD extends BaseCommand {
-    private static final String BOW_TEMPLATE_ID = "oaken-shortbow";
-    private static final String MACE_TEMPLATE_ID = "oaken-mace";
-    private static final String STAFF_TEMPLATE_ID = "oaken-branch";
-    private static final String SWORD_TEMPLATE_ID = "oaken-sparring-sword";
-    private static final String AXE_TEMPLATE_ID = "oaken-axe";
+    private static final String BOW_TEMPLATE_ID = "tutorial-archer-weapon";
+    private static final String MACE_TEMPLATE_ID = "tutorial-cleric-weapon";
+    private static final String STAFF_TEMPLATE_ID = "tutorial-mage-weapon";
+    private static final String SWORD_TEMPLATE_ID = "tutorial-rogue-weapon";
+    private static final String AXE_TEMPLATE_ID = "tutorial-warrior-weapon";
 
     private ItemStack determineStarterWeapon(Player player) {
         String className = RunicDatabase.getAPI().getCharacterAPI().getPlayerClass(player);
