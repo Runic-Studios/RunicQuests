@@ -1,10 +1,10 @@
 package com.runicrealms.runicquests.listeners;
 
 import com.runicrealms.api.event.ChatChannelMessageEvent;
-import com.runicrealms.plugin.item.util.ItemRemover;
 import com.runicrealms.runicitems.RunicItemsAPI;
 import com.runicrealms.runicitems.item.RunicItem;
 import com.runicrealms.runicitems.item.stats.RunicItemTag;
+import com.runicrealms.runicitems.util.ItemUtils;
 import com.runicrealms.runicquests.RunicQuests;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
@@ -57,7 +57,7 @@ public class QuestItemListener implements Listener {
         e.setCancelled(true);
         if (e.getChatMessage().equalsIgnoreCase("yes")) {
             itemDestroyers.get(e.getMessageSender().getUniqueId()).getBukkitTask().cancel();
-            ItemRemover.takeItem
+            ItemUtils.takeItem
                     (
                             e.getMessageSender(),
                             itemDestroyers.get(e.getMessageSender().getUniqueId()).getItemStack(),

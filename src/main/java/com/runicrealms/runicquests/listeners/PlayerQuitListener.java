@@ -1,6 +1,6 @@
 package com.runicrealms.runicquests.listeners;
 
-import com.runicrealms.plugin.character.api.CharacterQuitEvent;
+import com.runicrealms.plugin.rdb.event.CharacterQuitEvent;
 import com.runicrealms.runicquests.RunicQuests;
 import com.runicrealms.runicquests.model.QuestProfileData;
 import com.runicrealms.runicquests.quests.Quest;

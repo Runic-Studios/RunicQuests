@@ -2,6 +2,7 @@ package com.runicrealms.runicquests.listeners;
 
 import com.runicrealms.plugin.RunicCore;
 import com.runicrealms.plugin.party.Party;
+import com.runicrealms.plugin.rdb.RunicDatabase;
 import com.runicrealms.runicquests.RunicQuests;
 import com.runicrealms.runicquests.model.QuestProfileData;
 import com.runicrealms.runicquests.quests.Quest;
@@ -65,7 +66,7 @@ public class MythicMobDeathListener implements Listener, QuestObjectiveHandler {
      * @param mythicMob that was killed
      */
     private void runMythicMobsKill(Player player, MythicMob mythicMob) {
-        int slot = RunicCore.getCharacterAPI().getCharacterSlot(player.getUniqueId());
+        int slot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(player.getUniqueId());
         QuestProfileData profileData = RunicQuests.getAPI().getQuestProfile(player.getUniqueId()); // Get player questing profile
         for (Quest quest : profileData.getQuestsMap().get(slot)) { // Loop through quest to find a matching objective to the mob killed
             if (!isQuestActive(quest)) continue;

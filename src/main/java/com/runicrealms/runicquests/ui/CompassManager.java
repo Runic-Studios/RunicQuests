@@ -1,6 +1,6 @@
 package com.runicrealms.runicquests.ui;
 
-import com.runicrealms.plugin.character.api.CharacterSelectEvent;
+import com.runicrealms.plugin.rdb.event.CharacterSelectEvent;
 import com.runicrealms.runicquests.api.QuestCompleteEvent;
 import com.runicrealms.runicquests.api.QuestCompleteObjectiveEvent;
 import com.runicrealms.runicquests.api.QuestStartEvent;

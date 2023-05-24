@@ -1,6 +1,6 @@
 package com.runicrealms.runicquests.listeners;
 
-import com.runicrealms.plugin.character.api.CharacterLoadedEvent;
+import com.runicrealms.plugin.rdb.event.CharacterLoadedEvent;
 import com.runicrealms.runicitems.RunicItemsAPI;
 import com.runicrealms.runicquests.ui.CompassManager;
 import com.runicrealms.runicquests.ui.QuestMenu;

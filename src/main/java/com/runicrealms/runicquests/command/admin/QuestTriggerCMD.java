@@ -8,6 +8,7 @@ import co.aikar.commands.annotation.Conditions;
 import co.aikar.commands.annotation.Default;
 import com.runicrealms.plugin.RunicCore;
 import com.runicrealms.plugin.party.Party;
+import com.runicrealms.plugin.rdb.RunicDatabase;
 import com.runicrealms.runicquests.RunicQuests;
 import com.runicrealms.runicquests.model.QuestProfileData;
 import com.runicrealms.runicquests.quests.Quest;
@@ -49,7 +50,7 @@ public class QuestTriggerCMD extends BaseCommand implements QuestObjectiveHandle
      * @param trigger that was caused
      */
     private void handleTrigger(Player player, Trigger trigger) {
-        int characterSlot = RunicCore.getCharacterAPI().getCharacterSlot(player.getUniqueId());
+        int characterSlot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(player.getUniqueId());
         QuestProfileData profileData = RunicQuests.getAPI().getQuestProfile(player.getUniqueId());
         for (Quest quest : profileData.getQuestsMap().get(characterSlot)) {
             if (!isQuestActive(quest)) continue;

@@ -1,8 +1,8 @@
 package com.runicrealms.runicquests.model;
 
-import com.runicrealms.plugin.RunicCore;
-import com.runicrealms.plugin.model.SessionDataMongo;
-import com.runicrealms.plugin.model.SessionDataNested;
+import com.runicrealms.plugin.rdb.RunicDatabase;
+import com.runicrealms.plugin.rdb.model.SessionDataMongo;
+import com.runicrealms.plugin.rdb.model.SessionDataNested;
 import com.runicrealms.runicquests.RunicQuests;
 import com.runicrealms.runicquests.config.QuestLoader;
 import com.runicrealms.runicquests.quests.FirstNpcState;
@@ -29,7 +29,7 @@ import java.util.UUID;
 @Document(collection = "quests")
 @SuppressWarnings("unused")
 public class QuestProfileData implements SessionDataMongo, SessionDataNested {
-    public static final List<String> FIELDS = new ArrayList<String>() {{
+    public static final List<String> FIELDS = new ArrayList<>() {{
         add(QuestField.COMPLETED.getField());
         add(QuestField.DATE_COMPLETED.getField());
         add(QuestField.FIRST_NPC_STATE.getField());
@@ -79,10 +79,10 @@ public class QuestProfileData implements SessionDataMongo, SessionDataNested {
         this.id = id;
         this.uuid = uuid;
         this.questsMap = new HashMap<>();
-        String database = RunicCore.getDataAPI().getMongoDatabase().getName();
+        String database = RunicDatabase.getAPI().getDataAPI().getMongoDatabase().getName();
         // Populate quests map with redis data
         if (slotToLoad == -1) { // Load all slots
-            for (int slot = 1; slot <= RunicCore.getDataAPI().getMaxCharacterSlot(); slot++) {
+            for (int slot = 1; slot <= RunicDatabase.getAPI().getDataAPI().getMaxCharacterSlot(); slot++) {
                 if (jedis.smembers(database + ":" + uuid + ":questData").contains(String.valueOf(slot))) {
                     List<Quest> questList = RunicQuests.getAPI().buildQuestListFromRedis(uuid, jedis, slot);
                     this.questsMap.put(slot, questList);
@@ -96,7 +96,7 @@ public class QuestProfileData implements SessionDataMongo, SessionDataNested {
         Player player = Bukkit.getPlayer(uuid);
         // Additional checks if player is online
         if (player == null) return;
-        int slot = RunicCore.getCharacterAPI().getCharacterSlot(uuid);
+        int slot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(uuid);
         // This ensures there is blank data if the player has redis data, but no data for the current character
         if (this.getQuestsMap().get(slot) == null)
             this.questsMap.put(slot, QuestLoader.getQuestListNoUserData());
@@ -166,13 +166,13 @@ public class QuestProfileData implements SessionDataMongo, SessionDataNested {
     @SuppressWarnings("unchecked")
     @Override
     public QuestProfileData addDocumentToMongo() {
-        MongoTemplate mongoTemplate = RunicCore.getDataAPI().getMongoTemplate();
+        MongoTemplate mongoTemplate = RunicDatabase.getAPI().getDataAPI().getMongoTemplate();
         return mongoTemplate.save(this);
     }
 
     @Override
     public Map<String, String> getDataMapFromJedis(Jedis jedis, Object nestedObject, int... slot) {
-        String database = RunicCore.getDataAPI().getMongoDatabase().getName();
+        String database = RunicDatabase.getAPI().getDataAPI().getMongoDatabase().getName();
         String questId = (String) nestedObject;
         String parentKey = getJedisKey(uuid, slot[0]);
         return jedis.hgetAll(database + ":" + parentKey + ":" + questId); // get the parent key of the section
@@ -214,14 +214,14 @@ public class QuestProfileData implements SessionDataMongo, SessionDataNested {
      */
     @Override
     public void writeToJedis(Jedis jedis, int... slot) {
-        String database = RunicCore.getDataAPI().getMongoDatabase().getName();
+        String database = RunicDatabase.getAPI().getDataAPI().getMongoDatabase().getName();
         // Inform the server that this player should be saved to mongo on next task (jedis data is refreshed)
         jedis.sadd(database + ":" + "markedForSave:quests", this.uuid.toString());
         for (int characterSlot : this.questsMap.keySet()) {
             if (characterSlot == -1) continue; // Ensure we don't write data for error code slot
             // Ensure the system knows that there is data in redis
             jedis.sadd(database + ":" + this.uuid + ":questData", String.valueOf(characterSlot));
-            jedis.expire(database + ":" + this.uuid + ":questData", RunicCore.getRedisAPI().getExpireTime());
+            jedis.expire(database + ":" + this.uuid + ":questData", RunicDatabase.getAPI().getRedisAPI().getExpireTime());
             String key = getJedisKey(this.uuid, characterSlot);
             for (Quest quest : this.questsMap.get(characterSlot)) {
                 if (quest == null) continue;
@@ -229,7 +229,7 @@ public class QuestProfileData implements SessionDataMongo, SessionDataNested {
                 if (!RunicQuests.getAPI().shouldWriteData(this.uuid, quest)) continue;
                 jedis.del(database + ":" + key + ":" + quest.getQuestID()); // Reset map
                 jedis.hmset(database + ":" + key + ":" + quest.getQuestID(), this.toMap(quest));
-                jedis.expire(database + ":" + key + ":" + quest.getQuestID(), RunicCore.getRedisAPI().getExpireTime());
+                jedis.expire(database + ":" + key + ":" + quest.getQuestID(), RunicDatabase.getAPI().getRedisAPI().getExpireTime());
             }
         }
     }
@@ -284,7 +284,7 @@ public class QuestProfileData implements SessionDataMongo, SessionDataNested {
             }
         }
         // Handle new character on previously existing data
-        int slot = RunicCore.getCharacterAPI().getCharacterSlot(this.uuid);
+        int slot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(this.uuid);
         if (this.questsMap.get(slot) == null) {
             this.questsMap.put(slot, QuestLoader.getQuestListNoUserData());
         }
@@ -298,7 +298,7 @@ public class QuestProfileData implements SessionDataMongo, SessionDataNested {
      * @param slot  of the character to populate
      */
     public void populateDTOMapFromRedis(Jedis jedis, int slot) {
-        String database = RunicCore.getDataAPI().getMongoDatabase().getName();
+        String database = RunicDatabase.getAPI().getDataAPI().getMongoDatabase().getName();
         String parentKey = getJedisKey(uuid, slot);
         // Ensure the map for the character slot is not null
         this.questsDTOMap.computeIfAbsent(slot, k -> new HashMap<>());

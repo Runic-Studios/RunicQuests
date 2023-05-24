@@ -2,9 +2,9 @@ package com.runicrealms.runicquests.model;
 
 import co.aikar.taskchain.TaskChain;
 import com.mongodb.bulk.BulkWriteResult;
-import com.runicrealms.plugin.RunicCore;
-import com.runicrealms.plugin.api.MongoTaskOperation;
-import com.runicrealms.plugin.api.WriteCallback;
+import com.runicrealms.plugin.rdb.RunicDatabase;
+import com.runicrealms.plugin.rdb.api.MongoTaskOperation;
+import com.runicrealms.plugin.rdb.api.WriteCallback;
 import com.runicrealms.runicitems.model.InventoryDataManager;
 import com.runicrealms.runicquests.RunicQuests;
 import org.bukkit.Bukkit;
@@ -73,10 +73,10 @@ public class MongoTask implements MongoTaskOperation {
 
     @Override
     public BulkWriteResult sendBulkOperation() {
-        try (Jedis jedis = RunicCore.getRedisAPI().getNewJedisResource()) {
+        try (Jedis jedis = RunicDatabase.getAPI().getRedisAPI().getNewJedisResource()) {
             Set<String> playersToSave = jedis.smembers(getJedisSet());
             if (playersToSave.isEmpty()) return BulkWriteResult.unacknowledged();
-            BulkOperations bulkOperations = RunicCore.getDataAPI().getMongoTemplate().bulkOps(BulkOperations.BulkMode.UNORDERED, getCollectionName());
+            BulkOperations bulkOperations = RunicDatabase.getAPI().getDataAPI().getMongoTemplate().bulkOps(BulkOperations.BulkMode.UNORDERED, getCollectionName());
             for (String uuidString : playersToSave) {
                 UUID uuid = UUID.fromString(uuidString);
                 QuestProfileData questProfileData = (QuestProfileData) RunicQuests.getAPI().loadSessionData(uuid, -1); // All slots

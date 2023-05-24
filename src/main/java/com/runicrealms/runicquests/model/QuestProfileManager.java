@@ -3,13 +3,14 @@ package com.runicrealms.runicquests.model;
 import co.aikar.taskchain.TaskChain;
 import co.aikar.taskchain.TaskChainAbortAction;
 import com.runicrealms.plugin.RunicCore;
-import com.runicrealms.plugin.character.api.CharacterDeleteEvent;
-import com.runicrealms.plugin.character.api.CharacterQuitEvent;
-import com.runicrealms.plugin.character.api.CharacterSelectEvent;
-import com.runicrealms.plugin.database.event.MongoSaveEvent;
-import com.runicrealms.plugin.model.CharacterField;
-import com.runicrealms.plugin.model.SessionDataNested;
-import com.runicrealms.plugin.model.SessionDataNestedManager;
+import com.runicrealms.plugin.rdb.RunicDatabase;
+import com.runicrealms.plugin.rdb.event.CharacterDeleteEvent;
+import com.runicrealms.plugin.rdb.event.CharacterQuitEvent;
+import com.runicrealms.plugin.rdb.event.CharacterSelectEvent;
+import com.runicrealms.plugin.rdb.event.MongoSaveEvent;
+import com.runicrealms.plugin.rdb.model.CharacterField;
+import com.runicrealms.plugin.rdb.model.SessionDataNested;
+import com.runicrealms.plugin.rdb.model.SessionDataNestedManager;
 import com.runicrealms.runicquests.RunicQuests;
 import com.runicrealms.runicquests.api.QuestCompleteEvent;
 import com.runicrealms.runicquests.api.QuestCompleteObjectiveEvent;
@@ -64,7 +65,7 @@ public class QuestProfileManager implements Listener, RunicQuestsAPI, SessionDat
      * @return a list of quests to be used during the session with written data
      */
     public List<Quest> buildQuestListFromRedis(UUID uuid, Jedis jedis, int slot) {
-        String database = RunicCore.getDataAPI().getMongoDatabase().getName();
+        String database = RunicDatabase.getAPI().getDataAPI().getMongoDatabase().getName();
         // Populates the in-memory quest data from redis
         String parentKey = QuestProfileData.getJedisKey(uuid, slot);
         List<Quest> questListNoUserData = QuestLoader.getQuestListNoUserData();
@@ -123,17 +124,17 @@ public class QuestProfileManager implements Listener, RunicQuestsAPI, SessionDat
     @Override
     public SessionDataNested loadSessionData(Object object, int... slotToLoad) {
         UUID uuid = (UUID) object;
-        try (Jedis jedis = RunicCore.getRedisAPI().getNewJedisResource()) {
+        try (Jedis jedis = RunicDatabase.getAPI().getRedisAPI().getNewJedisResource()) {
             // Step 1: Check if quest data is cached in redis
-            Set<String> redisQuestList = RunicCore.getRedisAPI().getRedisDataSet(uuid, "questData", jedis);
-            boolean dataInRedis = RunicCore.getRedisAPI().determineIfDataInRedis(redisQuestList, slotToLoad[0]);
+            Set<String> redisQuestList = RunicDatabase.getAPI().getRedisAPI().getRedisDataSet(uuid, "questData", jedis);
+            boolean dataInRedis = RunicDatabase.getAPI().getRedisAPI().determineIfDataInRedis(redisQuestList, slotToLoad[0]);
             if (dataInRedis) {
                 return new QuestProfileData(null, uuid, jedis, slotToLoad[0]);
             }
             // Step 2: Check the mongo database
             Query query = new Query();
             query.addCriteria(Criteria.where(CharacterField.PLAYER_UUID.getField()).is(uuid));
-            MongoTemplate mongoTemplate = RunicCore.getDataAPI().getMongoTemplate();
+            MongoTemplate mongoTemplate = RunicDatabase.getAPI().getDataAPI().getMongoTemplate();
             List<QuestProfileData> results = mongoTemplate.find(query, QuestProfileData.class);
             if (results.size() > 0) {
                 QuestProfileData result = results.get(0);
@@ -165,7 +166,7 @@ public class QuestProfileManager implements Listener, RunicQuestsAPI, SessionDat
         if (questList != null) return questList;
         questList = QuestLoader.getQuestListNoUserData();
         profileData.getQuestsMap().put(slot, questList);
-        try (Jedis jedis = RunicCore.getRedisAPI().getNewJedisResource()) {
+        try (Jedis jedis = RunicDatabase.getAPI().getRedisAPI().getNewJedisResource()) {
             profileData.writeToJedis(jedis, slot);
         }
         return profileData.getQuestsMap().get(slot);
@@ -192,13 +193,13 @@ public class QuestProfileManager implements Listener, RunicQuestsAPI, SessionDat
         UUID uuid = player.getUniqueId();
         int slot = event.getSlot();
         // Removes player from the save task
-        try (Jedis jedis = RunicCore.getRedisAPI().getNewJedisResource()) {
-            String database = RunicCore.getDataAPI().getMongoDatabase().getName();
+        try (Jedis jedis = RunicDatabase.getAPI().getRedisAPI().getNewJedisResource()) {
+            String database = RunicDatabase.getAPI().getDataAPI().getMongoDatabase().getName();
             jedis.srem(database + ":markedForSave:quests", String.valueOf(player.getUniqueId()));
         }
         // 1. Delete from Redis
-        String database = RunicCore.getDataAPI().getMongoDatabase().getName();
-        try (Jedis jedis = RunicCore.getRedisAPI().getNewJedisResource()) {
+        String database = RunicDatabase.getAPI().getDataAPI().getMongoDatabase().getName();
+        try (Jedis jedis = RunicDatabase.getAPI().getRedisAPI().getNewJedisResource()) {
             jedis.srem(database + ":" + uuid + ":questData", String.valueOf(slot));
         }
         // 2. Delete from Mongo
@@ -206,7 +207,7 @@ public class QuestProfileManager implements Listener, RunicQuestsAPI, SessionDat
         query.addCriteria(Criteria.where(CharacterField.PLAYER_UUID.getField()).is(uuid));
         Update update = new Update();
         update.unset("questsDTOMap." + slot);
-        MongoTemplate mongoTemplate = RunicCore.getDataAPI().getMongoTemplate();
+        MongoTemplate mongoTemplate = RunicDatabase.getAPI().getDataAPI().getMongoTemplate();
         mongoTemplate.updateFirst(query, update, QuestProfileData.class);
         // 3. Mark this deletion as complete
         event.getPluginsToDeleteData().remove("quests");
@@ -269,8 +270,8 @@ public class QuestProfileManager implements Listener, RunicQuestsAPI, SessionDat
     public void onQuestComplete(QuestCompleteEvent event) {
         QuestProfileData questProfileData = (QuestProfileData) this.getSessionData(event.getPlayer().getUniqueId());
         Bukkit.getScheduler().runTaskAsynchronously(RunicCore.getInstance(), () -> {
-            try (Jedis jedis = RunicCore.getRedisAPI().getNewJedisResource()) {
-                questProfileData.writeToJedis(jedis, RunicCore.getCharacterAPI().getCharacterSlot(event.getPlayer().getUniqueId()));
+            try (Jedis jedis = RunicDatabase.getAPI().getRedisAPI().getNewJedisResource()) {
+                questProfileData.writeToJedis(jedis, RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(event.getPlayer().getUniqueId()));
             }
         });
     }
@@ -279,8 +280,8 @@ public class QuestProfileManager implements Listener, RunicQuestsAPI, SessionDat
     public void onQuestStart(QuestStartEvent event) {
         QuestProfileData questProfileData = (QuestProfileData) this.getSessionData(event.getPlayer().getUniqueId());
         Bukkit.getScheduler().runTaskAsynchronously(RunicCore.getInstance(), () -> {
-            try (Jedis jedis = RunicCore.getRedisAPI().getNewJedisResource()) {
-                questProfileData.writeToJedis(jedis, RunicCore.getCharacterAPI().getCharacterSlot(event.getPlayer().getUniqueId()));
+            try (Jedis jedis = RunicDatabase.getAPI().getRedisAPI().getNewJedisResource()) {
+                questProfileData.writeToJedis(jedis, RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(event.getPlayer().getUniqueId()));
             }
         });
     }
@@ -289,8 +290,8 @@ public class QuestProfileManager implements Listener, RunicQuestsAPI, SessionDat
     public void onQuestStart(QuestCompleteObjectiveEvent event) {
         QuestProfileData questProfileData = (QuestProfileData) this.getSessionData(event.getPlayer().getUniqueId());
         Bukkit.getScheduler().runTaskAsynchronously(RunicCore.getInstance(), () -> {
-            try (Jedis jedis = RunicCore.getRedisAPI().getNewJedisResource()) {
-                questProfileData.writeToJedis(jedis, RunicCore.getCharacterAPI().getCharacterSlot(event.getPlayer().getUniqueId()));
+            try (Jedis jedis = RunicDatabase.getAPI().getRedisAPI().getNewJedisResource()) {
+                questProfileData.writeToJedis(jedis, RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(event.getPlayer().getUniqueId()));
             }
         });
     }

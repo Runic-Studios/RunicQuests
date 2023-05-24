@@ -1,6 +1,6 @@
 package com.runicrealms.runicquests.listeners;
 
-import com.runicrealms.plugin.RunicCore;
+import com.runicrealms.plugin.rdb.RunicDatabase;
 import com.runicrealms.runicquests.RunicQuests;
 import com.runicrealms.runicquests.model.QuestProfileData;
 import com.runicrealms.runicquests.quests.Quest;
@@ -26,7 +26,7 @@ public class LocationManager implements Listener, QuestObjectiveHandler {
     private static final Map<Player, Map<Integer, LocationToReach>> cachedLocations = new ConcurrentHashMap<>();
 
     public LocationManager() {
-        for (UUID uuid : RunicCore.getCharacterAPI().getLoadedCharacters()) {
+        for (UUID uuid : RunicDatabase.getAPI().getCharacterAPI().getLoadedCharacters()) {
             Player player = Bukkit.getPlayer(uuid);
             if (player == null) continue;
             updatePlayerCachedLocations(player);
@@ -73,7 +73,7 @@ public class LocationManager implements Listener, QuestObjectiveHandler {
             for (Map.Entry<Player, Map<Integer, LocationToReach>> entry : cachedLocations.entrySet()) {
                 for (Map.Entry<Integer, LocationToReach> questLocationToReach : entry.getValue().entrySet()) {
                     if (questLocationToReach.getValue().hasReachedLocation(entry.getKey())) {
-                        int slot = RunicCore.getCharacterAPI().getCharacterSlot(entry.getKey().getUniqueId());
+                        int slot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(entry.getKey().getUniqueId());
                         progressLocationObjective(entry.getKey(), slot, questLocationToReach.getKey());
                         updatePlayerCachedLocations(entry.getKey());
                         break;
@@ -110,7 +110,7 @@ public class LocationManager implements Listener, QuestObjectiveHandler {
     }
 
     public void updatePlayerCachedLocations(Player player) {
-        int slot = RunicCore.getCharacterAPI().getCharacterSlot(player.getUniqueId());
+        int slot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(player.getUniqueId());
         updatePlayerCachedLocations(player, slot);
     }
 }
