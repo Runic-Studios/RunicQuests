@@ -1,7 +1,7 @@
 package com.runicrealms.runicquests.config;
 
-import com.runicrealms.plugin.RunicCore;
 import com.runicrealms.plugin.RunicNpcs;
+import com.runicrealms.plugin.common.RunicCommon;
 import com.runicrealms.runicquests.RunicQuests;
 import com.runicrealms.runicquests.exception.QuestLoadException;
 import com.runicrealms.runicquests.quests.CraftingProfessionType;
@@ -47,12 +47,12 @@ public class QuestLoader {
      */
     static {
         cachedQuests = new ArrayList<>();
-        File folder = RunicCore.getConfigAPI().getSubFolder(RunicQuests.getInstance().getDataFolder(), "quests");
+        File folder = RunicCommon.getConfigAPI().getSubFolder(RunicQuests.getInstance().getDataFolder(), "quests");
         for (File quest : folder.listFiles()) {
             if (!quest.isDirectory()) {
                 Quest loadedQuest = null;
                 try {
-                    loadedQuest = QuestLoader.loadQuest(RunicCore.getConfigAPI().getYamlConfigFromFile(quest.getName(), folder));
+                    loadedQuest = QuestLoader.loadQuest(RunicCommon.getConfigAPI().getYamlConfigFromFile(quest.getName(), folder));
                 } catch (QuestLoadException exception) {
                     exception.addMessage("Error loading quest: " + quest.getName());
                     exception.displayToConsole();
