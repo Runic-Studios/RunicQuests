@@ -37,11 +37,19 @@ public class DescriptionParser {
         int questPosition = input.indexOf("QUEST");
         int atPosition = input.indexOf(" at ");
 
-        if (questPosition != -1 && atPosition != -1 && questPosition < atPosition) {
-            // Both "quest" and " at " were found, and "quest" comes before " at "
-            return input.substring(questPosition + "quest".length(), atPosition).trim();
+        // Get the first position of the tip line
+        int stopPosition = input.indexOf("Location/Tip");
+
+        // If "at" comes before period or exclamation, or if period or exclamation do not exist, use "at" as the stop position
+        if (stopPosition == -1 || atPosition != -1 && atPosition < stopPosition) {
+            stopPosition = atPosition;
+        }
+
+        if (questPosition != -1 && stopPosition != -1 && questPosition < stopPosition) {
+            // Both "quest" and the stop position were found, and "quest" comes before the stop position
+            return input.substring(questPosition + "quest".length(), stopPosition).trim();
         } else {
-            // Either "quest" or " at " was not found, or "quest" does not come before " at "
+            // Either "quest" or the stop position was not found, or "quest" does not come before the stop position
             // Return a suitable error state.
             // You may need to handle this in your application.
             return null;
