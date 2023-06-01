@@ -1,5 +1,6 @@
 package com.runicrealms.runicquests.listeners;
 
+import com.runicrealms.runicitems.RunicItemsAPI;
 import com.runicrealms.runicquests.api.QuestCompleteEvent;
 import com.runicrealms.runicquests.quests.Quest;
 import com.runicrealms.runicquests.quests.objective.QuestObjective;
@@ -15,6 +16,7 @@ import org.bukkit.event.Listener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class QuestCompleteListener implements Listener {
 
@@ -63,6 +65,10 @@ public class QuestCompleteListener implements Listener {
         }
         if (quest.getRewards().hasExecute()) { // Execute quest commands
             quest.getRewards().executeCommand(player.getName());
+        }
+        // give items
+        for (Map.Entry<String, Integer> entry : quest.getRewards().getItems().entrySet()) {
+            player.getInventory().addItem(RunicItemsAPI.generateItemFromTemplate(entry.getKey(), entry.getValue()).generateItem());
         }
         RunicCoreHook.giveRewards(player, quest.getRewards()); // Give rewards
     }

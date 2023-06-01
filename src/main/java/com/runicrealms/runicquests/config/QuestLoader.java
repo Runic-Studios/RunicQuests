@@ -2,6 +2,7 @@ package com.runicrealms.runicquests.config;
 
 import com.runicrealms.plugin.RunicNpcs;
 import com.runicrealms.plugin.common.RunicCommon;
+import com.runicrealms.runicitems.RunicItemsAPI;
 import com.runicrealms.runicquests.RunicQuests;
 import com.runicrealms.runicquests.exception.QuestLoadException;
 import com.runicrealms.runicquests.quests.CraftingProfessionType;
@@ -36,7 +37,9 @@ import org.bukkit.configuration.file.FileConfiguration;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class QuestLoader {
 
@@ -271,11 +274,20 @@ public class QuestLoader {
                     execute = configSec.getStringList("execute");
                 }
             }
+            Map<String, Integer> items = new HashMap<>();
+            if (configSec.contains("items")) {
+                for (String itemName : configSec.getKeys(false)) {
+                    if (!RunicItemsAPI.isTemplate(itemName))
+                        throw new QuestLoadException("items." + itemName + " is not a valid template");
+                    items.put(itemName, configSec.getInt(itemName));
+                }
+            }
             return new QuestRewards(
                     checkValueNull(configSec.getInt("exp"), "exp"),
                     checkValueNull(configSec.getInt("quest-points"), "quest-points"),
                     checkValueNull(configSec.getInt("money"), "money"),
-                    execute);
+                    execute,
+                    items);
         } catch (QuestLoadException exception) {
             throw exception;
         } catch (Exception exception) {
