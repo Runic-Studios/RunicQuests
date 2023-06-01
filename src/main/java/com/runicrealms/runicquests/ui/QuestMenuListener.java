@@ -1,6 +1,6 @@
 package com.runicrealms.runicquests.ui;
 
-import com.runicrealms.plugin.utilities.GUIUtil;
+import com.runicrealms.plugin.common.util.GUIUtil;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;

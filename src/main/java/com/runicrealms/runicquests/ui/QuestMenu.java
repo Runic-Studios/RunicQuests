@@ -1,8 +1,8 @@
 package com.runicrealms.runicquests.ui;
 
 import com.runicrealms.plugin.common.util.ChatUtils;
+import com.runicrealms.plugin.common.util.GUIUtil;
 import com.runicrealms.plugin.rdb.RunicDatabase;
-import com.runicrealms.plugin.utilities.GUIUtil;
 import com.runicrealms.runicquests.RunicQuests;
 import com.runicrealms.runicquests.quests.Quest;
 import com.runicrealms.runicquests.util.QuestsUtil;
