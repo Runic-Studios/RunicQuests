@@ -5,17 +5,16 @@ import org.bukkit.Bukkit;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Represents quest rewards
+ */
 public class QuestRewards {
 
-    /*
-     * Represents quest rewards
-     */
-
-    private Integer exp;
-    private Integer questPoints;
-    private Integer money;
-    private List<String> execute;
-    private Map<String, Integer> items; // String is template id, integer is count
+    private final Integer exp;
+    private final Integer questPoints;
+    private final Integer money;
+    private final List<String> execute;
+    private final Map<String, Integer> items; // String is template id, integer is count
 
     public QuestRewards(Integer exp, Integer questPoints, Integer money, List<String> execute, Map<String, Integer> items) {
         this.exp = exp;

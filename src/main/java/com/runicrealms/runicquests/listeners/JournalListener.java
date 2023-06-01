@@ -2,7 +2,7 @@ package com.runicrealms.runicquests.listeners;
 
 import com.runicrealms.plugin.rdb.event.CharacterLoadedEvent;
 import com.runicrealms.runicitems.RunicItemsAPI;
-import com.runicrealms.runicquests.ui.CompassManager;
+import com.runicrealms.runicquests.compass.CompassManager;
 import com.runicrealms.runicquests.ui.QuestMenu;
 import org.bukkit.GameMode;
 import org.bukkit.Material;

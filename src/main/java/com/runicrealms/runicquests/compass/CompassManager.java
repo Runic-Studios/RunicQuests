@@ -1,4 +1,4 @@
-package com.runicrealms.runicquests.ui;
+package com.runicrealms.runicquests.compass;
 
 import com.runicrealms.plugin.rdb.event.CharacterSelectEvent;
 import com.runicrealms.runicquests.api.QuestCompleteEvent;
@@ -172,7 +172,7 @@ public class CompassManager implements Listener {
 
         public CompassLocation(Location location, String questName, String message) {
             this.location = location;
-            this.message.add(ChatColor.DARK_GREEN + "" + ChatColor.BOLD + "Now Tracking: " + ChatColor.RESET + ChatColor.GREEN + questName);
+            this.message.add(ChatColor.DARK_GREEN + String.valueOf(ChatColor.BOLD) + "Now Tracking: " + ChatColor.RESET + ChatColor.GREEN + questName);
             this.message.add(ChatColor.GRAY + ChatColor.translateAlternateColorCodes('&', message));
         }
 
