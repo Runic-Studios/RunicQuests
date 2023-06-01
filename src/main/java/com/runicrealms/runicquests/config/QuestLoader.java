@@ -276,10 +276,11 @@ public class QuestLoader {
             }
             Map<String, Integer> items = new HashMap<>();
             if (configSec.contains("items")) {
-                for (String itemName : configSec.getKeys(false)) {
+                ConfigurationSection itemsSec = configSec.getConfigurationSection("items");
+                for (String itemName : itemsSec.getKeys(false)) {
                     if (!RunicItemsAPI.isTemplate(itemName))
                         throw new QuestLoadException("items." + itemName + " is not a valid template");
-                    items.put(itemName, configSec.getInt(itemName));
+                    items.put(itemName, itemsSec.getInt(itemName));
                 }
             }
             return new QuestRewards(
