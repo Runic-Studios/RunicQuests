@@ -68,7 +68,7 @@ public class QuestCompleteListener implements Listener {
         }
         // give items
         for (Map.Entry<String, Integer> entry : quest.getRewards().getItems().entrySet()) {
-            player.getInventory().addItem(RunicItemsAPI.generateItemFromTemplate(entry.getKey(), entry.getValue()).generateItem());
+            RunicItemsAPI.addItem(player.getInventory(), RunicItemsAPI.generateItemFromTemplate(entry.getKey(), entry.getValue()).generateItem());
         }
         RunicCoreHook.giveRewards(player, quest.getRewards()); // Give rewards
     }
