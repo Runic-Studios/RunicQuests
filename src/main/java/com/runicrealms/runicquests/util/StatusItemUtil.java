@@ -15,4 +15,6 @@ public class StatusItemUtil {
 
     public static ItemStack yellowStatusItem = ItemUtils.getHead("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNTE5ZDI4YTg2MzJmYTRkODdjYTE5OWJiYzJlODhjZjM2OGRlZGQ1NTc0NzAxN2FlMzQ4NDM1NjlmN2E2MzRjNSJ9fX0=");
 
+//    public static ItemStack pinkStatusItem = ItemUtils.getHead("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTNmMDhiMTQ4YTA2ZGRjODU4MTk3NzkxN2UxYjlkY2E0ZTIyZGEzNjU5MWJiNGE1OTQ5NTYzNTkzZThiZCJ9fX0=");
+
 }

@@ -154,7 +154,8 @@ public class QuestLoader {
                     requirements,
                     checkValueNull(config.getBoolean("side-quest"), "side-quest"),
                     checkValueNull(config.getBoolean("repeatable"), "repeatable"),
-                    (config.getBoolean("repeatable") ? checkValueNull(config.getInt("cooldown"), "cooldown") : null));
+                    (config.getBoolean("repeatable") ? checkValueNull(config.getInt("cooldown"), "cooldown") : null),
+                    (config.contains("tutorial") && config.getBoolean("tutorial")));
         } catch (QuestLoadException exception) {
             throw exception;
         } catch (Exception exception) {

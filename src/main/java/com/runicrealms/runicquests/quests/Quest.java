@@ -32,6 +32,7 @@ public class Quest implements Cloneable {
     private String questName;
     private QuestFirstNpc firstNPC;
     private QuestRewards rewards;
+    private boolean tutorial;
 
     /**
      * A dummy constructor used as a placeholder in the ui menu
@@ -56,7 +57,7 @@ public class Quest implements Cloneable {
      * @param cooldown     the cooldown of the quest (if repeatable)
      */
     public Quest(String questName, QuestFirstNpc firstNPC, ArrayList<QuestObjective> objectives, QuestRewards rewards,
-                 Integer questID, QuestRequirements requirements, boolean sideQuest, boolean repeatable, Integer cooldown) {
+                 Integer questID, QuestRequirements requirements, boolean sideQuest, boolean repeatable, Integer cooldown, boolean tutorial) {
         this.questName = questName;
         this.firstNPC = firstNPC;
         this.objectives = objectives;
@@ -67,6 +68,7 @@ public class Quest implements Cloneable {
         this.sideQuest = sideQuest;
         this.repeatable = repeatable;
         this.cooldown = cooldown;
+        this.tutorial = tutorial;
     }
 
     public Quest(Quest quest) {
@@ -80,6 +82,7 @@ public class Quest implements Cloneable {
         this.sideQuest = quest.sideQuest;
         this.repeatable = quest.repeatable;
         this.cooldown = quest.cooldown;
+        this.tutorial = quest.tutorial;
     }
 
     public static List<String> getRequirementsNotMetMsg(Quest quest, RequirementsResult result) {
@@ -142,7 +145,7 @@ public class Quest implements Cloneable {
                 newObjectives.add(objective.clone());
             }
         }
-        return new Quest(this.questName, this.firstNPC.clone(), newObjectives, this.rewards, this.questID, this.requirements, this.sideQuest, this.repeatable, this.cooldown);
+        return new Quest(this.questName, this.firstNPC.clone(), newObjectives, this.rewards, this.questID, this.requirements, this.sideQuest, this.repeatable, this.cooldown, this.tutorial);
     }
 
     /**
@@ -157,7 +160,7 @@ public class Quest implements Cloneable {
         List<String> lore = new ArrayList<>();
         if (this.isRepeatable()) {
             boolean canStart = QuestsUtil.canStartRepeatableQuest(player.getUniqueId(), this);
-            item = canStart ? StatusItemUtil.blueStatusItem.clone() : StatusItemUtil.greenStatusItem.clone();
+            item = canStart ? StatusItemUtil.blueStatusItem : StatusItemUtil.greenStatusItem;
             meta = item.getItemMeta();
             assert meta != null;
             meta.setDisplayName(ChatColor.AQUA + this.getQuestName());
@@ -170,23 +173,27 @@ public class Quest implements Cloneable {
             }
             lore.add(canStart ? ChatColor.BLUE + "Can complete!" : ChatColor.GRAY + "On cooldown: " + ChatColor.WHITE + QuestsUtil.repeatableQuestTimeRemaining(player, this));
         } else if (this.getQuestState().isCompleted()) {
-            item = StatusItemUtil.greenStatusItem.clone();
+            item = StatusItemUtil.greenStatusItem;
             meta = item.getItemMeta();
             assert meta != null;
-            meta.setDisplayName(ChatColor.GREEN + this.getQuestName());
-            lore.add(ChatColor.DARK_GREEN + "" + ChatColor.BOLD + "COMPLETE!");
+            meta.setDisplayName((isTutorialQuest() ? ChatColor.LIGHT_PURPLE : ChatColor.GREEN) + this.getQuestName());
+            lore.add(ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + "COMPLETE!");
         } else if (!RunicCoreHook.hasCompletedLevelRequirement(player, this.getRequirements().getClassLvReq())) {
-            item = StatusItemUtil.redStatusItem.clone();
+            item = StatusItemUtil.redStatusItem;
             meta = item.getItemMeta();
             assert meta != null;
             meta.setDisplayName(ChatColor.RED + this.getQuestName());
             lore.add(ChatColor.DARK_RED + "You do not meet the level requirements!");
         } else if (this.isSideQuest()) {
-            item = StatusItemUtil.yellowStatusItem.clone();
+            item = StatusItemUtil.yellowStatusItem;
             meta = item.getItemMeta();
             assert meta != null;
-            meta.setDisplayName(ChatColor.YELLOW + this.getQuestName());
-            lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "SIDE QUEST");
+            meta.setDisplayName((isTutorialQuest() ? ChatColor.LIGHT_PURPLE : ChatColor.YELLOW) + this.getQuestName());
+            if (!isTutorialQuest()) {
+                lore.add(ChatColor.GRAY + "" + ChatColor.BOLD + "SIDE QUEST");
+            } else {
+                lore.add(ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + "TUTORIAL QUEST");
+            }
             String[] messageLocation = RunicQuests.getFirstUncompletedGoalMessageAndLocation(this);
             lore.addAll(ChatUtils.formattedText(ChatColor.YELLOW + ChatColor.translateAlternateColorCodes('&', messageLocation[0])));
             if (!messageLocation[1].equalsIgnoreCase("")) {
@@ -194,11 +201,15 @@ public class Quest implements Cloneable {
                 lore.addAll(ChatUtils.formattedText(ChatColor.DARK_AQUA + "Location/Tip: " + ChatColor.translateAlternateColorCodes('&', messageLocation[1])));
             }
         } else {
-            item = StatusItemUtil.goldStatusItem.clone();
+            item = StatusItemUtil.goldStatusItem;
             meta = item.getItemMeta();
             assert meta != null;
-            meta.setDisplayName(ChatColor.GOLD + this.getQuestName());
-            lore.add(ChatColor.GOLD + "" + ChatColor.BOLD + "MAIN STORY QUEST");
+            meta.setDisplayName((isTutorialQuest() ? ChatColor.LIGHT_PURPLE : ChatColor.GOLD) + this.getQuestName());
+            if (!isTutorialQuest()) {
+                lore.add(ChatColor.GOLD + "" + ChatColor.BOLD + "MAIN STORY QUEST");
+            } else {
+                lore.add(ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + "TUTORIAL QUEST");
+            }
             String[] messageLocation = RunicQuests.getFirstUncompletedGoalMessageAndLocation(this);
             lore.addAll(ChatUtils.formattedText(ChatColor.YELLOW + ChatColor.translateAlternateColorCodes('&', messageLocation[0])));
             if (!messageLocation[1].equalsIgnoreCase("")) {
@@ -305,6 +316,10 @@ public class Quest implements Cloneable {
 
     public void setSideQuest(boolean sideQuest) {
         this.sideQuest = sideQuest;
+    }
+
+    public boolean isTutorialQuest() {
+        return this.tutorial;
     }
 
 }
