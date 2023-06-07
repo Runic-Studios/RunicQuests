@@ -1,7 +1,12 @@
 package com.runicrealms.runicquests.command.system;
 
 import co.aikar.commands.BaseCommand;
-import co.aikar.commands.annotation.*;
+import co.aikar.commands.annotation.CatchUnknown;
+import co.aikar.commands.annotation.CommandAlias;
+import co.aikar.commands.annotation.CommandCompletion;
+import co.aikar.commands.annotation.CommandPermission;
+import co.aikar.commands.annotation.Conditions;
+import co.aikar.commands.annotation.Default;
 import com.runicrealms.plugin.rdb.RunicDatabase;
 import com.runicrealms.runicitems.RunicItemsAPI;
 import org.bukkit.Bukkit;
@@ -12,6 +17,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 @CommandAlias("tutorialweapon")
+@CommandPermission("runic.op")
 public class TutorialWeaponCMD extends BaseCommand {
     private static final String BOW_TEMPLATE_ID = "tutorial-archer-weapon";
     private static final String MACE_TEMPLATE_ID = "tutorial-cleric-weapon";
