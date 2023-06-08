@@ -6,6 +6,7 @@ import com.runicrealms.plugin.rdb.RunicDatabase;
 import com.runicrealms.plugin.rdb.event.CharacterLoadedEvent;
 import com.runicrealms.runicquests.RunicQuests;
 import com.runicrealms.runicquests.api.QuestCompleteEvent;
+import com.runicrealms.runicquests.model.QuestProfileData;
 import com.runicrealms.runicquests.quests.Quest;
 import com.runicrealms.runicquests.util.RunicCoreHook;
 import com.runicrealms.runicquests.util.StatusItemUtil;
@@ -130,7 +131,11 @@ public class HoloManager implements Listener {
      */
     private void refreshStatusHolograms(Player player) {
         int slot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(player.getUniqueId());
-        List<Quest> quests = RunicQuests.getAPI().getQuestProfile(player.getUniqueId()).getQuestsMap().get(slot);
+        QuestProfileData profileData = RunicQuests.getAPI().getQuestProfile(player.getUniqueId());
+        if (profileData == null) return;
+        Map<Integer, List<Quest>> questsMap = profileData.getQuestsMap();
+        if (questsMap == null) return;
+        List<Quest> quests = questsMap.get(slot);
         if (quests == null) return; // Something did not load
         for (Quest quest : quests) {
             if (hologramMap.get(quest.getQuestID()) != null) {
