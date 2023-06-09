@@ -164,7 +164,7 @@ public class Quest implements Cloneable {
             meta = item.getItemMeta();
             assert meta != null;
             meta.setDisplayName(ChatColor.AQUA + this.getQuestName());
-            lore.add(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "REPEATABLE");
+            lore.add(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "REPEATABLE QUEST");
             String[] messageLocation = RunicQuests.getFirstUncompletedGoalMessageAndLocation(this);
             lore.addAll(ChatUtils.formattedText(ChatColor.YELLOW + ChatColor.translateAlternateColorCodes('&', messageLocation[0])));
             if (!messageLocation[1].equalsIgnoreCase("")) {
