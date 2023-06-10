@@ -16,11 +16,16 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 public class IdleMessageListener implements Listener {
+
+    private final Map<UUID, Long> lastClickedNPCs = new HashMap<>();
 
     private void handleIdleSpeech(Player player, Quest quest, QuestObjectiveTalk talkObjective, HashMap<Long, TaskQueue> npcTaskQueues) {
         outerLoop:
@@ -90,8 +95,16 @@ public class IdleMessageListener implements Listener {
                 if (!talkObjective.getQuestNpc().getNpcId().equals(event.getNpc().getId()))
                     continue;
                 if (!talkObjective.getQuestNpc().hasIdleSpeech()) continue;
+                Long lastTalked = lastClickedNPCs.get(player.getUniqueId());
+                if (lastTalked != null && System.currentTimeMillis() - lastTalked <= 250) return;
+                lastClickedNPCs.put(player.getUniqueId(), System.currentTimeMillis());
                 handleIdleSpeech(player, quest, (QuestObjectiveTalk) objective, npcTaskQueues);
             }
         }
+    }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        lastClickedNPCs.remove(event.getPlayer().getUniqueId());
     }
 }
