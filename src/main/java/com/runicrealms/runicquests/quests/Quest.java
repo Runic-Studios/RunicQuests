@@ -160,18 +160,21 @@ public class Quest implements Cloneable {
         List<String> lore = new ArrayList<>();
         if (this.isRepeatable()) {
             boolean canStart = QuestsUtil.canStartRepeatableQuest(player.getUniqueId(), this);
-            item = canStart ? StatusItemUtil.blueStatusItem : StatusItemUtil.greenStatusItem;
+            boolean meetsLevel = RunicCoreHook.hasCompletedLevelRequirement(player, this.getRequirements().getClassLvReq());
+            item = meetsLevel ? (canStart ? StatusItemUtil.blueStatusItem : StatusItemUtil.greenStatusItem) : StatusItemUtil.redStatusItem;
             meta = item.getItemMeta();
             assert meta != null;
             meta.setDisplayName(ChatColor.AQUA + this.getQuestName());
             lore.add(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "REPEATABLE QUEST");
-            String[] messageLocation = RunicQuests.getFirstUncompletedGoalMessageAndLocation(this);
-            lore.addAll(ChatUtils.formattedText(ChatColor.YELLOW + ChatColor.translateAlternateColorCodes('&', messageLocation[0])));
-            if (!messageLocation[1].equalsIgnoreCase("")) {
-                lore.add("");
-                lore.addAll(ChatUtils.formattedText(ChatColor.DARK_AQUA + "Location/Tip: " + ChatColor.translateAlternateColorCodes('&', messageLocation[1])));
+            if (meetsLevel) {
+                String[] messageLocation = RunicQuests.getFirstUncompletedGoalMessageAndLocation(this);
+                lore.addAll(ChatUtils.formattedText(ChatColor.YELLOW + ChatColor.translateAlternateColorCodes('&', messageLocation[0])));
+                if (!messageLocation[1].equalsIgnoreCase("")) {
+                    lore.add("");
+                    lore.addAll(ChatUtils.formattedText(ChatColor.DARK_AQUA + "Location/Tip: " + ChatColor.translateAlternateColorCodes('&', messageLocation[1])));
+                }
+                lore.add(canStart ? ChatColor.BLUE + "Can complete!" : ChatColor.GRAY + "On cooldown: " + ChatColor.WHITE + QuestsUtil.repeatableQuestTimeRemaining(player, this));
             }
-            lore.add(canStart ? ChatColor.BLUE + "Can complete!" : ChatColor.GRAY + "On cooldown: " + ChatColor.WHITE + QuestsUtil.repeatableQuestTimeRemaining(player, this));
         } else if (this.getQuestState().isCompleted()) {
             item = StatusItemUtil.greenStatusItem;
             meta = item.getItemMeta();
