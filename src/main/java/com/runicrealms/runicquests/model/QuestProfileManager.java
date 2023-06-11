@@ -196,21 +196,18 @@ public class QuestProfileManager implements Listener, RunicQuestsAPI, SessionDat
         try (Jedis jedis = RunicDatabase.getAPI().getRedisAPI().getNewJedisResource()) {
             String database = RunicDatabase.getAPI().getDataAPI().getMongoDatabase().getName();
             jedis.srem(database + ":markedForSave:quests", String.valueOf(player.getUniqueId()));
-        }
-        // 1. Delete from Redis
-        String database = RunicDatabase.getAPI().getDataAPI().getMongoDatabase().getName();
-        try (Jedis jedis = RunicDatabase.getAPI().getRedisAPI().getNewJedisResource()) {
+            // 1. Delete from Redis
             jedis.srem(database + ":" + uuid + ":questData", String.valueOf(slot));
+            // 2. Delete from Mongo
+            Query query = new Query();
+            query.addCriteria(Criteria.where(CharacterField.PLAYER_UUID.getField()).is(uuid));
+            Update update = new Update();
+            update.unset("questsDTOMap." + slot);
+            MongoTemplate mongoTemplate = RunicDatabase.getAPI().getDataAPI().getMongoTemplate();
+            mongoTemplate.updateFirst(query, update, QuestProfileData.class);
+            // 3. Mark this deletion as complete
+            event.getPluginsToDeleteData().remove("quests");
         }
-        // 2. Delete from Mongo
-        Query query = new Query();
-        query.addCriteria(Criteria.where(CharacterField.PLAYER_UUID.getField()).is(uuid));
-        Update update = new Update();
-        update.unset("questsDTOMap." + slot);
-        MongoTemplate mongoTemplate = RunicDatabase.getAPI().getDataAPI().getMongoTemplate();
-        mongoTemplate.updateFirst(query, update, QuestProfileData.class);
-        // 3. Mark this deletion as complete
-        event.getPluginsToDeleteData().remove("quests");
     }
 
     /**
