@@ -75,11 +75,9 @@ public class QuestProfileManager implements Listener, RunicQuestsAPI, QuestWrite
         MongoTemplate mongoTemplate = RunicDatabase.getAPI().getDataAPI().getMongoTemplate();
         QuestProfileData result = mongoTemplate.findOne(query, QuestProfileData.class);
         if (result != null) {
-            Bukkit.broadcastMessage("document found IN mongo");
             result.loadQuestsFromDTOs(); // Once we retrieve our object from Mongo, convert DTO to quests
             return result;
         }
-        Bukkit.broadcastMessage("adding document to mongo");
         // Step 2: If no data is found, we create some data and save it to the collection
         QuestProfileData newData = new QuestProfileData(new ObjectId(), uuid, slot);
         newData.addDocumentToMongo();
@@ -198,7 +196,6 @@ public class QuestProfileManager implements Listener, RunicQuestsAPI, QuestWrite
     public void onQuestComplete(QuestCompleteEvent event) {
         UUID uuid = event.getPlayer().getUniqueId();
         int slot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(uuid);
-        Bukkit.broadcastMessage("slot is " + slot);
         QuestProfileData questProfileData = this.getQuestProfile(uuid);
         updateQuestProfileData
                 (
@@ -214,7 +211,6 @@ public class QuestProfileManager implements Listener, RunicQuestsAPI, QuestWrite
     public void onQuestStart(QuestStartEvent event) {
         UUID uuid = event.getPlayer().getUniqueId();
         int slot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(uuid);
-        Bukkit.broadcastMessage("slot is " + slot);
         QuestProfileData questProfileData = this.getQuestProfile(uuid);
         updateQuestProfileData
                 (
@@ -230,7 +226,6 @@ public class QuestProfileManager implements Listener, RunicQuestsAPI, QuestWrite
     public void onQuestStart(QuestCompleteObjectiveEvent event) {
         UUID uuid = event.getPlayer().getUniqueId();
         int slot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(uuid);
-        Bukkit.broadcastMessage("objective complete slot is " + slot);
         QuestProfileData questProfileData = this.getQuestProfile(uuid);
         updateQuestProfileData
                 (
@@ -249,7 +244,6 @@ public class QuestProfileManager implements Listener, RunicQuestsAPI, QuestWrite
         chain
                 .asyncFirst(() -> {
                     // Prepare a new map of slot to data transfer object
-                    Bukkit.broadcastMessage("syncing in-memory progress for mongo");
                     Map<Integer, QuestDTO> questDTOMap = QuestProfileData.getBlankQuestDTOMap();
                     questProfileData.getQuestsMap().get(slot).forEach(quest -> questDTOMap.put(quest.getQuestID(), new QuestDTO(quest)));
                     questProfileData.getQuestsDTOMap().put(slot, questDTOMap);
