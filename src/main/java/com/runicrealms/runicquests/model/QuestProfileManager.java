@@ -2,19 +2,18 @@ package com.runicrealms.runicquests.model;
 
 import co.aikar.taskchain.TaskChain;
 import co.aikar.taskchain.TaskChainAbortAction;
-import com.runicrealms.plugin.RunicCore;
 import com.runicrealms.plugin.rdb.RunicDatabase;
+import com.runicrealms.plugin.rdb.api.WriteCallback;
 import com.runicrealms.plugin.rdb.event.CharacterDeleteEvent;
 import com.runicrealms.plugin.rdb.event.CharacterQuitEvent;
 import com.runicrealms.plugin.rdb.event.CharacterSelectEvent;
 import com.runicrealms.plugin.rdb.event.MongoSaveEvent;
 import com.runicrealms.plugin.rdb.model.CharacterField;
-import com.runicrealms.plugin.rdb.model.SessionDataNested;
-import com.runicrealms.plugin.rdb.model.SessionDataNestedManager;
 import com.runicrealms.runicquests.RunicQuests;
 import com.runicrealms.runicquests.api.QuestCompleteEvent;
 import com.runicrealms.runicquests.api.QuestCompleteObjectiveEvent;
 import com.runicrealms.runicquests.api.QuestStartEvent;
+import com.runicrealms.runicquests.api.QuestWriteOperation;
 import com.runicrealms.runicquests.api.RunicQuestsAPI;
 import com.runicrealms.runicquests.config.QuestLoader;
 import com.runicrealms.runicquests.quests.Quest;
@@ -31,11 +30,9 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import redis.clients.jedis.Jedis;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -43,111 +40,21 @@ import java.util.logging.Level;
  * Used to memoize quest data so that it is more performant
  * Also acts as a listener to keep redis up-to-date
  */
-public class QuestProfileManager implements Listener, RunicQuestsAPI, SessionDataNestedManager {
+public class QuestProfileManager implements Listener, RunicQuestsAPI, QuestWriteOperation {
     public static final TaskChainAbortAction<Player, String, ?> CONSOLE_LOG = new TaskChainAbortAction<>() {
         public void onAbort(TaskChain<?> chain, Player player, String message) {
             Bukkit.getLogger().log(Level.SEVERE, ChatColor.translateAlternateColorCodes('&', message));
         }
     };
-    private final Map<Object, SessionDataNested> questProfileDataMap; // keyed by uuid
+    private final Map<Object, QuestProfileData> questProfileDataMap; // keyed by uuid
 
     public QuestProfileManager() {
         questProfileDataMap = new HashMap<>();
         RunicQuests.getInstance().getServer().getPluginManager().registerEvents(this, RunicQuests.getInstance());
     }
 
-    /**
-     * For the given character slot, creates a list of quests. For quests with data in redis,
-     * populates that data in-memory
-     *
-     * @param uuid of the player
-     * @param slot of the character
-     * @return a list of quests to be used during the session with written data
-     */
-    public List<Quest> buildQuestListFromRedis(UUID uuid, Jedis jedis, int slot) {
-        String database = RunicDatabase.getAPI().getDataAPI().getMongoDatabase().getName();
-        // Populates the in-memory quest data from redis
-        String parentKey = QuestProfileData.getJedisKey(uuid, slot);
-        List<Quest> questListNoUserData = QuestLoader.getQuestListNoUserData();
-        List<Quest> result = new ArrayList<>();
-        try {
-            for (Quest questNoUserData : questListNoUserData) {
-                if (jedis.exists(database + ":" + parentKey + ":" + questNoUserData.getQuestID())) {
-                    Map<String, String> questDataMap = jedis.hgetAll(database + ":" + parentKey + ":" + questNoUserData.getQuestID()); // get the parent key of the section
-                    Quest questWithUserData = QuestProfileData.writeUserDataToQuest(uuid, questNoUserData, questDataMap, questNoUserData.getQuestID() + "");
-                    result.add(questWithUserData);
-                } else {
-                    result.add(questNoUserData);
-                }
-            }
-        } catch (Exception ex) {
-            Bukkit.getLogger().severe("There was a problem building quests list from Redis!");
-            ex.printStackTrace();
-        }
-        return result;
-    }
-
-    /**
-     * Checks redis to see if the currently selected character's quest profile is cached.
-     * And if it is, returns the QuestProfileData object
-     *
-     * @param object the uuid of player to check
-     * @param slot   of the character
-     * @param jedis  the jedis resource
-     * @return a QuestProfileData object if it is found in redis
-     */
-    @Override
-    public SessionDataNested checkJedisForSessionData(Object object, Jedis jedis, int... slot) {
-        return null;
-    }
-
-    /**
-     * Creates a QuestProfileData object.
-     * Tries to build it from memoization, then from session storage (Redis),
-     * then falls back to Mongo
-     *
-     * @param object the uuid of player who is attempting to load their data
-     * @param slot   the slot of the character
-     */
-    @Override
-    public SessionDataNested getSessionData(Object object, int... slot) {
-        UUID uuid = (UUID) object;
-        // Check if data is memoized
-        return questProfileDataMap.get(uuid);
-    }
-
-    @Override
-    public Map<Object, SessionDataNested> getSessionDataMap() {
+    public Map<Object, QuestProfileData> getQuestProfileDataMap() {
         return questProfileDataMap;
-    }
-
-    @Override
-    public SessionDataNested loadSessionData(Object object, int... slotToLoad) {
-        UUID uuid = (UUID) object;
-        try (Jedis jedis = RunicDatabase.getAPI().getRedisAPI().getNewJedisResource()) {
-            // Step 1: Check if quest data is cached in redis
-            Set<String> redisQuestList = RunicDatabase.getAPI().getRedisAPI().getRedisDataSet(uuid, "questData", jedis);
-            boolean dataInRedis = RunicDatabase.getAPI().getRedisAPI().determineIfDataInRedis(redisQuestList, slotToLoad[0]);
-            if (dataInRedis) {
-                return new QuestProfileData(null, uuid, jedis, slotToLoad[0]);
-            }
-            // Step 2: Check the mongo database
-            Query query = new Query();
-            query.addCriteria(Criteria.where(CharacterField.PLAYER_UUID.getField()).is(uuid));
-            MongoTemplate mongoTemplate = RunicDatabase.getAPI().getDataAPI().getMongoTemplate();
-            List<QuestProfileData> results = mongoTemplate.find(query, QuestProfileData.class);
-            if (results.size() > 0) {
-                QuestProfileData result = results.get(0);
-                result.loadQuestsFromDTOs(); // Once we retrieve our object from Mongo, convert DTO to quests
-                result.writeToJedis(jedis);
-                return result;
-            }
-            // Step 3: If no data is found, we create some data and save it to the collection
-            QuestProfileData newData = new QuestProfileData(new ObjectId(), uuid, slotToLoad[0]);
-            newData.addDocumentToMongo();
-            newData.writeToJedis(jedis);
-            return newData;
-        }
     }
 
     @Override
@@ -157,19 +64,36 @@ public class QuestProfileManager implements Listener, RunicQuestsAPI, SessionDat
 
     @Override
     public QuestProfileData getQuestProfile(UUID uuid) {
-        return (QuestProfileData) this.getSessionData(uuid);
+        return this.getQuestProfileDataMap().get(uuid);
     }
 
     @Override
-    public List<Quest> loadQuestsList(QuestProfileData profileData, int slot) {
+    public QuestProfileData loadQuestProfile(UUID uuid, int slot) {
+        // Step 1: Check the mongo database
+        Query query = new Query();
+        query.addCriteria(Criteria.where(CharacterField.PLAYER_UUID.getField()).is(uuid));
+        MongoTemplate mongoTemplate = RunicDatabase.getAPI().getDataAPI().getMongoTemplate();
+        QuestProfileData result = mongoTemplate.findOne(query, QuestProfileData.class);
+        if (result != null) {
+            Bukkit.broadcastMessage("document found IN mongo");
+            result.loadQuestsFromDTOs(); // Once we retrieve our object from Mongo, convert DTO to quests
+            return result;
+        }
+        Bukkit.broadcastMessage("adding document to mongo");
+        // Step 2: If no data is found, we create some data and save it to the collection
+        QuestProfileData newData = new QuestProfileData(new ObjectId(), uuid, slot);
+        newData.addDocumentToMongo();
+        return newData;
+    }
+
+    @Override
+    public boolean loadQuestsList(QuestProfileData profileData, int slot) {
         List<Quest> questList = profileData.getQuestsMap().get(slot);
-        if (questList != null) return questList;
+        if (questList != null) return true;
+        // No quests found for this character slot
         questList = QuestLoader.getQuestListNoUserData();
         profileData.getQuestsMap().put(slot, questList);
-        try (Jedis jedis = RunicDatabase.getAPI().getRedisAPI().getNewJedisResource()) {
-            profileData.writeToJedis(jedis, slot);
-        }
-        return profileData.getQuestsMap().get(slot);
+        return false;
     }
 
     @Override
@@ -232,13 +156,23 @@ public class QuestProfileManager implements Listener, RunicQuestsAPI, SessionDat
         TaskChain<?> chain = RunicQuests.newChain();
         chain
                 .asyncFirst(() -> {
-                    QuestProfileData profileData = (QuestProfileData) loadSessionData(uuid, slot);
-                    loadQuestsList(profileData, slot);
+                    QuestProfileData profileData = loadQuestProfile(uuid, slot);
+                    boolean questsFound = loadQuestsList(profileData, slot);
+                    if (!questsFound) {
+                        updateQuestProfileData
+                                (
+                                        profileData.getUuid(),
+                                        slot,
+                                        profileData,
+                                        () -> {
+                                        }
+                                );
+                    }
                     return profileData;
                 })
                 .abortIfNull(QuestProfileManager.CONSOLE_LOG, player, "RunicItems failed to load on select!")
                 .syncLast(questProfileData -> {
-                    getSessionDataMap().put(uuid, questProfileData); // add to in-game memory
+                    questProfileDataMap.put(uuid, questProfileData); // Add to in-game memory
                     RunicQuests.getLocationManager().updatePlayerCachedLocations(event.getPlayer(), event.getSlot());
                     event.getPluginsToLoadData().remove("quests");
                     // Calculate elapsed time
@@ -257,40 +191,82 @@ public class QuestProfileManager implements Listener, RunicQuestsAPI, SessionDat
      */
     @EventHandler
     public void onDatabaseSave(MongoSaveEvent event) {
-        // Cancel the task timer
-        RunicQuests.getMongoTask().getTask().cancel();
-        // Manually save all data (flush players marked for save)
-        RunicQuests.getMongoTask().saveAllToMongo(() -> event.markPluginSaved("quests"));
+        event.markPluginSaved("quests");
     }
 
     @EventHandler(priority = EventPriority.HIGHEST) // late
     public void onQuestComplete(QuestCompleteEvent event) {
-        QuestProfileData questProfileData = (QuestProfileData) this.getSessionData(event.getPlayer().getUniqueId());
-        Bukkit.getScheduler().runTaskAsynchronously(RunicCore.getInstance(), () -> {
-            try (Jedis jedis = RunicDatabase.getAPI().getRedisAPI().getNewJedisResource()) {
-                questProfileData.writeToJedis(jedis, RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(event.getPlayer().getUniqueId()));
-            }
-        });
+        UUID uuid = event.getPlayer().getUniqueId();
+        int slot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(uuid);
+        Bukkit.broadcastMessage("slot is " + slot);
+        QuestProfileData questProfileData = this.getQuestProfile(uuid);
+        updateQuestProfileData
+                (
+                        uuid,
+                        slot,
+                        questProfileData,
+                        () -> {
+                        }
+                );
     }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onQuestStart(QuestStartEvent event) {
-        QuestProfileData questProfileData = (QuestProfileData) this.getSessionData(event.getPlayer().getUniqueId());
-        Bukkit.getScheduler().runTaskAsynchronously(RunicCore.getInstance(), () -> {
-            try (Jedis jedis = RunicDatabase.getAPI().getRedisAPI().getNewJedisResource()) {
-                questProfileData.writeToJedis(jedis, RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(event.getPlayer().getUniqueId()));
-            }
-        });
+        UUID uuid = event.getPlayer().getUniqueId();
+        int slot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(uuid);
+        Bukkit.broadcastMessage("slot is " + slot);
+        QuestProfileData questProfileData = this.getQuestProfile(uuid);
+        updateQuestProfileData
+                (
+                        uuid,
+                        slot,
+                        questProfileData,
+                        () -> {
+                        }
+                );
     }
 
     @EventHandler
     public void onQuestStart(QuestCompleteObjectiveEvent event) {
-        QuestProfileData questProfileData = (QuestProfileData) this.getSessionData(event.getPlayer().getUniqueId());
-        Bukkit.getScheduler().runTaskAsynchronously(RunicCore.getInstance(), () -> {
-            try (Jedis jedis = RunicDatabase.getAPI().getRedisAPI().getNewJedisResource()) {
-                questProfileData.writeToJedis(jedis, RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(event.getPlayer().getUniqueId()));
-            }
-        });
+        UUID uuid = event.getPlayer().getUniqueId();
+        int slot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(uuid);
+        Bukkit.broadcastMessage("objective complete slot is " + slot);
+        QuestProfileData questProfileData = this.getQuestProfile(uuid);
+        updateQuestProfileData
+                (
+                        uuid,
+                        slot,
+                        questProfileData,
+                        () -> {
+                        }
+                );
     }
 
+    @Override
+    public void updateQuestProfileData(UUID uuid, int slot, QuestProfileData questProfileData, WriteCallback callback) {
+        MongoTemplate mongoTemplate = RunicDatabase.getAPI().getDataAPI().getMongoTemplate();
+        TaskChain<?> chain = RunicQuests.newChain();
+        chain
+                .asyncFirst(() -> {
+                    // Prepare a new map of slot to data transfer object
+                    Bukkit.broadcastMessage("syncing in-memory progress for mongo");
+                    Map<Integer, QuestDTO> questDTOMap = QuestProfileData.getBlankQuestDTOMap();
+                    questProfileData.getQuestsMap().get(slot).forEach(quest -> questDTOMap.put(quest.getQuestID(), new QuestDTO(quest)));
+                    questProfileData.getQuestsDTOMap().put(slot, questDTOMap);
+
+                    // Define a query to find the InventoryData for this player
+                    Query query = new Query();
+                    query.addCriteria(Criteria.where(CharacterField.PLAYER_UUID.getField()).is(uuid));
+
+                    // Define an update to set the specific field
+                    Update update = new Update();
+                    update.set("questsDTOMap." + slot, questProfileData.getQuestsDTOMap().get(slot));
+
+                    // Execute the update operation
+                    return mongoTemplate.updateFirst(query, update, QuestProfileData.class);
+                })
+                .abortIfNull(CONSOLE_LOG, null, "RunicQuests failed to write to questsDTOMap!")
+                .syncLast(updateResult -> callback.onWriteComplete())
+                .execute();
+    }
 }

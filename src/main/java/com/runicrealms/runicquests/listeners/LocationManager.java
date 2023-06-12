@@ -94,7 +94,7 @@ public class LocationManager implements Listener, QuestObjectiveHandler {
         /*
         This can cause server crashes if we try to read this from mongo or redis. Best to keep it to the in-memory cache here
          */
-        QuestProfileData profileData = (QuestProfileData) RunicQuests.getAPI().getSessionDataMap().get(player.getUniqueId());
+        QuestProfileData profileData = (QuestProfileData) RunicQuests.getAPI().getQuestProfileDataMap().get(player.getUniqueId());
         if (profileData == null) return;
         if (profileData.getQuestsMap() == null) return;
         if (profileData.getQuestsMap().get(slot) == null) return;

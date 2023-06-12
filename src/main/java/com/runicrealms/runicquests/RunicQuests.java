@@ -19,7 +19,6 @@ import com.runicrealms.runicquests.listeners.QuestCompleteListener;
 import com.runicrealms.runicquests.listeners.QuestItemListener;
 import com.runicrealms.runicquests.listeners.RepeatableQuestListener;
 import com.runicrealms.runicquests.listeners.RightClickNpcListener;
-import com.runicrealms.runicquests.model.MongoTask;
 import com.runicrealms.runicquests.model.QuestProfileManager;
 import com.runicrealms.runicquests.passivenpcs.PassiveNpcClickListener;
 import com.runicrealms.runicquests.passivenpcs.PassiveNpcHandler;
@@ -53,7 +52,6 @@ public class RunicQuests extends JavaPlugin {
     private static PassiveNpcHandler passiveNpcHandler;
     private static PaperCommandManager commandManager;
     private static QuestProfileManager questsAPI;
-    private static MongoTask mongoTask;
     private static LocationManager locationManager;
     private static Long nextId = Long.MIN_VALUE; // This is used to give each NPC a new unique ID.
 
@@ -75,10 +73,6 @@ public class RunicQuests extends JavaPlugin {
 
     public static QuestProfileManager getAPI() {
         return questsAPI;
-    }
-
-    public static MongoTask getMongoTask() {
-        return mongoTask;
     }
 
     public static LocationManager getLocationManager() {
@@ -200,7 +194,6 @@ public class RunicQuests extends JavaPlugin {
         holoManager = null;
         commandManager = null;
         questsAPI = null;
-        mongoTask = null;
     }
 
     @Override
@@ -211,7 +204,6 @@ public class RunicQuests extends JavaPlugin {
         passiveNpcHandler = new PassiveNpcHandler();
         commandManager = new PaperCommandManager(this);
         questsAPI = new QuestProfileManager();
-        mongoTask = new MongoTask();
         locationManager = new LocationManager();
         ConfigLoader.initDirs(); // Initialize directories that might not exist
         ConfigLoader.loadMainConfig(); // Initialize the main config file if it doesn't exist

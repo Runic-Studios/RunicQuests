@@ -22,14 +22,23 @@ public interface RunicQuestsAPI {
     QuestProfileData getQuestProfile(UUID uuid);
 
     /**
+     * Loads the quest profile from mongo
+     *
+     * @param uuid of the player
+     * @param slot of the character
+     * @return their quest data wrapper
+     */
+    QuestProfileData loadQuestProfile(UUID uuid, int slot);
+
+    /**
      * While QuestProfileData gives us all the data for a player, this method
      * gives us data specific to a character and their quest list
      *
      * @param profileData of the player-quest wrapper
      * @param slot        of the character
-     * @return a list of quests (blank if there is no data)
+     * @return true if there are already persistent quests for this character slot
      */
-    List<Quest> loadQuestsList(QuestProfileData profileData, int slot);
+    boolean loadQuestsList(QuestProfileData profileData, int slot);
 
     /**
      * Determines if the quest should save any persistent data.
