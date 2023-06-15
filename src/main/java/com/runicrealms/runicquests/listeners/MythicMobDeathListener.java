@@ -13,10 +13,10 @@ import com.runicrealms.runicquests.quests.objective.QuestObjective;
 import com.runicrealms.runicquests.quests.objective.QuestObjectiveHandler;
 import com.runicrealms.runicquests.quests.objective.QuestObjectiveSlay;
 import com.runicrealms.runicquests.util.QuestsUtil;
-import io.lumine.xikage.mythicmobs.MythicMobs;
-import io.lumine.xikage.mythicmobs.api.bukkit.events.MythicMobDeathEvent;
-import io.lumine.xikage.mythicmobs.mobs.ActiveMob;
-import io.lumine.xikage.mythicmobs.mobs.MythicMob;
+import io.lumine.mythic.api.mobs.MythicMob;
+import io.lumine.mythic.bukkit.MythicBukkit;
+import io.lumine.mythic.bukkit.events.MythicMobDeathEvent;
+import io.lumine.mythic.core.mobs.ActiveMob;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Entity;
@@ -44,8 +44,8 @@ public class MythicMobDeathListener implements Listener, QuestObjectiveHandler {
      * @return true if it is the name of a dungeon boss
      */
     public static boolean isQuestBoss(Entity entity) {
-        if (!MythicMobs.inst().getMobManager().getActiveMob(entity.getUniqueId()).isPresent()) return false;
-        ActiveMob am = MythicMobs.inst().getMobManager().getActiveMob(entity.getUniqueId()).get();
+        if (!MythicBukkit.inst().getMobManager().getActiveMob(entity.getUniqueId()).isPresent()) return false;
+        ActiveMob am = MythicBukkit.inst().getMobManager().getActiveMob(entity.getUniqueId()).get();
         return am.hasFaction() && am.getFaction().equalsIgnoreCase("boss");
     }
 

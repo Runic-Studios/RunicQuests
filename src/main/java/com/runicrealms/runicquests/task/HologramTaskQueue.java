@@ -1,13 +1,14 @@
 package com.runicrealms.runicquests.task;
 
-import com.gmail.filoghost.holographicdisplays.api.Hologram;
-import com.gmail.filoghost.holographicdisplays.api.HologramsAPI;
 import com.runicrealms.plugin.common.util.ChatUtils;
 import com.runicrealms.plugin.rdb.RunicDatabase;
 import com.runicrealms.runicquests.RunicQuests;
 import com.runicrealms.runicquests.quests.Quest;
 import com.runicrealms.runicquests.quests.hologram.FirstNpcHoloType;
 import com.runicrealms.runicquests.util.SpeechParser;
+import me.filoghost.holographicdisplays.api.HolographicDisplaysAPI;
+import me.filoghost.holographicdisplays.api.hologram.Hologram;
+import me.filoghost.holographicdisplays.api.hologram.VisibilitySettings;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -48,8 +49,8 @@ public class HologramTaskQueue extends TaskQueue {
         this.quest = quest;
         this.npcId = npcId;
         this.npcLocation = npcLocation;
-        this.hologram = HologramsAPI.createHologram(RunicQuests.getInstance(), npcLocation);
-        this.hologram.getVisibilityManager().setVisibleByDefault(false);
+        this.hologram = HolographicDisplaysAPI.get(RunicQuests.getInstance()).createHologram(npcLocation);
+        this.hologram.getVisibilitySettings().setGlobalVisibility(VisibilitySettings.Visibility.HIDDEN);
         this.player = player;
         this.speechParser = new SpeechParser(player);
         this.messages = messages;
@@ -91,9 +92,9 @@ public class HologramTaskQueue extends TaskQueue {
         Map<Integer, Map<FirstNpcHoloType, Hologram>> hologramMap = RunicQuests.getHoloManager().getHologramMap();
         for (Hologram hologram : hologramMap.get(quest.getQuestID()).values()) {
             if (display)
-                RunicQuests.getHoloManager().determineHoloByStatus(player, quest).getVisibilityManager().showTo(player);
+                RunicQuests.getHoloManager().determineHoloByStatus(player, quest).getVisibilitySettings().setIndividualVisibility(player, VisibilitySettings.Visibility.VISIBLE);
             else
-                hologram.getVisibilityManager().hideTo(player);
+                hologram.getVisibilitySettings().setIndividualVisibility(player, VisibilitySettings.Visibility.HIDDEN);
         }
     }
 
@@ -106,14 +107,14 @@ public class HologramTaskQueue extends TaskQueue {
     private List<Runnable> createHologramRunnables() {
         if (quest != null)
             changeQuestStatusHolograms(false);
-        hologram.getVisibilityManager().showTo(player);
+        hologram.getVisibilitySettings().setIndividualVisibility(player, VisibilitySettings.Visibility.VISIBLE);
         List<Runnable> runnables = new ArrayList<>();
         List<String> messagesCloned = new ArrayList<>(messages); // all strings in Java are pass-by-reference, so we're cloning here to prevent side effects
         messagesCloned.replaceAll(s -> questResponse.getChatColor() + "&o" + s);
         int totalSpeechMessages = (int) messagesCloned.stream().filter(x -> !x.startsWith(questResponse.getChatColor() + "&o" + "//")).count(); // remove command-only lines from text count
         for (String message : messagesCloned) {
             runnables.add(() -> {
-                hologram.clearLines();
+                hologram.getLines().clear();
                 speechParser.updateParsedMessage("&7[" + (messagesCloned.indexOf(message) + 1) + "/" + totalSpeechMessages + "] " + message);
                 if (speechParser.isChatMessage()) {
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', questResponse.getChatColor() + speechParser.getParsedMessage()));
@@ -121,9 +122,9 @@ public class HologramTaskQueue extends TaskQueue {
                     if (!message.equals(messagesCloned.get(0))) // don't play sound on first click
                         player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.25f, 1.5f);
                     List<String> formatted = ChatUtils.formattedText(speechParser.getParsedMessage(), 35);
-                    hologram.teleport(this.npcLocation.clone().add(0, 2.5 + (0.25 * formatted.size()), 0)); // needs to sit 3 above ? 2.5 + 0.5 (
+                    hologram.setPosition(this.npcLocation.clone().add(0, 2.5 + (0.25 * formatted.size()), 0)); // needs to sit 3 above ? 2.5 + 0.5 (
                     for (String s : formatted) {
-                        hologram.appendTextLine(ChatColor.translateAlternateColorCodes('&', questResponse.getChatColor() + s));
+                        hologram.getLines().appendText(ChatColor.translateAlternateColorCodes('&', questResponse.getChatColor() + s));
                     }
                 }
 

@@ -1,7 +1,5 @@
 package com.runicrealms.runicquests.quests.hologram;
 
-import com.gmail.filoghost.holographicdisplays.api.Hologram;
-import com.gmail.filoghost.holographicdisplays.api.HologramsAPI;
 import com.runicrealms.plugin.rdb.RunicDatabase;
 import com.runicrealms.plugin.rdb.event.CharacterLoadedEvent;
 import com.runicrealms.runicquests.RunicQuests;
@@ -11,6 +9,9 @@ import com.runicrealms.runicquests.quests.Quest;
 import com.runicrealms.runicquests.util.RunicCoreHook;
 import com.runicrealms.runicquests.util.StatusItemUtil;
 import com.runicrealms.runicrestart.RunicRestart;
+import me.filoghost.holographicdisplays.api.HolographicDisplaysAPI;
+import me.filoghost.holographicdisplays.api.hologram.Hologram;
+import me.filoghost.holographicdisplays.api.hologram.VisibilitySettings;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -71,8 +72,8 @@ public class HoloManager implements Listener {
                 if (quest == null) continue;
 
                 Location loc = quest.getFirstNPC().getLocation().clone().add(0, 3.25, 0);
-                Hologram hologram = HologramsAPI.createHologram(RunicQuests.getInstance(), loc);
-                hologram.getVisibilityManager().setVisibleByDefault(false);
+                Hologram hologram = HolographicDisplaysAPI.get(RunicQuests.getInstance()).createHologram(loc);
+                hologram.getVisibilitySettings().setGlobalVisibility(VisibilitySettings.Visibility.HIDDEN);
 
                 // main hologram based on quest type
                 FirstNpcHoloType firstNpcHoloType;
@@ -83,18 +84,18 @@ public class HoloManager implements Listener {
                 else
                     firstNpcHoloType = FirstNpcHoloType.GOLD;
 
-                hologram.appendItemLine(firstNpcHoloType.getItemStack());
+                hologram.getLines().appendItem(firstNpcHoloType.getItemStack());
                 hologramMap.put(quest.getQuestID(), new HashMap<>());
                 hologramMap.get(quest.getQuestID()).put(firstNpcHoloType, hologram);
 
-                Hologram hologramGreen = HologramsAPI.createHologram(RunicQuests.getInstance(), loc);
-                hologramGreen.getVisibilityManager().setVisibleByDefault(false);
-                hologramGreen.appendItemLine(StatusItemUtil.greenStatusItem);
+                Hologram hologramGreen = HolographicDisplaysAPI.get(RunicQuests.getInstance()).createHologram(loc);
+                hologramGreen.getVisibilitySettings().setGlobalVisibility(VisibilitySettings.Visibility.HIDDEN);
+                hologramGreen.getLines().appendItem(StatusItemUtil.greenStatusItem);
                 hologramMap.get(quest.getQuestID()).put(FirstNpcHoloType.GREEN, hologramGreen);
 
-                Hologram hologramRed = HologramsAPI.createHologram(RunicQuests.getInstance(), loc);
-                hologramRed.getVisibilityManager().setVisibleByDefault(false);
-                hologramRed.appendItemLine(StatusItemUtil.redStatusItem);
+                Hologram hologramRed = HolographicDisplaysAPI.get(RunicQuests.getInstance()).createHologram(loc);
+                hologramRed.getVisibilitySettings().setGlobalVisibility(VisibilitySettings.Visibility.VISIBLE);
+                hologramRed.getLines().appendItem(StatusItemUtil.redStatusItem);
                 hologramMap.get(quest.getQuestID()).put(FirstNpcHoloType.RED, hologramRed);
             }
 
@@ -140,9 +141,9 @@ public class HoloManager implements Listener {
         for (Quest quest : quests) {
             if (hologramMap.get(quest.getQuestID()) != null) {
                 for (Hologram hologram : hologramMap.get(quest.getQuestID()).values()) { // reset previous holograms
-                    hologram.getVisibilityManager().hideTo(player);
+                    hologram.getVisibilitySettings().setIndividualVisibility(player, VisibilitySettings.Visibility.HIDDEN);
                 }
-                determineHoloByStatus(player, quest).getVisibilityManager().showTo(player);
+                determineHoloByStatus(player, quest).getVisibilitySettings().setIndividualVisibility(player, VisibilitySettings.Visibility.VISIBLE);
             }
         }
     }
