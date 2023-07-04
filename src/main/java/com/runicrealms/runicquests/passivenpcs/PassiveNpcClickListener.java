@@ -14,6 +14,7 @@ public class PassiveNpcClickListener implements Listener {
 
     @EventHandler
     public void onNpcClick(NpcClickEvent event) {
+        if(event.isCancelled()) return;
         PassiveNpc npc = RunicQuests.getPassiveNpcHandler().getNPC(event.getNpc().getId());
         if (npc == null) {
             return;

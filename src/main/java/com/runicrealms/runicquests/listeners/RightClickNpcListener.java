@@ -187,6 +187,7 @@ public class RightClickNpcListener implements Listener, QuestObjectiveHandler {
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onNpcRightClick(NpcClickEvent event) {
+        if(event.isCancelled()) return;
         Npc npc = event.getNpc();
         Player player = event.getPlayer();
         int slot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(player.getUniqueId());

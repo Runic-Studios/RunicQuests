@@ -83,6 +83,7 @@ public class IdleMessageListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onNpcClick(NpcClickEvent event) {
+        if(event.isCancelled()) return;
         Player player = event.getPlayer();
         int slot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(player.getUniqueId());
         QuestProfileData profileData = RunicQuests.getAPI().getQuestProfile(player.getUniqueId());
