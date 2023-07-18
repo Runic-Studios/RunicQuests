@@ -25,6 +25,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -48,10 +50,11 @@ public class QuestTriggerCMD extends BaseCommand implements QuestObjectiveHandle
     }
 
     /**
-     * @param player  who caused trigger
-     * @param trigger that was caused
+     * @param player        who caused trigger
+     * @param trigger       that was caused
+     * @param objectiveName the name of the objective that should be sent to the player in the progress message
      */
-    private void handleTrigger(Player player, Trigger trigger) {
+    private void handleTrigger(@NotNull Player player, @NotNull Trigger trigger, @Nullable String objectiveName) {
         int characterSlot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(player.getUniqueId());
         QuestProfileData profileData = RunicQuests.getAPI().getQuestProfile(player.getUniqueId());
         for (Quest quest : profileData.getQuestsMap().get(characterSlot)) {
@@ -66,12 +69,12 @@ public class QuestTriggerCMD extends BaseCommand implements QuestObjectiveHandle
                 // Ensure that our current objective matches the trigger objective
                 if (!objective.getObjectiveNumber().equals(triggerObjective.getObjectiveNumber()))
                     continue;
-                incrementTriggerObjective(player, trigger, profileData, quest, triggerObjective);
+                incrementTriggerObjective(player, trigger, profileData, quest, triggerObjective, objectiveName);
             }
         }
     }
 
-    private void incrementTriggerObjective(Player player, Trigger trigger, QuestProfileData profileData, Quest quest, QuestObjectiveTrigger triggerObjective) {
+    private void incrementTriggerObjective(Player player, Trigger trigger, QuestProfileData profileData, Quest quest, QuestObjectiveTrigger triggerObjective, @Nullable String objectiveName) {
         Set<String> triggersEarned = triggerObjective.getTriggersEarned();
         // How many triggers for this objective did they have before this one?
         int previousEarnedTriggerCount = triggersEarned.size();
@@ -82,7 +85,7 @@ public class QuestTriggerCMD extends BaseCommand implements QuestObjectiveHandle
             Bukkit.getScheduler().runTask(RunicQuests.getInstance(), () -> progressQuest(player, profileData, quest, triggerObjective));
         } else if (triggersEarned.size() > previousEarnedTriggerCount) { // Player discovered a unique trigger (set doesn't allow duplicates)
             player.sendMessage(ChatColor.translateAlternateColorCodes
-                    ('&', QuestsUtil.PREFIX + " Hidden Trigger " + "&6» &7[&a" + triggerObjective.getTriggersEarned().size() + "&7/" + triggerObjective.getTriggerIds().size() + "]"));
+                    ('&', QuestsUtil.PREFIX + " " + (objectiveName != null ? objectiveName : "Hidden Trigger") + " &6» &7[&a" + triggerObjective.getTriggersEarned().size() + "&7/" + triggerObjective.getTriggerIds().size() + "]"));
         }
     }
 
@@ -94,8 +97,8 @@ public class QuestTriggerCMD extends BaseCommand implements QuestObjectiveHandle
     @Conditions("is-console-or-op")
     public void onCommand(CommandSender sender, String[] args) {
         Bukkit.getScheduler().runTaskAsynchronously(RunicQuests.getInstance(), () -> {
-            if (args.length != 3) {
-                sender.sendMessage(ChatColor.RED + "Bad syntax! /questtrigger player|party <party-member-name|player-name> <trigger-id>");
+            if (args.length != 3 && args.length != 4) {
+                sender.sendMessage(ChatColor.RED + "Bad syntax! /questtrigger player|party <party-member-name|player-name> <trigger-id> <objective-name>");
                 return;
             }
             Set<Player> players = new HashSet<>();
@@ -114,8 +117,11 @@ public class QuestTriggerCMD extends BaseCommand implements QuestObjectiveHandle
                 sender.sendMessage(ChatColor.RED + "Error, trigger for ID " + triggerId + " not found");
                 return;
             }
+
+            String objectiveName = args.length == 4 ? args[3] : null;
+
             for (Player playerToReceiveCredit : players) {
-                handleTrigger(playerToReceiveCredit, trigger);
+                handleTrigger(playerToReceiveCredit, trigger, objectiveName);
             }
         });
     }
