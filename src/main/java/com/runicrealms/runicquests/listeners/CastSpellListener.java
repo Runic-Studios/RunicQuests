@@ -40,10 +40,15 @@ public class CastSpellListener implements Listener, QuestObjectiveHandler {
         }
     }
 
-    @EventHandler(priority = EventPriority.NORMAL)
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onCast(SpellCastEvent event) {
-        if (event.isCancelled()) return;
         String spellName = event.getSpell().getName();
+
+        //account for combat and potion "spells"
+        if (spellName.equalsIgnoreCase("Combat") || spellName.equalsIgnoreCase("Potion")) {
+            return;
+        }
+
         runSpellCast(event.getCaster(), spellName);
     }
 
