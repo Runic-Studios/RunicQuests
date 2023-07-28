@@ -181,12 +181,12 @@ public class Quest implements Cloneable {
             assert meta != null;
             meta.setDisplayName((isTutorialQuest() ? ChatColor.LIGHT_PURPLE : ChatColor.GREEN) + this.getQuestName());
             lore.add(ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + "COMPLETE!");
-        } else if (!RunicCoreHook.hasCompletedLevelRequirement(player, this.getRequirements().getClassLvReq())) {
+        } else if (!RunicCoreHook.hasCompletedLevelRequirement(player, this.getRequirements().getClassLvReq()) || !RunicCoreHook.hasCompletedRequiredQuests(player, this.getRequirements().getCompletedQuestsRequirement())) {
             item = StatusItemUtil.redStatusItem;
             meta = item.getItemMeta();
             assert meta != null;
             meta.setDisplayName(ChatColor.RED + this.getQuestName());
-            lore.add(ChatColor.DARK_RED + "You do not meet the level requirements!");
+            lore.add(ChatColor.DARK_RED + (!RunicCoreHook.hasCompletedLevelRequirement(player, this.getRequirements().getClassLvReq()) ? "You do not meet the level requirements!" : "You have not completed all of the prerequisite quests!"));
         } else if (this.isSideQuest()) {
             item = StatusItemUtil.yellowStatusItem;
             meta = item.getItemMeta();
@@ -291,10 +291,6 @@ public class Quest implements Cloneable {
 
     public void setRewards(QuestRewards rewards) {
         this.rewards = rewards;
-    }
-
-    public QuestState getState() {
-        return state;
     }
 
     public void setState(QuestState state) {

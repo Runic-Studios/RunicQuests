@@ -2,10 +2,10 @@ package com.runicrealms.plugin.runicquests.task;
 
 import com.runicrealms.plugin.common.util.ChatUtils;
 import com.runicrealms.plugin.rdb.RunicDatabase;
-import com.runicrealms.plugin.runicquests.util.SpeechParser;
 import com.runicrealms.plugin.runicquests.RunicQuests;
 import com.runicrealms.plugin.runicquests.quests.Quest;
 import com.runicrealms.plugin.runicquests.quests.hologram.FirstNpcHoloType;
+import com.runicrealms.plugin.runicquests.util.SpeechParser;
 import me.filoghost.holographicdisplays.api.HolographicDisplaysAPI;
 import me.filoghost.holographicdisplays.api.hologram.Hologram;
 import me.filoghost.holographicdisplays.api.hologram.VisibilitySettings;
@@ -91,10 +91,18 @@ public class HologramTaskQueue extends TaskQueue {
     private void cleanUpStatusHologram(boolean display, Quest quest) {
         Map<Integer, Map<FirstNpcHoloType, Hologram>> hologramMap = RunicQuests.getHoloManager().getHologramMap();
         for (Hologram hologram : hologramMap.get(quest.getQuestID()).values()) {
-            if (display)
-                RunicQuests.getHoloManager().determineHoloByStatus(player, quest).getVisibilitySettings().setIndividualVisibility(player, VisibilitySettings.Visibility.VISIBLE);
-            else
+            if (!display) {
                 hologram.getVisibilitySettings().setIndividualVisibility(player, VisibilitySettings.Visibility.HIDDEN);
+                continue;
+            }
+
+            Hologram status = RunicQuests.getHoloManager().determineHoloByStatus(player, quest);
+
+            if (status == null) {
+                continue;
+            }
+
+            status.getVisibilitySettings().setIndividualVisibility(player, VisibilitySettings.Visibility.VISIBLE);
         }
     }
 

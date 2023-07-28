@@ -1,13 +1,14 @@
 package com.runicrealms.plugin.runicquests.quests.hologram;
 
+import com.runicrealms.plugin.common.util.Pair;
 import com.runicrealms.plugin.rdb.RunicDatabase;
 import com.runicrealms.plugin.rdb.event.CharacterLoadedEvent;
+import com.runicrealms.plugin.runicquests.RunicQuests;
 import com.runicrealms.plugin.runicquests.api.QuestCompleteEvent;
 import com.runicrealms.plugin.runicquests.model.QuestProfileData;
+import com.runicrealms.plugin.runicquests.quests.Quest;
 import com.runicrealms.plugin.runicquests.util.RunicCoreHook;
 import com.runicrealms.plugin.runicquests.util.StatusItemUtil;
-import com.runicrealms.plugin.runicquests.RunicQuests;
-import com.runicrealms.plugin.runicquests.quests.Quest;
 import com.runicrealms.plugin.runicrestart.RunicRestart;
 import me.filoghost.holographicdisplays.api.HolographicDisplaysAPI;
 import me.filoghost.holographicdisplays.api.hologram.Hologram;
@@ -19,6 +20,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerLevelChangeEvent;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.List;
@@ -41,20 +44,45 @@ public class HoloManager implements Listener {
      * @param quest  A quest in the player's quest profile
      * @return A hologram to activate
      */
-    public Hologram determineHoloByStatus(Player player, Quest quest) {
-        Map<FirstNpcHoloType, Hologram> types = hologramMap.get(quest.getQuestID());
+    @NotNull
+    public FirstNpcHoloType determineStatus(Player player, Quest quest) {
         if (quest.getQuestState().isCompleted())
-            return types.get(FirstNpcHoloType.GREEN);
+            return FirstNpcHoloType.GREEN;
         if (!RunicCoreHook.hasCompletedRequiredQuests(player, quest.getRequirements().getCompletedQuestsRequirement())
                 || !RunicCoreHook.hasCompletedLevelRequirement(player, quest.getRequirements().getClassLvReq())
                 || (quest.getRequirements().hasCraftingRequirement() && !RunicCoreHook.hasProfession(player, quest.getRequirements().getCraftingProfessionType()))
                 || (quest.getRequirements().hasClassTypeRequirement() && !RunicCoreHook.isRequiredClass(quest.getRequirements().getClassTypeRequirement(), player)))
-            return types.get(FirstNpcHoloType.RED);
+            return FirstNpcHoloType.RED;
         if (quest.isRepeatable())
-            return types.get(FirstNpcHoloType.BLUE);
+            return FirstNpcHoloType.BLUE;
         if (quest.isSideQuest())
-            return types.get(FirstNpcHoloType.YELLOW);
-        return types.get(FirstNpcHoloType.GOLD);
+            return FirstNpcHoloType.YELLOW;
+        return FirstNpcHoloType.GOLD;
+    }
+
+    /**
+     * This method determines which color of hologram to activate for each quest in a quest profile
+     *
+     * @param status The status of the quest
+     * @param quest  A quest in the player's quest profile
+     * @return A hologram to activate
+     */
+    @Nullable
+    public Hologram determineHoloByStatus(FirstNpcHoloType status, Quest quest) {
+        Map<FirstNpcHoloType, Hologram> types = hologramMap.get(quest.getQuestID());
+        return types.get(status);
+    }
+
+    /**
+     * This method determines which color of hologram to activate for each quest in a quest profile
+     *
+     * @param player The player of the quest profile
+     * @param quest  A quest in the player's quest profile
+     * @return A hologram to activate
+     */
+    @Nullable
+    public Hologram determineHoloByStatus(Player player, Quest quest) {
+        return this.determineHoloByStatus(this.determineStatus(player, quest), quest);
     }
 
     public Map<Integer, Map<FirstNpcHoloType, Hologram>> getHologramMap() {
@@ -138,13 +166,45 @@ public class HoloManager implements Listener {
         if (questsMap == null) return;
         List<Quest> quests = questsMap.get(slot);
         if (quests == null) return; // Something did not load
+
+        Map<Integer, Pair<Quest, FirstNpcHoloType>> display = new HashMap<>();
+
         for (Quest quest : quests) {
-            if (hologramMap.get(quest.getQuestID()) != null) {
-                for (Hologram hologram : hologramMap.get(quest.getQuestID()).values()) { // reset previous holograms
-                    hologram.getVisibilitySettings().setIndividualVisibility(player, VisibilitySettings.Visibility.HIDDEN);
-                }
-                determineHoloByStatus(player, quest).getVisibilitySettings().setIndividualVisibility(player, VisibilitySettings.Visibility.VISIBLE);
+            if (hologramMap.get(quest.getQuestID()) == null) {
+                continue;
             }
+
+            for (Hologram hologram : hologramMap.get(quest.getQuestID()).values()) { // reset previous holograms
+                hologram.getVisibilitySettings().setIndividualVisibility(player, VisibilitySettings.Visibility.HIDDEN);
+            }
+
+            FirstNpcHoloType status = this.determineStatus(player, quest);
+
+            Hologram hologram = determineHoloByStatus(status, quest);
+
+            if (hologram == null) {
+                continue;
+            }
+
+            Pair<Quest, FirstNpcHoloType> questData = display.get(quest.getFirstNPC().getNpcId());
+
+            if (questData == null || questData.first.getRequirements().getClassLvReq() > quest.getRequirements().getClassLvReq()) {
+                display.put(quest.getFirstNPC().getNpcId(), new Pair<>(quest, status));
+            }
+        }
+
+        if (display.isEmpty()) {
+            return;
+        }
+
+        for (Pair<Quest, FirstNpcHoloType> pair : display.values()) {
+            Hologram hologram = this.determineHoloByStatus(pair.second, pair.first);
+
+            if (hologram == null) {
+                throw new IllegalStateException("There was no hologram for the " + pair.second.name() + " type on the " + pair.first.getQuestName() + " quest!");
+            }
+
+            hologram.getVisibilitySettings().setIndividualVisibility(player, VisibilitySettings.Visibility.VISIBLE);
         }
     }
 }

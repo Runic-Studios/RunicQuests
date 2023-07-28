@@ -24,7 +24,7 @@ public class QuestDTO {
 
     public QuestDTO(Quest quest) {
         this.firstNpcState = quest.getFirstNPC().getState();
-        this.state = quest.getState();
+        this.state = quest.getQuestState();
         for (QuestObjective objective : quest.getObjectives()) {
             objectivesMap.put(objective.getObjectiveNumber(), new QuestObjectiveDTO(objective));
         }
@@ -61,5 +61,5 @@ public class QuestDTO {
     public void setState(QuestState state) {
         this.state = state;
     }
-    
+
 }
