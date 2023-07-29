@@ -89,20 +89,14 @@ public class HologramTaskQueue extends TaskQueue {
      * @param quest   which quest to check
      */
     private void cleanUpStatusHologram(boolean display, Quest quest) {
+        if (display) {
+            RunicQuests.getHoloManager().refreshStatusHolograms(this.player);
+            return;
+        }
+
         Map<Integer, Map<FirstNpcHoloType, Hologram>> hologramMap = RunicQuests.getHoloManager().getHologramMap();
         for (Hologram hologram : hologramMap.get(quest.getQuestID()).values()) {
-            if (!display) {
-                hologram.getVisibilitySettings().setIndividualVisibility(player, VisibilitySettings.Visibility.HIDDEN);
-                continue;
-            }
-
-            Hologram status = RunicQuests.getHoloManager().determineHoloByStatus(player, quest);
-
-            if (status == null) {
-                continue;
-            }
-
-            status.getVisibilitySettings().setIndividualVisibility(player, VisibilitySettings.Visibility.VISIBLE);
+            hologram.getVisibilitySettings().setIndividualVisibility(this.player, VisibilitySettings.Visibility.HIDDEN);
         }
     }
 

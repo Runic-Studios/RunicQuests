@@ -158,53 +158,61 @@ public class HoloManager implements Listener {
      *
      * @param player to update holograms for
      */
-    private void refreshStatusHolograms(Player player) {
-        int slot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(player.getUniqueId());
-        QuestProfileData profileData = RunicQuests.getAPI().getQuestProfile(player.getUniqueId());
-        if (profileData == null) return;
-        Map<Integer, List<Quest>> questsMap = profileData.getQuestsMap();
-        if (questsMap == null) return;
-        List<Quest> quests = questsMap.get(slot);
-        if (quests == null) return; // Something did not load
+    public void refreshStatusHolograms(@NotNull Player player) {
+        Runnable task = () -> {
+            int slot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(player.getUniqueId());
+            QuestProfileData profileData = RunicQuests.getAPI().getQuestProfile(player.getUniqueId());
+            if (profileData == null) return;
+            Map<Integer, List<Quest>> questsMap = profileData.getQuestsMap();
+            if (questsMap == null) return;
+            List<Quest> quests = questsMap.get(slot);
+            if (quests == null) return; // Something did not load
 
-        Map<Integer, Pair<Quest, FirstNpcHoloType>> display = new HashMap<>();
+            Map<Integer, Pair<Quest, FirstNpcHoloType>> display = new HashMap<>();
 
-        for (Quest quest : quests) {
-            if (hologramMap.get(quest.getQuestID()) == null) {
-                continue;
+            for (Quest quest : quests) {
+                if (hologramMap.get(quest.getQuestID()) == null) {
+                    continue;
+                }
+
+                for (Hologram hologram : hologramMap.get(quest.getQuestID()).values()) { // reset previous holograms
+                    hologram.getVisibilitySettings().setIndividualVisibility(player, VisibilitySettings.Visibility.HIDDEN);
+                }
+
+                FirstNpcHoloType status = this.determineStatus(player, quest);
+
+                Hologram hologram = determineHoloByStatus(status, quest);
+
+                if (hologram == null) {
+                    continue;
+                }
+
+                Pair<Quest, FirstNpcHoloType> questData = display.get(quest.getFirstNPC().getNpcId());
+
+                if (questData == null || ((questData.second == FirstNpcHoloType.GREEN || questData.second == FirstNpcHoloType.RED) || questData.first.getRequirements().getClassLvReq() > quest.getRequirements().getClassLvReq())) {
+                    display.put(quest.getFirstNPC().getNpcId(), new Pair<>(quest, status));
+                }
             }
 
-            for (Hologram hologram : hologramMap.get(quest.getQuestID()).values()) { // reset previous holograms
-                hologram.getVisibilitySettings().setIndividualVisibility(player, VisibilitySettings.Visibility.HIDDEN);
+            if (display.isEmpty()) {
+                return;
             }
 
-            FirstNpcHoloType status = this.determineStatus(player, quest);
+            for (Pair<Quest, FirstNpcHoloType> pair : display.values()) {
+                Hologram hologram = this.determineHoloByStatus(pair.second, pair.first);
 
-            Hologram hologram = determineHoloByStatus(status, quest);
+                if (hologram == null) {
+                    throw new IllegalStateException("There was no hologram for the " + pair.second.name() + " type on the " + pair.first.getQuestName() + " quest!");
+                }
 
-            if (hologram == null) {
-                continue;
+                hologram.getVisibilitySettings().setIndividualVisibility(player, VisibilitySettings.Visibility.VISIBLE);
             }
+        };
 
-            Pair<Quest, FirstNpcHoloType> questData = display.get(quest.getFirstNPC().getNpcId());
-
-            if (questData == null || questData.first.getRequirements().getClassLvReq() > quest.getRequirements().getClassLvReq()) {
-                display.put(quest.getFirstNPC().getNpcId(), new Pair<>(quest, status));
-            }
-        }
-
-        if (display.isEmpty()) {
-            return;
-        }
-
-        for (Pair<Quest, FirstNpcHoloType> pair : display.values()) {
-            Hologram hologram = this.determineHoloByStatus(pair.second, pair.first);
-
-            if (hologram == null) {
-                throw new IllegalStateException("There was no hologram for the " + pair.second.name() + " type on the " + pair.first.getQuestName() + " quest!");
-            }
-
-            hologram.getVisibilitySettings().setIndividualVisibility(player, VisibilitySettings.Visibility.VISIBLE);
+        if (Bukkit.isPrimaryThread()) {
+            Bukkit.getScheduler().runTaskAsynchronously(RunicQuests.getInstance(), task);
+        } else {
+            task.run();
         }
     }
 }
