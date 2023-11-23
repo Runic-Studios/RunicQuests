@@ -9,6 +9,7 @@ import com.runicrealms.plugin.runicquests.command.admin.QuestTriggerCMD;
 import com.runicrealms.plugin.runicquests.command.system.TutorialWeaponCMD;
 import com.runicrealms.plugin.runicquests.compass.CompassManager;
 import com.runicrealms.plugin.runicquests.listeners.CastSpellListener;
+import com.runicrealms.plugin.runicquests.listeners.CraftListener;
 import com.runicrealms.plugin.runicquests.listeners.GatherListener;
 import com.runicrealms.plugin.runicquests.listeners.IdleMessageListener;
 import com.runicrealms.plugin.runicquests.listeners.JournalListener;
@@ -225,6 +226,7 @@ public class RunicQuests extends JavaPlugin {
         this.getServer().getPluginManager().registerEvents(new TaskQueueCleanupListener(), this);
         this.getServer().getPluginManager().registerEvents(new RepeatableQuestListener(), this);
         this.getServer().getPluginManager().registerEvents(new IdleMessageListener(), this);
+        this.getServer().getPluginManager().registerEvents(new CraftListener(), this);
 
         /*
         ACF Commands

@@ -1,7 +1,7 @@
 package com.runicrealms.plugin.runicquests.config;
 
-import com.runicrealms.plugin.npcs.RunicNpcs;
 import com.runicrealms.plugin.common.RunicCommon;
+import com.runicrealms.plugin.npcs.RunicNpcs;
 import com.runicrealms.plugin.runicitems.RunicItemsAPI;
 import com.runicrealms.plugin.runicquests.RunicQuests;
 import com.runicrealms.plugin.runicquests.exception.QuestLoadException;
@@ -20,6 +20,7 @@ import com.runicrealms.plugin.runicquests.quests.location.BoxLocation;
 import com.runicrealms.plugin.runicquests.quests.location.RadiusLocation;
 import com.runicrealms.plugin.runicquests.quests.objective.QuestObjective;
 import com.runicrealms.plugin.runicquests.quests.objective.QuestObjectiveCast;
+import com.runicrealms.plugin.runicquests.quests.objective.QuestObjectiveCraft;
 import com.runicrealms.plugin.runicquests.quests.objective.QuestObjectiveGather;
 import com.runicrealms.plugin.runicquests.quests.objective.QuestObjectiveLocation;
 import com.runicrealms.plugin.runicquests.quests.objective.QuestObjectiveSlay;
@@ -33,6 +34,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -370,6 +372,8 @@ public class QuestLoader {
                 return gatherObjectiveFromConfig(configObjective, goalMessage, goalLocation, displayNextTitle);
             } else if (section.getString("requirement.type").equalsIgnoreCase("trigger")) {
                 return triggerObjectiveFromConfig(configObjective, goalMessage, goalLocation, displayNextTitle);
+            } else if (section.getString("requirement.type").equalsIgnoreCase("craft")) {
+                return craftObjectiveFromConfig(configObjective, goalMessage, goalLocation, displayNextTitle);
             }
         } catch (QuestLoadException exception) {
             throw exception;
@@ -564,4 +568,25 @@ public class QuestLoader {
                 displayNextTitle);
     }
 
+    /**
+     * Builds a QuestObjectiveCraft object from a config section
+     */
+    private static QuestObjectiveCraft craftObjectiveFromConfig(
+            @NotNull ConfigObjective configObjective,
+            String goalMessage,
+            String goalLocation,
+            boolean displayNextTitle) throws QuestLoadException {
+        ConfigurationSection section = configObjective.getSection();
+
+        return new QuestObjectiveCraft(
+                checkValueNull(getStringList(section, "requirement.resource-ids"), "resource-ids"),
+                (section.contains("requirement.amount") ? section.getInt("requirement.amount") : 1),
+                section.contains("requirement.requires") ? loadQuestItems(section.getConfigurationSection("requirement.requires")) : null,
+                goalMessage,
+                (section.contains("execute") ? getStringList(section, "execute") : null),
+                configObjective.getObjectiveNumber(),
+                (section.contains("completed-message") ? getStringList(section, "completed-message") : null),
+                goalLocation,
+                displayNextTitle);
+    }
 }

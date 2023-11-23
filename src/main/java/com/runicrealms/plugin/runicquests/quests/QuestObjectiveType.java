@@ -9,7 +9,8 @@ public enum QuestObjectiveType {
     LOCATION("location"), // Reaching a location
     SLAY("slay"), // Killing mobs
     TALK("talk"), // Speaking with npcs
-    TRIGGER("trigger"); // Handled by commands, run from anywhere
+    TRIGGER("trigger"), // Handled by commands, run from anywhere
+    CRAFT("craft"); //craft an item
 
     private final String identifier;
 
