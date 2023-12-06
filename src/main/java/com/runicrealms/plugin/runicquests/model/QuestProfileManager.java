@@ -30,6 +30,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import redis.clients.jedis.Jedis;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -197,6 +198,32 @@ public class QuestProfileManager implements Listener, RunicQuestsAPI, QuestWrite
         UUID uuid = event.getPlayer().getUniqueId();
         int slot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(uuid);
         QuestProfileData questProfileData = this.getQuestProfile(uuid);
+
+        if (!event.getQuest().isRepeatable()) {
+            updateQuestProfileData
+                    (
+                            uuid,
+                            slot,
+                            questProfileData,
+                            () -> {
+                            }
+                    );
+            return;
+        }
+
+        Map<Integer, QuestDTO> questData = questProfileData.getQuestsDTOMap().get(slot);
+
+        if (questData == null) {
+            return;
+        }
+
+        QuestDTO data = questData.get(event.getQuest().getQuestID());
+
+        if (data == null) {
+            return;
+        }
+
+        data.setCompletedDate(new Date());
         updateQuestProfileData
                 (
                         uuid,
@@ -223,7 +250,7 @@ public class QuestProfileManager implements Listener, RunicQuestsAPI, QuestWrite
     }
 
     @EventHandler
-    public void onQuestStart(QuestCompleteObjectiveEvent event) {
+    public void onQuestCompleteObjective(QuestCompleteObjectiveEvent event) {
         UUID uuid = event.getPlayer().getUniqueId();
         int slot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(uuid);
         QuestProfileData questProfileData = this.getQuestProfile(uuid);

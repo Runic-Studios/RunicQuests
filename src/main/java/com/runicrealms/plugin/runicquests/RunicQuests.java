@@ -8,6 +8,7 @@ import co.aikar.taskchain.TaskChainFactory;
 import com.runicrealms.plugin.runicquests.command.admin.QuestTriggerCMD;
 import com.runicrealms.plugin.runicquests.command.system.TutorialWeaponCMD;
 import com.runicrealms.plugin.runicquests.compass.CompassManager;
+import com.runicrealms.plugin.runicquests.config.ConfigLoader;
 import com.runicrealms.plugin.runicquests.listeners.CastSpellListener;
 import com.runicrealms.plugin.runicquests.listeners.CraftListener;
 import com.runicrealms.plugin.runicquests.listeners.GatherListener;
@@ -22,15 +23,14 @@ import com.runicrealms.plugin.runicquests.listeners.RightClickNpcListener;
 import com.runicrealms.plugin.runicquests.model.QuestProfileManager;
 import com.runicrealms.plugin.runicquests.passivenpcs.PassiveNpcClickListener;
 import com.runicrealms.plugin.runicquests.passivenpcs.PassiveNpcHandler;
+import com.runicrealms.plugin.runicquests.quests.FirstNpcState;
+import com.runicrealms.plugin.runicquests.quests.Quest;
 import com.runicrealms.plugin.runicquests.quests.QuestItem;
 import com.runicrealms.plugin.runicquests.quests.hologram.HoloManager;
 import com.runicrealms.plugin.runicquests.quests.objective.QuestObjective;
 import com.runicrealms.plugin.runicquests.task.TaskQueue;
 import com.runicrealms.plugin.runicquests.task.TaskQueueCleanupListener;
 import com.runicrealms.plugin.runicquests.ui.QuestMenuListener;
-import com.runicrealms.plugin.runicquests.config.ConfigLoader;
-import com.runicrealms.plugin.runicquests.quests.FirstNpcState;
-import com.runicrealms.plugin.runicquests.quests.Quest;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.ConsoleCommandSender;
@@ -55,6 +55,11 @@ public class RunicQuests extends JavaPlugin {
     private static QuestProfileManager questsAPI;
     private static LocationManager locationManager;
     private static Long nextId = Long.MIN_VALUE; // This is used to give each NPC a new unique ID.
+
+    /* TODO:
+        1. make sure that data is separate for each character
+        2. make sure cooldowns are persistant and the hologram above the npc fits the quest state
+     */
 
     public static RunicQuests getInstance() { // Get the plugin instance
         return instance;
