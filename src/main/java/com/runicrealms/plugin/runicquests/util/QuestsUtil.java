@@ -1,10 +1,12 @@
 package com.runicrealms.plugin.runicquests.util;
 
 import com.runicrealms.plugin.rdb.RunicDatabase;
-import com.runicrealms.plugin.runicquests.model.QuestProfileData;
 import com.runicrealms.plugin.runicquests.RunicQuests;
+import com.runicrealms.plugin.runicquests.model.QuestProfileData;
 import com.runicrealms.plugin.runicquests.quests.Quest;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Date;
 import java.util.Map;
@@ -12,6 +14,10 @@ import java.util.UUID;
 
 public class QuestsUtil {
     public static final String PREFIX = "&6[Quest] »";
+
+    private QuestsUtil() {
+
+    }
 
     /**
      * Utility method to check if a player can start a repeatable quest
@@ -34,6 +40,18 @@ public class QuestsUtil {
             return true;
         }
         return false;
+    }
+
+    /**
+     * A method used to check if a quest can be started based on the provided last completion date
+     */
+    public static boolean canStartRepeatableQuest(@NotNull Quest quest, @Nullable Date lastCompleted) {
+        if (lastCompleted == null) {
+            return true;
+        }
+
+        Date currentTime = new Date();
+        return (currentTime.getTime() - lastCompleted.getTime()) / 1000 >= quest.getCooldown();
     }
 
     /**
@@ -95,5 +113,23 @@ public class QuestsUtil {
             result += quest.getRewards().getQuestPointsReward();
         }
         return result;
+    }
+
+    /**
+     * A method that returns the date a quest was completed, or null if it is not applicable
+     *
+     * @param uuid
+     * @param quest
+     * @return
+     */
+    @Nullable
+    public static Date getCompletedDate(@NotNull UUID uuid, @NotNull Quest quest) {
+        Map<Integer, Date> data = RunicQuests.getQuestCooldowns().get(uuid);
+
+        if (data == null) {
+            return null;
+        }
+
+        return data.get(quest.getQuestID());
     }
 }

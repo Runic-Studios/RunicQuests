@@ -17,6 +17,7 @@ import com.runicrealms.plugin.runicquests.api.QuestWriteOperation;
 import com.runicrealms.plugin.runicquests.api.RunicQuestsAPI;
 import com.runicrealms.plugin.runicquests.config.QuestLoader;
 import com.runicrealms.plugin.runicquests.quests.Quest;
+import com.runicrealms.plugin.runicquests.util.QuestsUtil;
 import org.bson.types.ObjectId;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -199,31 +200,6 @@ public class QuestProfileManager implements Listener, RunicQuestsAPI, QuestWrite
         int slot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(uuid);
         QuestProfileData questProfileData = this.getQuestProfile(uuid);
 
-        if (!event.getQuest().isRepeatable()) {
-            updateQuestProfileData
-                    (
-                            uuid,
-                            slot,
-                            questProfileData,
-                            () -> {
-                            }
-                    );
-            return;
-        }
-
-        Map<Integer, QuestDTO> questData = questProfileData.getQuestsDTOMap().get(slot);
-
-        if (questData == null) {
-            return;
-        }
-
-        QuestDTO data = questData.get(event.getQuest().getQuestID());
-
-        if (data == null) {
-            return;
-        }
-
-        data.setCompletedDate(new Date());
         updateQuestProfileData
                 (
                         uuid,
@@ -272,7 +248,16 @@ public class QuestProfileManager implements Listener, RunicQuestsAPI, QuestWrite
                 .asyncFirst(() -> {
                     // Prepare a new map of slot to data transfer object
                     Map<Integer, QuestDTO> questDTOMap = QuestProfileData.getBlankQuestDTOMap();
-                    questProfileData.getQuestsMap().get(slot).forEach(quest -> questDTOMap.put(quest.getQuestID(), new QuestDTO(quest)));
+                    questProfileData.getQuestsMap().get(slot).forEach(quest -> {
+                        QuestDTO data = new QuestDTO(quest);
+
+                        Date completedOn = QuestsUtil.getCompletedDate(uuid, quest);
+                        if (completedOn != null) {
+                            data.setCompletedDate(completedOn);
+                        }
+
+                        questDTOMap.put(quest.getQuestID(), data);
+                    });
                     questProfileData.getQuestsDTOMap().put(slot, questDTOMap);
 
                     // Define a query to find the InventoryData for this player

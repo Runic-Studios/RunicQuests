@@ -6,6 +6,7 @@ import com.runicrealms.plugin.runicquests.RunicQuests;
 import com.runicrealms.plugin.runicquests.config.QuestLoader;
 import com.runicrealms.plugin.runicquests.quests.Quest;
 import com.runicrealms.plugin.runicquests.quests.objective.QuestObjective;
+import com.runicrealms.plugin.runicquests.util.QuestsUtil;
 import org.bson.types.ObjectId;
 import org.bukkit.Bukkit;
 import org.springframework.data.annotation.Id;
@@ -162,10 +163,14 @@ public class QuestProfileData implements SessionDataMongo {
                 }
             }
             // Handle cooldowns for repeatable quests
-            if (questDTO.getCompletedDate() != null) {
+
+            boolean canStart = QuestsUtil.canStartRepeatableQuest(questNoUserData, questDTO.getCompletedDate());
+            if (questNoUserData.isRepeatable() && !canStart) {
                 RunicQuests.getQuestCooldowns().computeIfAbsent(uuid, k -> new HashMap<>());
                 Map<Integer, Date> cooldowns = RunicQuests.getQuestCooldowns().get(uuid);
                 cooldowns.put(questNoUserData.getQuestID(), questDTO.getCompletedDate());
+            } else if (questNoUserData.isRepeatable() && canStart) {
+                questWithUserData.getQuestState().setCompleted(false);
             }
         } catch (Exception ex) {
             Bukkit.getLogger().warning("There was a problem writing quest data from Mongo!");

@@ -114,11 +114,11 @@ public class RightClickNpcListener implements Listener, QuestObjectiveHandler {
             // Disable repeatable quests on CD
             if (quest.isRepeatable() && !QuestsUtil.canStartRepeatableQuest(player.getUniqueId(), quest)) {
                 String time = QuestsUtil.repeatableQuestTimeRemaining(player, quest);
+                Bukkit.broadcastMessage("DEBUG - quest cooldown"); //debug
                 player.sendMessage(questCooldownMessage(time));
                 return;
             } else if (quest.isRepeatable()) {
-                //if the first condition failed that must mean we can start it
-                profileData.getQuestsDTOMap().get(slot).get(quest.getQuestID()).setCompletedDate(null);
+                Bukkit.broadcastMessage("DEBUG - repeatable quest but not on cooldown"); //debug
             }
 
             handleQuestNotStarted(player, profileData, quest, npcTaskQueues);
@@ -153,7 +153,7 @@ public class RightClickNpcListener implements Listener, QuestObjectiveHandler {
         }
         // Reset repeatable quest objectives
         if (quest.isRepeatable()) {
-            resetRepeatableQuest(quest);
+            resetRepeatableQuest(profileData, quest);
         }
         // Requirements met!
         player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 10.0f, 1.00f); // Play sound
@@ -276,11 +276,14 @@ public class RightClickNpcListener implements Listener, QuestObjectiveHandler {
     /**
      * Reset all the objectives for a repeatable quest
      */
-    private void resetRepeatableQuest(Quest quest) {
+    private void resetRepeatableQuest(QuestProfileData profileData, Quest quest) {
         for (QuestObjective objective : quest.getObjectives()) {
             objective.setCompleted(false);
             objective.resetObjective();
         }
+
+        int slot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(profileData.getUuid());
+        profileData.getQuestsDTOMap().get(slot).get(quest.getQuestID()).setCompletedDate(null);
     }
 
 }
