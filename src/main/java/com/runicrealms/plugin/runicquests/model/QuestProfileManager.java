@@ -17,6 +17,9 @@ import com.runicrealms.plugin.runicquests.api.QuestWriteOperation;
 import com.runicrealms.plugin.runicquests.api.RunicQuestsAPI;
 import com.runicrealms.plugin.runicquests.config.QuestLoader;
 import com.runicrealms.plugin.runicquests.quests.Quest;
+import com.runicrealms.plugin.runicquests.quests.QuestObjectiveType;
+import com.runicrealms.plugin.runicquests.quests.objective.QuestObjective;
+import com.runicrealms.plugin.runicquests.quests.objective.QuestObjectiveTalk;
 import com.runicrealms.plugin.runicquests.util.QuestsUtil;
 import org.bson.types.ObjectId;
 import org.bukkit.Bukkit;
@@ -98,11 +101,13 @@ public class QuestProfileManager implements Listener, RunicQuestsAPI, QuestWrite
 
     @Override
     public boolean shouldWriteData(UUID uuid, Quest quest) {
+        int slot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(uuid);
+
         if (quest.isRepeatable()) {
             boolean isOnCooldown = true;
             if (RunicQuests.getQuestCooldowns().get(uuid) == null)
                 isOnCooldown = false;
-            else if (RunicQuests.getQuestCooldowns().get(uuid).get(quest.getQuestID()) == null)
+            else if (RunicQuests.getQuestCooldowns().get(uuid).get(slot).get(quest.getQuestID()) == null)
                 isOnCooldown = false;
             if (quest.getQuestState().hasStarted() || quest.getQuestState().isCompleted() || isOnCooldown)
                 return true;
@@ -139,7 +144,21 @@ public class QuestProfileManager implements Listener, RunicQuestsAPI, QuestWrite
      */
     @EventHandler(priority = EventPriority.LOWEST) // first
     public void onCharacterQuit(CharacterQuitEvent event) {
-        questProfileDataMap.remove(event.getPlayer().getUniqueId());
+        RunicQuests.getQuestCooldowns().remove(event.getPlayer().getUniqueId()); // Remove the cooldown object
+        Bukkit.broadcastMessage("DEBUG - fired player quit"); //debug
+        QuestProfileData questProfileData = questProfileDataMap.remove(event.getPlayer().getUniqueId()); // Get the quest profile
+        for (Quest quest : questProfileData.getQuestsMap().get(event.getSlot())) { // Loop through the quests
+            for (QuestObjective objective : quest.getObjectives()) { // Loop through objectives
+                if (objective.getObjectiveType() == QuestObjectiveType.TALK) { // Check for objective of type talk
+                    /*
+                     * This is a minor bug fix which prevents minor issues with players
+                     * talking to NPCs, then logging out
+                     */
+                    RunicQuests.getNpcTaskQueues().remove(((QuestObjectiveTalk) objective).getQuestNpc().getId());
+                }
+            }
+        }
+        RunicQuests.getLocationManager().getCachedLocations().remove(event.getPlayer());
     }
 
     /**

@@ -27,10 +27,12 @@ public class QuestsUtil {
      * @return true if the player can start the repeatable quest
      */
     public static boolean canStartRepeatableQuest(UUID uuid, Quest quest) {
-        Map<UUID, Map<Integer, Date>> cooldowns = RunicQuests.getQuestCooldowns();
+        Map<UUID, Map<Integer, Map<Integer, Date>>> cooldowns = RunicQuests.getQuestCooldowns();
         int questId = quest.getQuestID();
+        int slot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(uuid);
+
         // If there are no in-memory CDs for quest, can start
-        if (cooldowns.get(uuid) == null || !cooldowns.get(uuid).containsKey(questId)) {
+        if (cooldowns.get(uuid) == null || !cooldowns.get(uuid).containsKey(slot) || !cooldowns.get(uuid).get(slot).containsKey(questId)) {
             return true;
         }
         // If there is an in-memory CD for the quest, check its remaining time
@@ -64,7 +66,8 @@ public class QuestsUtil {
      */
     public static long repeatableQuestTimeElapsed(UUID uuid, int questId) {
         Date currentTime = new Date();
-        Date questCompleteTime = RunicQuests.getQuestCooldowns().get(uuid).get(questId);
+        int slot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(uuid);
+        Date questCompleteTime = RunicQuests.getQuestCooldowns().get(uuid).get(slot).get(questId);
         return (currentTime.getTime() - questCompleteTime.getTime()) / 1000;
     }
 
@@ -124,7 +127,8 @@ public class QuestsUtil {
      */
     @Nullable
     public static Date getCompletedDate(@NotNull UUID uuid, @NotNull Quest quest) {
-        Map<Integer, Date> data = RunicQuests.getQuestCooldowns().get(uuid);
+        int slot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(uuid);
+        Map<Integer, Date> data = RunicQuests.getQuestCooldowns().get(uuid).get(slot);
 
         if (data == null) {
             return null;

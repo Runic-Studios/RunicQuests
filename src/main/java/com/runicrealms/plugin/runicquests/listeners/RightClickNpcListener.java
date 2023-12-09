@@ -1,5 +1,6 @@
 package com.runicrealms.plugin.runicquests.listeners;
 
+import com.runicrealms.plugin.common.util.ColorUtil;
 import com.runicrealms.plugin.npcs.Npc;
 import com.runicrealms.plugin.npcs.api.NpcClickEvent;
 import com.runicrealms.plugin.rdb.RunicDatabase;
@@ -110,17 +111,12 @@ public class RightClickNpcListener implements Listener, QuestObjectiveHandler {
      */
     private void handleFirstNpcQuest(Player player, int slot, Npc npc, QuestProfileData profileData,
                                      Quest quest, HashMap<Long, TaskQueue> npcTaskQueues) {
-        if (!quest.getQuestState().hasStarted()) {
-            // Disable repeatable quests on CD
-            if (quest.isRepeatable() && !QuestsUtil.canStartRepeatableQuest(player.getUniqueId(), quest)) {
-                String time = QuestsUtil.repeatableQuestTimeRemaining(player, quest);
-                Bukkit.broadcastMessage("DEBUG - quest cooldown"); //debug
-                player.sendMessage(questCooldownMessage(time));
-                return;
-            } else if (quest.isRepeatable()) {
-                Bukkit.broadcastMessage("DEBUG - repeatable quest but not on cooldown"); //debug
-            }
+        if (!quest.getQuestState().hasStarted() && quest.isRepeatable() && !QuestsUtil.canStartRepeatableQuest(player.getUniqueId(), quest)) {
+            // Disable repeatable quests on CD. Cooldown messages handled in listener directly
+            return;
+        }
 
+        if (!quest.getQuestState().hasStarted()) {
             handleQuestNotStarted(player, profileData, quest, npcTaskQueues);
         } else if (quest.getQuestState().hasStarted() && !quest.getQuestState().isCompleted()) {
             attemptToTalkToNpc(player, npc, profileData, slot, npcTaskQueues);
@@ -189,9 +185,8 @@ public class RightClickNpcListener implements Listener, QuestObjectiveHandler {
         queue.startTasks();
     }
 
-    @EventHandler(priority = EventPriority.NORMAL)
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onNpcRightClick(NpcClickEvent event) {
-        if (event.isCancelled()) return;
         Npc npc = event.getNpc();
         Player player = event.getPlayer();
         int slot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(player.getUniqueId());
@@ -199,7 +194,10 @@ public class RightClickNpcListener implements Listener, QuestObjectiveHandler {
         // Static map that keeps track of the current talk operation
         HashMap<Long, TaskQueue> npcTaskQueues = RunicQuests.getNpcTaskQueues();
         boolean foundTalkObjective = attemptToTalkToNpc(player, npc, profileData, slot, npcTaskQueues);
-        if (foundTalkObjective) return;
+        if (foundTalkObjective) {
+            return;
+        }
+
         // If we are not talking to this NPC for a quest, then check if they have a new quest
         Quest questMatchingFirstNpc = findQuestFromNpcGiver(npc, profileData, slot);
         if (questMatchingFirstNpc != null) {
@@ -209,6 +207,14 @@ public class RightClickNpcListener implements Listener, QuestObjectiveHandler {
             } else {
                 handleFirstNpcQuest(player, slot, npc, profileData, questMatchingFirstNpc, npcTaskQueues);
             }
+        }
+
+        for (Quest quest : profileData.getQuestsMap().get(slot)) {
+            if (!quest.isRepeatable() || quest.getFirstNPC().getNpcId() != npc.getId() || QuestsUtil.canStartRepeatableQuest(player.getUniqueId(), quest)) {
+                continue;
+            }
+
+            player.sendMessage(ColorUtil.format("&3" + quest.getQuestName() + " - &lON COOLDOWN: &e" + QuestsUtil.repeatableQuestTimeRemaining(player, quest)));
         }
     }
 
@@ -269,10 +275,6 @@ public class RightClickNpcListener implements Listener, QuestObjectiveHandler {
         queue.startTasks();
     }
 
-    private String questCooldownMessage(String time) {
-        return ChatColor.translateAlternateColorCodes('&', "&3&lON COOLDOWN: &e" + time);
-    }
-
     /**
      * Reset all the objectives for a repeatable quest
      */
@@ -285,5 +287,4 @@ public class RightClickNpcListener implements Listener, QuestObjectiveHandler {
         int slot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(profileData.getUuid());
         profileData.getQuestsDTOMap().get(slot).get(quest.getQuestID()).setCompletedDate(null);
     }
-
 }

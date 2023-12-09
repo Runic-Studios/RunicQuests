@@ -45,7 +45,7 @@ import java.util.UUID;
 
 public class RunicQuests extends JavaPlugin {
     private static final HashMap<Long, TaskQueue> npcTaskQueues = new HashMap<>(); // List of NPC task queues
-    private static final Map<UUID, Map<Integer, Date>> cooldowns = new HashMap<>(); // List of quest cooldowns
+    private static final Map<UUID, Map<Integer, Map<Integer, Date>>> cooldowns = new HashMap<>(); // List of quest cooldowns
     public static double NPC_MESSAGE_DELAY; // Config value
     private static RunicQuests instance;
     private static TaskChainFactory taskChainFactory;
@@ -57,7 +57,7 @@ public class RunicQuests extends JavaPlugin {
     private static Long nextId = Long.MIN_VALUE; // This is used to give each NPC a new unique ID.
 
     /* TODO:
-        1. make sure that data is separate for each character
+        1. make sure that data is separate for each character ****(add debugs when cooldown information is written to mongo)
         2. make sure cooldowns are persistant and the hologram above the npc fits the quest state
      */
 
@@ -89,7 +89,7 @@ public class RunicQuests extends JavaPlugin {
         return npcTaskQueues;
     }
 
-    public static Map<UUID, Map<Integer, Date>> getQuestCooldowns() { // Get the quest cooldowns
+    public static Map<UUID, Map<Integer, Map<Integer, Date>>> getQuestCooldowns() { // Get the quest cooldowns
         return cooldowns;
     }
 
