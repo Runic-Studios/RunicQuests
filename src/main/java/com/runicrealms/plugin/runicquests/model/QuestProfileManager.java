@@ -145,7 +145,6 @@ public class QuestProfileManager implements Listener, RunicQuestsAPI, QuestWrite
     @EventHandler(priority = EventPriority.LOWEST) // first
     public void onCharacterQuit(CharacterQuitEvent event) {
         RunicQuests.getQuestCooldowns().remove(event.getPlayer().getUniqueId()); // Remove the cooldown object
-        Bukkit.broadcastMessage("DEBUG - fired player quit"); //debug
         QuestProfileData questProfileData = questProfileDataMap.remove(event.getPlayer().getUniqueId()); // Get the quest profile
         for (Quest quest : questProfileData.getQuestsMap().get(event.getSlot())) { // Loop through the quests
             for (QuestObjective objective : quest.getObjectives()) { // Loop through objectives
