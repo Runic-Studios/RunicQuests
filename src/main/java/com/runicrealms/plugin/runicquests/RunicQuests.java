@@ -5,9 +5,11 @@ import co.aikar.commands.PaperCommandManager;
 import co.aikar.taskchain.BukkitTaskChainFactory;
 import co.aikar.taskchain.TaskChain;
 import co.aikar.taskchain.TaskChainFactory;
+import com.runicrealms.plugin.common.RunicCommon;
 import com.runicrealms.plugin.runicquests.command.admin.QuestTriggerCMD;
 import com.runicrealms.plugin.runicquests.command.system.TutorialWeaponCMD;
 import com.runicrealms.plugin.runicquests.compass.CompassManager;
+import com.runicrealms.plugin.runicquests.config.ConfigLoader;
 import com.runicrealms.plugin.runicquests.listeners.CastSpellListener;
 import com.runicrealms.plugin.runicquests.listeners.CraftListener;
 import com.runicrealms.plugin.runicquests.listeners.GatherListener;
@@ -22,15 +24,14 @@ import com.runicrealms.plugin.runicquests.listeners.RightClickNpcListener;
 import com.runicrealms.plugin.runicquests.model.QuestProfileManager;
 import com.runicrealms.plugin.runicquests.passivenpcs.PassiveNpcClickListener;
 import com.runicrealms.plugin.runicquests.passivenpcs.PassiveNpcHandler;
+import com.runicrealms.plugin.runicquests.quests.FirstNpcState;
+import com.runicrealms.plugin.runicquests.quests.Quest;
 import com.runicrealms.plugin.runicquests.quests.QuestItem;
 import com.runicrealms.plugin.runicquests.quests.hologram.HoloManager;
 import com.runicrealms.plugin.runicquests.quests.objective.QuestObjective;
 import com.runicrealms.plugin.runicquests.task.TaskQueue;
 import com.runicrealms.plugin.runicquests.task.TaskQueueCleanupListener;
 import com.runicrealms.plugin.runicquests.ui.QuestMenuListener;
-import com.runicrealms.plugin.runicquests.config.ConfigLoader;
-import com.runicrealms.plugin.runicquests.quests.FirstNpcState;
-import com.runicrealms.plugin.runicquests.quests.Quest;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.ConsoleCommandSender;
@@ -205,6 +206,7 @@ public class RunicQuests extends JavaPlugin {
         passiveNpcHandler = new PassiveNpcHandler();
         commandManager = new PaperCommandManager(this);
         questsAPI = new QuestProfileManager();
+        RunicCommon.registerQuestsAPI(questsAPI);
         locationManager = new LocationManager();
         ConfigLoader.initDirs(); // Initialize directories that might not exist
         ConfigLoader.loadMainConfig(); // Initialize the main config file if it doesn't exist

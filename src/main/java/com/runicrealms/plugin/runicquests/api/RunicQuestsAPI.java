@@ -1,12 +1,13 @@
 package com.runicrealms.plugin.runicquests.api;
 
+import com.runicrealms.plugin.common.api.QuestsAPI;
 import com.runicrealms.plugin.runicquests.model.QuestProfileData;
 import com.runicrealms.plugin.runicquests.quests.Quest;
 
 import java.util.List;
 import java.util.UUID;
 
-public interface RunicQuestsAPI {
+public interface RunicQuestsAPI extends QuestsAPI {
 
     /**
      * @return a list of all quests without player-specific data
