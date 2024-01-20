@@ -5,6 +5,7 @@ import co.aikar.commands.PaperCommandManager;
 import co.aikar.taskchain.BukkitTaskChainFactory;
 import co.aikar.taskchain.TaskChain;
 import co.aikar.taskchain.TaskChainFactory;
+import com.runicrealms.plugin.common.RunicCommon;
 import com.runicrealms.plugin.runicquests.command.admin.QuestTriggerCMD;
 import com.runicrealms.plugin.runicquests.command.system.TutorialWeaponCMD;
 import com.runicrealms.plugin.runicquests.compass.CompassManager;
@@ -210,6 +211,7 @@ public class RunicQuests extends JavaPlugin {
         passiveNpcHandler = new PassiveNpcHandler();
         commandManager = new PaperCommandManager(this);
         questsAPI = new QuestProfileManager();
+        RunicCommon.registerQuestsAPI(questsAPI);
         locationManager = new LocationManager();
         ConfigLoader.initDirs(); // Initialize directories that might not exist
         ConfigLoader.loadMainConfig(); // Initialize the main config file if it doesn't exist
