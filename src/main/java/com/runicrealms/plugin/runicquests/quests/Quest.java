@@ -166,14 +166,16 @@ public class Quest implements Cloneable {
             assert meta != null;
             meta.setDisplayName(ChatColor.AQUA + this.getQuestName());
             lore.add(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "REPEATABLE QUEST");
-            if (meetsLevel) {
+            if (meetsLevel && canStart) {
                 String[] messageLocation = RunicQuests.getFirstUncompletedGoalMessageAndLocation(this);
                 lore.addAll(ChatUtils.formattedText(ChatColor.YELLOW + ChatColor.translateAlternateColorCodes('&', messageLocation[0])));
                 if (!messageLocation[1].equalsIgnoreCase("")) {
                     lore.add("");
                     lore.addAll(ChatUtils.formattedText(ChatColor.DARK_AQUA + "Location/Tip: " + ChatColor.translateAlternateColorCodes('&', messageLocation[1])));
                 }
-                lore.add(canStart ? ChatColor.BLUE + "Can complete!" : ChatColor.GRAY + "On cooldown: " + ChatColor.WHITE + QuestsUtil.repeatableQuestTimeRemaining(player, this));
+                lore.add(ChatColor.BLUE + "Can complete!");
+            } else if (meetsLevel) {
+                lore.add(ChatColor.GRAY + "On cooldown: " + ChatColor.WHITE + QuestsUtil.repeatableQuestTimeRemaining(player, this));
             }
         } else if (this.getQuestState().isCompleted()) {
             item = StatusItemUtil.greenStatusItem;

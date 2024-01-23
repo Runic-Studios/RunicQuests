@@ -1,12 +1,20 @@
 package com.runicrealms.plugin.runicquests.listeners;
 
+import com.runicrealms.plugin.common.util.ColorUtil;
 import com.runicrealms.plugin.npcs.Npc;
 import com.runicrealms.plugin.npcs.api.NpcClickEvent;
 import com.runicrealms.plugin.rdb.RunicDatabase;
+import com.runicrealms.plugin.runicquests.RunicQuests;
 import com.runicrealms.plugin.runicquests.api.QuestCompleteEvent;
 import com.runicrealms.plugin.runicquests.api.QuestCompleteObjectiveEvent;
 import com.runicrealms.plugin.runicquests.api.QuestStartEvent;
 import com.runicrealms.plugin.runicquests.model.QuestProfileData;
+import com.runicrealms.plugin.runicquests.quests.FirstNpcState;
+import com.runicrealms.plugin.runicquests.quests.Quest;
+import com.runicrealms.plugin.runicquests.quests.QuestItem;
+import com.runicrealms.plugin.runicquests.quests.QuestNpc;
+import com.runicrealms.plugin.runicquests.quests.QuestObjectiveType;
+import com.runicrealms.plugin.runicquests.quests.RequirementsResult;
 import com.runicrealms.plugin.runicquests.quests.objective.QuestObjective;
 import com.runicrealms.plugin.runicquests.quests.objective.QuestObjectiveHandler;
 import com.runicrealms.plugin.runicquests.quests.objective.QuestObjectiveTalk;
@@ -14,13 +22,6 @@ import com.runicrealms.plugin.runicquests.task.HologramTaskQueue;
 import com.runicrealms.plugin.runicquests.task.TaskQueue;
 import com.runicrealms.plugin.runicquests.util.QuestsUtil;
 import com.runicrealms.plugin.runicquests.util.SpeechParser;
-import com.runicrealms.plugin.runicquests.RunicQuests;
-import com.runicrealms.plugin.runicquests.quests.FirstNpcState;
-import com.runicrealms.plugin.runicquests.quests.Quest;
-import com.runicrealms.plugin.runicquests.quests.QuestItem;
-import com.runicrealms.plugin.runicquests.quests.QuestNpc;
-import com.runicrealms.plugin.runicquests.quests.QuestObjectiveType;
-import com.runicrealms.plugin.runicquests.quests.RequirementsResult;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
@@ -110,13 +111,12 @@ public class RightClickNpcListener implements Listener, QuestObjectiveHandler {
      */
     private void handleFirstNpcQuest(Player player, int slot, Npc npc, QuestProfileData profileData,
                                      Quest quest, HashMap<Long, TaskQueue> npcTaskQueues) {
+        if (!quest.getQuestState().hasStarted() && quest.isRepeatable() && !QuestsUtil.canStartRepeatableQuest(player.getUniqueId(), quest)) {
+            // Disable repeatable quests on CD. Cooldown messages handled in listener directly
+            return;
+        }
+
         if (!quest.getQuestState().hasStarted()) {
-            // Disable repeatable quests on CD
-            if (quest.isRepeatable() && !QuestsUtil.canStartRepeatableQuest(player.getUniqueId(), quest)) {
-                String time = QuestsUtil.repeatableQuestTimeRemaining(player, quest);
-                player.sendMessage(questCooldownMessage(time));
-                return;
-            }
             handleQuestNotStarted(player, profileData, quest, npcTaskQueues);
         } else if (quest.getQuestState().hasStarted() && !quest.getQuestState().isCompleted()) {
             attemptToTalkToNpc(player, npc, profileData, slot, npcTaskQueues);
@@ -149,7 +149,7 @@ public class RightClickNpcListener implements Listener, QuestObjectiveHandler {
         }
         // Reset repeatable quest objectives
         if (quest.isRepeatable()) {
-            resetRepeatableQuest(quest);
+            resetRepeatableQuest(profileData, quest);
         }
         // Requirements met!
         player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 10.0f, 1.00f); // Play sound
@@ -185,9 +185,8 @@ public class RightClickNpcListener implements Listener, QuestObjectiveHandler {
         queue.startTasks();
     }
 
-    @EventHandler(priority = EventPriority.NORMAL)
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onNpcRightClick(NpcClickEvent event) {
-        if(event.isCancelled()) return;
         Npc npc = event.getNpc();
         Player player = event.getPlayer();
         int slot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(player.getUniqueId());
@@ -195,7 +194,10 @@ public class RightClickNpcListener implements Listener, QuestObjectiveHandler {
         // Static map that keeps track of the current talk operation
         HashMap<Long, TaskQueue> npcTaskQueues = RunicQuests.getNpcTaskQueues();
         boolean foundTalkObjective = attemptToTalkToNpc(player, npc, profileData, slot, npcTaskQueues);
-        if (foundTalkObjective) return;
+        if (foundTalkObjective) {
+            return;
+        }
+
         // If we are not talking to this NPC for a quest, then check if they have a new quest
         Quest questMatchingFirstNpc = findQuestFromNpcGiver(npc, profileData, slot);
         if (questMatchingFirstNpc != null) {
@@ -205,6 +207,14 @@ public class RightClickNpcListener implements Listener, QuestObjectiveHandler {
             } else {
                 handleFirstNpcQuest(player, slot, npc, profileData, questMatchingFirstNpc, npcTaskQueues);
             }
+        }
+
+        for (Quest quest : profileData.getQuestsMap().get(slot)) {
+            if (!quest.isRepeatable() || quest.getFirstNPC().getNpcId() != npc.getId() || QuestsUtil.canStartRepeatableQuest(player.getUniqueId(), quest)) {
+                continue;
+            }
+
+            player.sendMessage(ColorUtil.format("&3" + quest.getQuestName() + " - &lON COOLDOWN: &e" + QuestsUtil.repeatableQuestTimeRemaining(player, quest)));
         }
     }
 
@@ -265,18 +275,16 @@ public class RightClickNpcListener implements Listener, QuestObjectiveHandler {
         queue.startTasks();
     }
 
-    private String questCooldownMessage(String time) {
-        return ChatColor.translateAlternateColorCodes('&', "&3&lON COOLDOWN: &e" + time);
-    }
-
     /**
      * Reset all the objectives for a repeatable quest
      */
-    private void resetRepeatableQuest(Quest quest) {
+    private void resetRepeatableQuest(QuestProfileData profileData, Quest quest) {
         for (QuestObjective objective : quest.getObjectives()) {
             objective.setCompleted(false);
             objective.resetObjective();
         }
-    }
 
+        int slot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(profileData.getUuid());
+        profileData.getQuestsDTOMap().get(slot).get(quest.getQuestID()).setCompletedDate(null);
+    }
 }

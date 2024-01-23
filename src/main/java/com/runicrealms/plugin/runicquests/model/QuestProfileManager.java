@@ -2,6 +2,8 @@ package com.runicrealms.plugin.runicquests.model;
 
 import co.aikar.taskchain.TaskChain;
 import co.aikar.taskchain.TaskChainAbortAction;
+import com.runicrealms.plugin.RunicCore;
+import com.runicrealms.plugin.party.Party;
 import com.runicrealms.plugin.rdb.RunicDatabase;
 import com.runicrealms.plugin.rdb.api.WriteCallback;
 import com.runicrealms.plugin.rdb.event.CharacterDeleteEvent;
@@ -16,6 +18,15 @@ import com.runicrealms.plugin.runicquests.api.QuestWriteOperation;
 import com.runicrealms.plugin.runicquests.api.RunicQuestsAPI;
 import com.runicrealms.plugin.runicquests.config.QuestLoader;
 import com.runicrealms.plugin.runicquests.quests.Quest;
+import com.runicrealms.plugin.runicquests.quests.QuestObjectiveType;
+import com.runicrealms.plugin.runicquests.quests.objective.QuestObjective;
+import com.runicrealms.plugin.runicquests.quests.objective.QuestObjectiveHandler;
+import com.runicrealms.plugin.runicquests.quests.objective.QuestObjectiveTalk;
+import com.runicrealms.plugin.runicquests.quests.objective.QuestObjectiveTrigger;
+import com.runicrealms.plugin.runicquests.quests.trigger.Trigger;
+import com.runicrealms.plugin.runicquests.quests.trigger.TriggerObjectiveHandler;
+import com.runicrealms.plugin.runicquests.quests.trigger.TriggerType;
+import com.runicrealms.plugin.runicquests.util.QuestsUtil;
 import org.bson.types.ObjectId;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -23,15 +34,20 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import redis.clients.jedis.Jedis;
 
+import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -39,7 +55,7 @@ import java.util.logging.Level;
  * Used to memoize quest data so that it is more performant
  * Also acts as a listener to keep redis up-to-date
  */
-public class QuestProfileManager implements Listener, RunicQuestsAPI, QuestWriteOperation {
+public class QuestProfileManager implements Listener, RunicQuestsAPI, QuestWriteOperation, QuestObjectiveHandler {
     public static final TaskChainAbortAction<Player, String, ?> CONSOLE_LOG = new TaskChainAbortAction<>() {
         public void onAbort(TaskChain<?> chain, Player player, String message) {
             Bukkit.getLogger().log(Level.SEVERE, ChatColor.translateAlternateColorCodes('&', message));
@@ -95,11 +111,13 @@ public class QuestProfileManager implements Listener, RunicQuestsAPI, QuestWrite
 
     @Override
     public boolean shouldWriteData(UUID uuid, Quest quest) {
+        int slot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(uuid);
+
         if (quest.isRepeatable()) {
             boolean isOnCooldown = true;
             if (RunicQuests.getQuestCooldowns().get(uuid) == null)
                 isOnCooldown = false;
-            else if (RunicQuests.getQuestCooldowns().get(uuid).get(quest.getQuestID()) == null)
+            else if (RunicQuests.getQuestCooldowns().get(uuid).get(slot).get(quest.getQuestID()) == null)
                 isOnCooldown = false;
             if (quest.getQuestState().hasStarted() || quest.getQuestState().isCompleted() || isOnCooldown)
                 return true;
@@ -136,7 +154,20 @@ public class QuestProfileManager implements Listener, RunicQuestsAPI, QuestWrite
      */
     @EventHandler(priority = EventPriority.LOWEST) // first
     public void onCharacterQuit(CharacterQuitEvent event) {
-        questProfileDataMap.remove(event.getPlayer().getUniqueId());
+        RunicQuests.getQuestCooldowns().remove(event.getPlayer().getUniqueId()); // Remove the cooldown object
+        QuestProfileData questProfileData = questProfileDataMap.remove(event.getPlayer().getUniqueId()); // Get the quest profile
+        for (Quest quest : questProfileData.getQuestsMap().get(event.getSlot())) { // Loop through the quests
+            for (QuestObjective objective : quest.getObjectives()) { // Loop through objectives
+                if (objective.getObjectiveType() == QuestObjectiveType.TALK) { // Check for objective of type talk
+                    /*
+                     * This is a minor bug fix which prevents minor issues with players
+                     * talking to NPCs, then logging out
+                     */
+                    RunicQuests.getNpcTaskQueues().remove(((QuestObjectiveTalk) objective).getQuestNpc().getId());
+                }
+            }
+        }
+        RunicQuests.getLocationManager().getCachedLocations().remove(event.getPlayer());
     }
 
     /**
@@ -196,6 +227,7 @@ public class QuestProfileManager implements Listener, RunicQuestsAPI, QuestWrite
         UUID uuid = event.getPlayer().getUniqueId();
         int slot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(uuid);
         QuestProfileData questProfileData = this.getQuestProfile(uuid);
+
         updateQuestProfileData
                 (
                         uuid,
@@ -222,7 +254,7 @@ public class QuestProfileManager implements Listener, RunicQuestsAPI, QuestWrite
     }
 
     @EventHandler
-    public void onQuestStart(QuestCompleteObjectiveEvent event) {
+    public void onQuestCompleteObjective(QuestCompleteObjectiveEvent event) {
         UUID uuid = event.getPlayer().getUniqueId();
         int slot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(uuid);
         QuestProfileData questProfileData = this.getQuestProfile(uuid);
@@ -244,7 +276,16 @@ public class QuestProfileManager implements Listener, RunicQuestsAPI, QuestWrite
                 .asyncFirst(() -> {
                     // Prepare a new map of slot to data transfer object
                     Map<Integer, QuestDTO> questDTOMap = QuestProfileData.getBlankQuestDTOMap();
-                    questProfileData.getQuestsMap().get(slot).forEach(quest -> questDTOMap.put(quest.getQuestID(), new QuestDTO(quest)));
+                    questProfileData.getQuestsMap().get(slot).forEach(quest -> {
+                        QuestDTO data = new QuestDTO(quest);
+
+                        Date completedOn = QuestsUtil.getCompletedDate(uuid, quest);
+                        if (completedOn != null) {
+                            data.setCompletedDate(completedOn);
+                        }
+
+                        questDTOMap.put(quest.getQuestID(), data);
+                    });
                     questProfileData.getQuestsDTOMap().put(slot, questDTOMap);
 
                     // Define a query to find the InventoryData for this player
@@ -261,5 +302,79 @@ public class QuestProfileManager implements Listener, RunicQuestsAPI, QuestWrite
                 .abortIfNull(CONSOLE_LOG, null, "RunicQuests failed to write to questsDTOMap!")
                 .syncLast(updateResult -> callback.onWriteComplete())
                 .execute();
+    }
+
+    @Override
+    public void triggerQuest(boolean applyToParty, @NotNull Player player, @NotNull String triggerId, @Nullable String objectiveName) {
+        Bukkit.getScheduler().runTaskAsynchronously(RunicQuests.getInstance(), () -> {
+            Set<Player> players = new HashSet<>();
+            players.add(player);
+
+            if (applyToParty) {
+                addPartyMembersToTriggerCredit(player, players);
+            }
+
+            Trigger trigger = TriggerObjectiveHandler.getTrigger(triggerId);
+            if (trigger == null) {
+                return;
+            }
+
+            for (Player playerToReceiveCredit : players) {
+                handleTrigger(playerToReceiveCredit, trigger, objectiveName);
+            }
+        });
+    }
+
+    /**
+     * @param player  who caused the trigger
+     * @param players a set of players to receive credit from the trigger
+     */
+    private void addPartyMembersToTriggerCredit(Player player, Set<Player> players) {
+        Party party = RunicCore.getPartyAPI().getParty(player.getUniqueId());
+        if (party != null) {
+            players.addAll(party.getMembersWithLeader());
+        } else {
+            players.add(player);
+        }
+    }
+
+    /**
+     * @param player        who caused trigger
+     * @param trigger       that was caused
+     * @param objectiveName the name of the objective that should be sent to the player in the progress message
+     */
+    private void handleTrigger(@NotNull Player player, @NotNull Trigger trigger, @Nullable String objectiveName) {
+        int characterSlot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(player.getUniqueId());
+        QuestProfileData profileData = RunicQuests.getAPI().getQuestProfile(player.getUniqueId());
+        for (Quest quest : profileData.getQuestsMap().get(characterSlot)) {
+            if (!isQuestActive(quest)) continue;
+            if (quest.getQuestID() != trigger.getQuestId())
+                continue; // Find the quest associated with trigger
+            QuestObjectiveTrigger triggerObjective = (QuestObjectiveTrigger) QuestObjective.getObjective(quest.getObjectives(), trigger.getObjectiveId());
+            if (triggerObjective == null) continue;
+            for (QuestObjective objective : quest.getObjectives()) {
+                // Ensure our objective is current and valid
+                if (!isValidObjective(quest, objective, QuestObjectiveType.TRIGGER)) continue;
+                // Ensure that our current objective matches the trigger objective
+                if (!objective.getObjectiveNumber().equals(triggerObjective.getObjectiveNumber()))
+                    continue;
+                incrementTriggerObjective(player, trigger, profileData, quest, triggerObjective, objectiveName);
+            }
+        }
+    }
+
+    private void incrementTriggerObjective(Player player, Trigger trigger, QuestProfileData profileData, Quest quest, QuestObjectiveTrigger triggerObjective, @Nullable String objectiveName) {
+        Set<String> triggersEarned = triggerObjective.getTriggersEarned();
+        // How many triggers for this objective did they have before this one?
+        int previousEarnedTriggerCount = triggersEarned.size();
+        triggersEarned.add(trigger.getTriggerId());
+        // If the player has achieved all triggers
+        if (triggerObjective.getTriggerType() == TriggerType.ANY || triggersEarned.size() >= triggerObjective.getTriggerIds().size()) {
+            // Handle trigger SYNC
+            Bukkit.getScheduler().runTask(RunicQuests.getInstance(), () -> progressQuest(player, profileData, quest, triggerObjective));
+        } else if (triggersEarned.size() > previousEarnedTriggerCount) { // Player discovered a unique trigger (set doesn't allow duplicates)
+            player.sendMessage(ChatColor.translateAlternateColorCodes
+                    ('&', QuestsUtil.PREFIX + " " + (objectiveName != null ? objectiveName : "Hidden Trigger") + " &6» &7[&a" + triggerObjective.getTriggersEarned().size() + "&7/" + triggerObjective.getTriggerIds().size() + "]"));
+        }
     }
 }

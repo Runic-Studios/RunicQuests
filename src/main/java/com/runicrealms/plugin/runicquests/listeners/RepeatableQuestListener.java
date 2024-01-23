@@ -1,8 +1,9 @@
 package com.runicrealms.plugin.runicquests.listeners;
 
+import com.runicrealms.plugin.rdb.RunicDatabase;
+import com.runicrealms.plugin.runicquests.RunicQuests;
 import com.runicrealms.plugin.runicquests.api.QuestCompleteEvent;
 import com.runicrealms.plugin.runicquests.api.QuestStartEvent;
-import com.runicrealms.plugin.runicquests.RunicQuests;
 import com.runicrealms.plugin.runicquests.quests.FirstNpcState;
 import com.runicrealms.plugin.runicquests.quests.Quest;
 import org.bukkit.entity.Player;
@@ -27,9 +28,13 @@ public class RepeatableQuestListener implements Listener {
      * @param quest  that was completed
      */
     private void handleRepeatableQuest(Player player, Quest quest) {
-        Map<UUID, Map<Integer, Date>> questCooldowns = RunicQuests.getQuestCooldowns();
+        Map<UUID, Map<Integer, Map<Integer, Date>>> questCooldowns = RunicQuests.getQuestCooldowns();
         questCooldowns.computeIfAbsent(player.getUniqueId(), k -> new HashMap<>());
-        questCooldowns.get(player.getUniqueId()).put(quest.getQuestID(), new Date()); // Record when quest was finished
+
+        int slot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(player.getUniqueId());
+        questCooldowns.get(player.getUniqueId()).computeIfAbsent(slot, k -> new HashMap<>());
+
+        questCooldowns.get(player.getUniqueId()).get(slot).put(quest.getQuestID(), new Date()); // Record when quest was finished
         quest.getQuestState().setStarted(false);
         quest.getFirstNPC().setState(FirstNpcState.NEUTRAL);
     }

@@ -1,10 +1,12 @@
 package com.runicrealms.plugin.runicquests.util;
 
 import com.runicrealms.plugin.rdb.RunicDatabase;
-import com.runicrealms.plugin.runicquests.model.QuestProfileData;
 import com.runicrealms.plugin.runicquests.RunicQuests;
+import com.runicrealms.plugin.runicquests.model.QuestProfileData;
 import com.runicrealms.plugin.runicquests.quests.Quest;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Date;
 import java.util.Map;
@@ -12,6 +14,10 @@ import java.util.UUID;
 
 public class QuestsUtil {
     public static final String PREFIX = "&6[Quest] »";
+
+    private QuestsUtil() {
+
+    }
 
     /**
      * Utility method to check if a player can start a repeatable quest
@@ -21,10 +27,12 @@ public class QuestsUtil {
      * @return true if the player can start the repeatable quest
      */
     public static boolean canStartRepeatableQuest(UUID uuid, Quest quest) {
-        Map<UUID, Map<Integer, Date>> cooldowns = RunicQuests.getQuestCooldowns();
+        Map<UUID, Map<Integer, Map<Integer, Date>>> cooldowns = RunicQuests.getQuestCooldowns();
         int questId = quest.getQuestID();
+        int slot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(uuid);
+
         // If there are no in-memory CDs for quest, can start
-        if (cooldowns.get(uuid) == null || !cooldowns.get(uuid).containsKey(questId)) {
+        if (cooldowns.get(uuid) == null || !cooldowns.get(uuid).containsKey(slot) || !cooldowns.get(uuid).get(slot).containsKey(questId)) {
             return true;
         }
         // If there is an in-memory CD for the quest, check its remaining time
@@ -37,6 +45,18 @@ public class QuestsUtil {
     }
 
     /**
+     * A method used to check if a quest can be started based on the provided last completion date
+     */
+    public static boolean canStartRepeatableQuest(@NotNull Quest quest, @Nullable Date lastCompleted) {
+        if (lastCompleted == null) {
+            return true;
+        }
+
+        Date currentTime = new Date();
+        return (currentTime.getTime() - lastCompleted.getTime()) / 1000 >= quest.getCooldown();
+    }
+
+    /**
      * Determines the amount of time (in seconds) that have passed since player last
      * finished a repeatable quest
      *
@@ -46,7 +66,8 @@ public class QuestsUtil {
      */
     public static long repeatableQuestTimeElapsed(UUID uuid, int questId) {
         Date currentTime = new Date();
-        Date questCompleteTime = RunicQuests.getQuestCooldowns().get(uuid).get(questId);
+        int slot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(uuid);
+        Date questCompleteTime = RunicQuests.getQuestCooldowns().get(uuid).get(slot).get(questId);
         return (currentTime.getTime() - questCompleteTime.getTime()) / 1000;
     }
 
@@ -95,5 +116,24 @@ public class QuestsUtil {
             result += quest.getRewards().getQuestPointsReward();
         }
         return result;
+    }
+
+    /**
+     * A method that returns the date a quest was completed, or null if it is not applicable
+     *
+     * @param uuid
+     * @param quest
+     * @return
+     */
+    @Nullable
+    public static Date getCompletedDate(@NotNull UUID uuid, @NotNull Quest quest) {
+        int slot = RunicDatabase.getAPI().getCharacterAPI().getCharacterSlot(uuid);
+        Map<Integer, Date> data = RunicQuests.getQuestCooldowns().get(uuid).get(slot);
+
+        if (data == null) {
+            return null;
+        }
+
+        return data.get(quest.getQuestID());
     }
 }

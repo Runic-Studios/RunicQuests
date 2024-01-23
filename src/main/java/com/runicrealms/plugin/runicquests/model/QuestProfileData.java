@@ -6,6 +6,7 @@ import com.runicrealms.plugin.runicquests.RunicQuests;
 import com.runicrealms.plugin.runicquests.config.QuestLoader;
 import com.runicrealms.plugin.runicquests.quests.Quest;
 import com.runicrealms.plugin.runicquests.quests.objective.QuestObjective;
+import com.runicrealms.plugin.runicquests.util.QuestsUtil;
 import org.bson.types.ObjectId;
 import org.bukkit.Bukkit;
 import org.springframework.data.annotation.Id;
@@ -112,20 +113,25 @@ public class QuestProfileData implements SessionDataMongo {
      * in-memory quests with data
      */
     public void loadQuestsFromDTOs() {
+        RunicQuests.getQuestCooldowns().computeIfAbsent(uuid, k -> new HashMap<>());
+
         for (int slot : this.questsDTOMap.keySet()) {
             this.questsMap.computeIfAbsent(slot, k -> new ArrayList<>());
+            RunicQuests.getQuestCooldowns().get(uuid).computeIfAbsent(slot, k -> new HashMap<>());
+
             // Setup new quest data if it cannot be retrieved from mongo
             if (questsDTOMap.get(slot) == null) {
                 this.questsMap.put(slot, QuestLoader.getQuestListNoUserData());
                 return;
             }
+
             // Load quests from redis and populate DTO list for the given slot
             for (Quest questNoUserData : QuestLoader.getQuestListNoUserData()) {
                 // Check if the quest is stored in mongo
                 QuestDTO dtoFromMongo = questsDTOMap.get(slot).get(questNoUserData.getQuestID());
                 if (dtoFromMongo != null) {
 //                Bukkit.getLogger().log(Level.SEVERE, "writing DTO TO MEMORY MAP FROM MONGO");
-                    Quest questWithUserData = writeUserDataToQuest(questNoUserData, dtoFromMongo);
+                    Quest questWithUserData = writeUserDataToQuest(questNoUserData, dtoFromMongo, slot);
                     questsMap.get(slot).add(questWithUserData);
                 } else {
                     questsMap.get(slot).add(questNoUserData);
@@ -145,9 +151,10 @@ public class QuestProfileData implements SessionDataMongo {
      *
      * @param questNoUserData a blank quest without data
      * @param questDTO        the persistent fields from mongo
+     * @param slot            the character slot
      * @return a Quest object with data written
      */
-    private Quest writeUserDataToQuest(Quest questNoUserData, QuestDTO questDTO) {
+    private Quest writeUserDataToQuest(Quest questNoUserData, QuestDTO questDTO, int slot) {
         // Write base data from mongo DTO
         Quest questWithUserData = new Quest(questNoUserData);
         try {
@@ -162,10 +169,14 @@ public class QuestProfileData implements SessionDataMongo {
                 }
             }
             // Handle cooldowns for repeatable quests
-            if (questDTO.getCompletedDate() != null) {
+
+            boolean canStart = QuestsUtil.canStartRepeatableQuest(questNoUserData, questDTO.getCompletedDate());
+            if (questNoUserData.isRepeatable() && !canStart) {
                 RunicQuests.getQuestCooldowns().computeIfAbsent(uuid, k -> new HashMap<>());
-                Map<Integer, Date> cooldowns = RunicQuests.getQuestCooldowns().get(uuid);
+                Map<Integer, Date> cooldowns = RunicQuests.getQuestCooldowns().get(uuid).get(slot);
                 cooldowns.put(questNoUserData.getQuestID(), questDTO.getCompletedDate());
+            } else if (questNoUserData.isRepeatable() && canStart) {
+                questWithUserData.getQuestState().setCompleted(false);
             }
         } catch (Exception ex) {
             Bukkit.getLogger().warning("There was a problem writing quest data from Mongo!");

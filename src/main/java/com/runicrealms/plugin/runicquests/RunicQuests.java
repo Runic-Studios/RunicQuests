@@ -5,9 +5,11 @@ import co.aikar.commands.PaperCommandManager;
 import co.aikar.taskchain.BukkitTaskChainFactory;
 import co.aikar.taskchain.TaskChain;
 import co.aikar.taskchain.TaskChainFactory;
+import com.runicrealms.plugin.common.RunicCommon;
 import com.runicrealms.plugin.runicquests.command.admin.QuestTriggerCMD;
 import com.runicrealms.plugin.runicquests.command.system.TutorialWeaponCMD;
 import com.runicrealms.plugin.runicquests.compass.CompassManager;
+import com.runicrealms.plugin.runicquests.config.ConfigLoader;
 import com.runicrealms.plugin.runicquests.listeners.CastSpellListener;
 import com.runicrealms.plugin.runicquests.listeners.CraftListener;
 import com.runicrealms.plugin.runicquests.listeners.GatherListener;
@@ -22,15 +24,14 @@ import com.runicrealms.plugin.runicquests.listeners.RightClickNpcListener;
 import com.runicrealms.plugin.runicquests.model.QuestProfileManager;
 import com.runicrealms.plugin.runicquests.passivenpcs.PassiveNpcClickListener;
 import com.runicrealms.plugin.runicquests.passivenpcs.PassiveNpcHandler;
+import com.runicrealms.plugin.runicquests.quests.FirstNpcState;
+import com.runicrealms.plugin.runicquests.quests.Quest;
 import com.runicrealms.plugin.runicquests.quests.QuestItem;
 import com.runicrealms.plugin.runicquests.quests.hologram.HoloManager;
 import com.runicrealms.plugin.runicquests.quests.objective.QuestObjective;
 import com.runicrealms.plugin.runicquests.task.TaskQueue;
 import com.runicrealms.plugin.runicquests.task.TaskQueueCleanupListener;
 import com.runicrealms.plugin.runicquests.ui.QuestMenuListener;
-import com.runicrealms.plugin.runicquests.config.ConfigLoader;
-import com.runicrealms.plugin.runicquests.quests.FirstNpcState;
-import com.runicrealms.plugin.runicquests.quests.Quest;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.ConsoleCommandSender;
@@ -45,7 +46,7 @@ import java.util.UUID;
 
 public class RunicQuests extends JavaPlugin {
     private static final HashMap<Long, TaskQueue> npcTaskQueues = new HashMap<>(); // List of NPC task queues
-    private static final Map<UUID, Map<Integer, Date>> cooldowns = new HashMap<>(); // List of quest cooldowns
+    private static final Map<UUID, Map<Integer, Map<Integer, Date>>> cooldowns = new HashMap<>(); // List of quest cooldowns
     public static double NPC_MESSAGE_DELAY; // Config value
     private static RunicQuests instance;
     private static TaskChainFactory taskChainFactory;
@@ -55,6 +56,11 @@ public class RunicQuests extends JavaPlugin {
     private static QuestProfileManager questsAPI;
     private static LocationManager locationManager;
     private static Long nextId = Long.MIN_VALUE; // This is used to give each NPC a new unique ID.
+
+    /* TODO:
+        1. make sure that data is separate for each character ****(add debugs when cooldown information is written to mongo)
+        2. make sure cooldowns are persistant and the hologram above the npc fits the quest state
+     */
 
     public static RunicQuests getInstance() { // Get the plugin instance
         return instance;
@@ -84,7 +90,7 @@ public class RunicQuests extends JavaPlugin {
         return npcTaskQueues;
     }
 
-    public static Map<UUID, Map<Integer, Date>> getQuestCooldowns() { // Get the quest cooldowns
+    public static Map<UUID, Map<Integer, Map<Integer, Date>>> getQuestCooldowns() { // Get the quest cooldowns
         return cooldowns;
     }
 
@@ -205,6 +211,7 @@ public class RunicQuests extends JavaPlugin {
         passiveNpcHandler = new PassiveNpcHandler();
         commandManager = new PaperCommandManager(this);
         questsAPI = new QuestProfileManager();
+        RunicCommon.registerQuestsAPI(questsAPI);
         locationManager = new LocationManager();
         ConfigLoader.initDirs(); // Initialize directories that might not exist
         ConfigLoader.loadMainConfig(); // Initialize the main config file if it doesn't exist
