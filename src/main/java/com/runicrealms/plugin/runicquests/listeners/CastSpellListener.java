@@ -1,15 +1,15 @@
 package com.runicrealms.plugin.runicquests.listeners;
 
-import com.runicrealms.plugin.events.SpellCastEvent;
 import com.runicrealms.plugin.rdb.RunicDatabase;
+import com.runicrealms.plugin.runicquests.RunicQuests;
 import com.runicrealms.plugin.runicquests.model.QuestProfileData;
+import com.runicrealms.plugin.runicquests.quests.Quest;
+import com.runicrealms.plugin.runicquests.quests.QuestObjectiveType;
 import com.runicrealms.plugin.runicquests.quests.objective.QuestObjective;
 import com.runicrealms.plugin.runicquests.quests.objective.QuestObjectiveCast;
 import com.runicrealms.plugin.runicquests.quests.objective.QuestObjectiveHandler;
 import com.runicrealms.plugin.runicquests.util.QuestsUtil;
-import com.runicrealms.plugin.runicquests.RunicQuests;
-import com.runicrealms.plugin.runicquests.quests.Quest;
-import com.runicrealms.plugin.runicquests.quests.QuestObjectiveType;
+import com.runicrealms.plugin.spellapi.event.SpellCastEvent;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
